@@ -1,0 +1,13 @@
+{
+    "name": "smk-fap-fcb",
+    "version": "0.0.1",
+    "description": "francophone map french",
+    "author": "NEDGREEF",
+    "dependencies": {
+        "http-server": "^0.12.3",
+        "smk": "^1.0.0-beta.9"
+    },
+    "scripts": {
+        "view": "http-server -o -c-1"
+    }
+}
