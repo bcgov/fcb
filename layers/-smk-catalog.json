@@ -1,0 +1,1174 @@
+{
+    "layers": [
+        {
+            "title": "Écoles d’immersion/francophones (M-12)",
+	    "dataUrl": "https://openmaps.gov.bc.ca/geo/pub/WHSE_IMAGERY_AND_BASE_MAPS.GSR_SCHOOLS_K_TO_12_SVW/ows?service=WMS&request=GetMap&version=1.1.1&layers=pub%3AWHSE_IMAGERY_AND_BASE_MAPS.GSR_SCHOOLS_K_TO_12_SVW&styles=7970&format=application/json;type=geojson&transparent=true&cql_filter=include&srs=EPSG%3A4326&width=645&height=728&bbox=-131.8579103,46.6645175,-117.6855469,56.547372",
+            "id": "schools-k-12",
+            "attributes": [
+                {
+                    "id": "custodian-org-description",
+                    "name": "CUSTODIAN_ORG_DESCRIPTION",
+                    "title": "CUSTODIAN_ORG_DESCRIPTION",
+                    "visible": true
+                },
+                {
+                    "id": "business-category-class",
+                    "name": "BUSINESS_CATEGORY_CLASS",
+                    "title": "BUSINESS_CATEGORY_CLASS",
+                    "visible": true
+                },
+                {
+                    "id": "business-category-description",
+                    "name": "BUSINESS_CATEGORY_DESCRIPTION",
+                    "title": "BUSINESS_CATEGORY_DESCRIPTION",
+                    "visible": true
+                },
+                {
+                    "id": "occupant-type-description",
+                    "name": "OCCUPANT_TYPE_DESCRIPTION",
+                    "title": "OCCUPANT_TYPE_DESCRIPTION",
+                    "visible": true
+                },
+                {
+                    "id": "source-data-id",
+                    "name": "SOURCE_DATA_ID",
+                    "title": "SOURCE_DATA_ID",
+                    "visible": true
+                },
+                {
+                    "id": "supplied-source-id-ind",
+                    "name": "SUPPLIED_SOURCE_ID_IND",
+                    "title": "SUPPLIED_SOURCE_ID_IND",
+                    "visible": true
+                },
+                {
+                    "id": "occupant-name",
+                    "name": "OCCUPANT_NAME",
+                    "title": "OCCUPANT_NAME",
+                    "visible": true
+                },
+                {
+                    "id": "description",
+                    "name": "DESCRIPTION",
+                    "title": "DESCRIPTION",
+                    "visible": true
+                },
+                {
+                    "id": "physical-address",
+                    "name": "PHYSICAL_ADDRESS",
+                    "title": "PHYSICAL_ADDRESS",
+                    "visible": true
+                },
+                {
+                    "id": "alias-address",
+                    "name": "ALIAS_ADDRESS",
+                    "title": "ALIAS_ADDRESS",
+                    "visible": true
+                },
+                {
+                    "id": "street-address",
+                    "name": "STREET_ADDRESS",
+                    "title": "STREET_ADDRESS",
+                    "visible": true
+                },
+                {
+                    "id": "postal-code",
+                    "name": "POSTAL_CODE",
+                    "title": "POSTAL_CODE",
+                    "visible": true
+                },
+                {
+                    "id": "locality",
+                    "name": "LOCALITY",
+                    "title": "LOCALITY",
+                    "visible": true
+                },
+                {
+                    "id": "contact-phone",
+                    "name": "CONTACT_PHONE",
+                    "title": "CONTACT_PHONE",
+                    "visible": true
+                },
+                {
+                    "id": "contact-email",
+                    "name": "CONTACT_EMAIL",
+                    "title": "CONTACT_EMAIL",
+                    "visible": true
+                },
+                {
+                    "id": "contact-fax",
+                    "name": "CONTACT_FAX",
+                    "title": "CONTACT_FAX",
+                    "visible": true
+                },
+                {
+                    "id": "website-url",
+                    "name": "WEBSITE_URL",
+                    "title": "WEBSITE_URL",
+                    "visible": true
+                },
+                {
+                    "id": "image-url",
+                    "name": "IMAGE_URL",
+                    "title": "IMAGE_URL",
+                    "visible": true
+                },
+                {
+                    "id": "latitude",
+                    "name": "LATITUDE",
+                    "title": "LATITUDE",
+                    "visible": true
+                },
+                {
+                    "id": "longitude",
+                    "name": "LONGITUDE",
+                    "title": "LONGITUDE",
+                    "visible": true
+                },
+                {
+                    "id": "keywords",
+                    "name": "KEYWORDS",
+                    "title": "KEYWORDS",
+                    "visible": true
+                },
+                {
+                    "id": "date-updated",
+                    "name": "DATE_UPDATED",
+                    "title": "DATE_UPDATED",
+                    "visible": true
+                },
+                {
+                    "id": "site-geocoded-ind",
+                    "name": "SITE_GEOCODED_IND",
+                    "title": "SITE_GEOCODED_IND",
+                    "visible": true
+                },
+                {
+                    "id": "core-french-offered",
+                    "name": "CORE_FRENCH_OFFERED",
+                    "title": "CORE_FRENCH_OFFERED",
+                    "visible": true
+                },
+                {
+                    "id": "district-name",
+                    "name": "DISTRICT_NAME",
+                    "title": "DISTRICT_NAME",
+                    "visible": true
+                },
+                {
+                    "id": "district-number",
+                    "name": "DISTRICT_NUMBER",
+                    "title": "DISTRICT_NUMBER",
+                    "visible": true
+                },
+                {
+                    "id": "early-french-immersion-offered",
+                    "name": "EARLY_FRENCH_IMMERSION_OFFERED",
+                    "title": "EARLY_FRENCH_IMMERSION_OFFERED",
+                    "visible": true
+                },
+                {
+                    "id": "facility-type",
+                    "name": "FACILITY_TYPE",
+                    "title": "FACILITY_TYPE",
+                    "visible": true
+                },
+                {
+                    "id": "francophone-program-offered",
+                    "name": "FRANCOPHONE_PROGRAM_OFFERED",
+                    "title": "FRANCOPHONE_PROGRAM_OFFERED",
+                    "visible": true
+                },
+                {
+                    "id": "late-french-immersion-offered",
+                    "name": "LATE_FRENCH_IMMERSION_OFFERED",
+                    "title": "LATE_FRENCH_IMMERSION_OFFERED",
+                    "visible": true
+                },
+                {
+                    "id": "school-category",
+                    "name": "SCHOOL_CATEGORY",
+                    "title": "SCHOOL_CATEGORY",
+                    "visible": true
+                },
+                {
+                    "id": "school-education-level",
+                    "name": "SCHOOL_EDUCATION_LEVEL",
+                    "title": "SCHOOL_EDUCATION_LEVEL",
+                    "visible": true
+                },
+                {
+                    "id": "school-number",
+                    "name": "SCHOOL_NUMBER",
+                    "title": "SCHOOL_NUMBER",
+                    "visible": true
+                },
+                {
+                    "id": "school-year",
+                    "name": "SCHOOL_YEAR",
+                    "title": "SCHOOL_YEAR",
+                    "visible": true
+                },
+                {
+                    "id": "sequence-id",
+                    "name": "SEQUENCE_ID",
+                    "title": "SEQUENCE_ID",
+                    "visible": true
+                },
+                {
+                    "id": "se-anno-cad-data",
+                    "name": "SE_ANNO_CAD_DATA",
+                    "title": "SE_ANNO_CAD_DATA",
+                    "visible": true
+                },
+                {
+                    "id": "bbox",
+                    "name": "bbox",
+                    "title": "bbox",
+                    "visible": true
+                }
+            ]
+        },
+        {
+            "title": "Professionnels de la santé parlant français",
+            "dataUrl": "https://openmaps.gov.bc.ca/geo/pub/WHSE_IMAGERY_AND_BASE_MAPS.GSR_FRPH_HLTH_PROFESSIONAL_SVW/ows?service=WMS&request=GetMap&version=1.1.1&layers=pub%3AWHSE_IMAGERY_AND_BASE_MAPS.GSR_FRPH_HLTH_PROFESSIONAL_SVW&styles=3601&format=application/json;type=geojson&transparent=true&cql_filter=include&srs=EPSG%3A4326&width=645&height=728&bbox=-131.8579103,46.6645175,-117.6855469,56.547372",
+            "id": "health",
+            "attributes": [
+                {
+                    "id": "custodian-org-description",
+                    "name": "CUSTODIAN_ORG_DESCRIPTION",
+                    "title": "CUSTODIAN_ORG_DESCRIPTION",
+                    "visible": true
+                },
+                {
+                    "id": "business-category-class",
+                    "name": "BUSINESS_CATEGORY_CLASS",
+                    "title": "BUSINESS_CATEGORY_CLASS",
+                    "visible": true
+                },
+                {
+                    "id": "business-category-description",
+                    "name": "BUSINESS_CATEGORY_DESCRIPTION",
+                    "title": "BUSINESS_CATEGORY_DESCRIPTION",
+                    "visible": true
+                },
+                {
+                    "id": "occupant-type-description",
+                    "name": "OCCUPANT_TYPE_DESCRIPTION",
+                    "title": "OCCUPANT_TYPE_DESCRIPTION",
+                    "visible": true
+                },
+                {
+                    "id": "source-data-id",
+                    "name": "SOURCE_DATA_ID",
+                    "title": "SOURCE_DATA_ID",
+                    "visible": true
+                },
+                {
+                    "id": "supplied-source-id-ind",
+                    "name": "SUPPLIED_SOURCE_ID_IND",
+                    "title": "SUPPLIED_SOURCE_ID_IND",
+                    "visible": true
+                },
+                {
+                    "id": "occupant-name",
+                    "name": "OCCUPANT_NAME",
+                    "title": "OCCUPANT_NAME",
+                    "visible": true
+                },
+                {
+                    "id": "description",
+                    "name": "DESCRIPTION",
+                    "title": "DESCRIPTION",
+                    "visible": true
+                },
+                {
+                    "id": "physical-address",
+                    "name": "PHYSICAL_ADDRESS",
+                    "title": "PHYSICAL_ADDRESS",
+                    "visible": true
+                },
+                {
+                    "id": "alias-address",
+                    "name": "ALIAS_ADDRESS",
+                    "title": "ALIAS_ADDRESS",
+                    "visible": true
+                },
+                {
+                    "id": "street-address",
+                    "name": "STREET_ADDRESS",
+                    "title": "STREET_ADDRESS",
+                    "visible": true
+                },
+                {
+                    "id": "postal-code",
+                    "name": "POSTAL_CODE",
+                    "title": "POSTAL_CODE",
+                    "visible": true
+                },
+                {
+                    "id": "locality",
+                    "name": "LOCALITY",
+                    "title": "LOCALITY",
+                    "visible": true
+                },
+                {
+                    "id": "contact-phone",
+                    "name": "CONTACT_PHONE",
+                    "title": "CONTACT_PHONE",
+                    "visible": true
+                },
+                {
+                    "id": "contact-email",
+                    "name": "CONTACT_EMAIL",
+                    "title": "CONTACT_EMAIL",
+                    "visible": true
+                },
+                {
+                    "id": "contact-fax",
+                    "name": "CONTACT_FAX",
+                    "title": "CONTACT_FAX",
+                    "visible": true
+                },
+                {
+                    "id": "website-url",
+                    "name": "WEBSITE_URL",
+                    "title": "WEBSITE_URL",
+                    "visible": true
+                },
+                {
+                    "id": "image-url",
+                    "name": "IMAGE_URL",
+                    "title": "IMAGE_URL",
+                    "visible": true
+                },
+                {
+                    "id": "latitude",
+                    "name": "LATITUDE",
+                    "title": "LATITUDE",
+                    "visible": true
+                },
+                {
+                    "id": "longitude",
+                    "name": "LONGITUDE",
+                    "title": "LONGITUDE",
+                    "visible": true
+                },
+                {
+                    "id": "keywords",
+                    "name": "KEYWORDS",
+                    "title": "KEYWORDS",
+                    "visible": true
+                },
+                {
+                    "id": "date-updated",
+                    "name": "DATE_UPDATED",
+                    "title": "DATE_UPDATED",
+                    "visible": true
+                },
+                {
+                    "id": "site-geocoded-ind",
+                    "name": "SITE_GEOCODED_IND",
+                    "title": "SITE_GEOCODED_IND",
+                    "visible": true
+                },
+                {
+                    "id": "contact-names",
+                    "name": "CONTACT_NAMES",
+                    "title": "CONTACT_NAMES",
+                    "visible": true
+                },
+                {
+                    "id": "service-name",
+                    "name": "SERVICE_NAME",
+                    "title": "SERVICE_NAME",
+                    "visible": true
+                },
+                {
+                    "id": "service-name-french",
+                    "name": "SERVICE_NAME_FRENCH",
+                    "title": "SERVICE_NAME_FRENCH",
+                    "visible": true
+                },
+                {
+                    "id": "sequence-id",
+                    "name": "SEQUENCE_ID",
+                    "title": "SEQUENCE_ID",
+                    "visible": true
+                },
+                {
+                    "id": "se-anno-cad-data",
+                    "name": "SE_ANNO_CAD_DATA",
+                    "title": "SE_ANNO_CAD_DATA",
+                    "visible": true
+                },
+                {
+                    "id": "bbox",
+                    "name": "bbox",
+                    "title": "bbox",
+                    "visible": true
+                }
+            ]
+        },
+        {
+            "title": "Répertoire des services en français",
+            "dataUrl": "https://openmaps.gov.bc.ca/geo/pub/WHSE_IMAGERY_AND_BASE_MAPS.GSR_FRPH_SERVICE_DIRECTORY_SVW/ows?service=WMS&request=GetMap&version=1.1.1&layers=pub%3AWHSE_IMAGERY_AND_BASE_MAPS.GSR_FRPH_SERVICE_DIRECTORY_SVW&styles=3957&format=application/json;type=geojson&transparent=true&cql_filter=include&srs=EPSG%3A4326&width=645&height=728&bbox=-131.8579103,46.6645175,-117.6855469,56.547372",            
+            "id": "service-directory",
+            "attributes": [
+                {
+                    "id": "custodian-org-description",
+                    "name": "CUSTODIAN_ORG_DESCRIPTION",
+                    "title": "CUSTODIAN_ORG_DESCRIPTION",
+                    "visible": true
+                },
+                {
+                    "id": "business-category-class",
+                    "name": "BUSINESS_CATEGORY_CLASS",
+                    "title": "BUSINESS_CATEGORY_CLASS",
+                    "visible": true
+                },
+                {
+                    "id": "business-category-description",
+                    "name": "BUSINESS_CATEGORY_DESCRIPTION",
+                    "title": "BUSINESS_CATEGORY_DESCRIPTION",
+                    "visible": true
+                },
+                {
+                    "id": "occupant-type-description",
+                    "name": "OCCUPANT_TYPE_DESCRIPTION",
+                    "title": "OCCUPANT_TYPE_DESCRIPTION",
+                    "visible": true
+                },
+                {
+                    "id": "source-data-id",
+                    "name": "SOURCE_DATA_ID",
+                    "title": "SOURCE_DATA_ID",
+                    "visible": true
+                },
+                {
+                    "id": "supplied-source-id-ind",
+                    "name": "SUPPLIED_SOURCE_ID_IND",
+                    "title": "SUPPLIED_SOURCE_ID_IND",
+                    "visible": true
+                },
+                {
+                    "id": "occupant-name",
+                    "name": "OCCUPANT_NAME",
+                    "title": "OCCUPANT_NAME",
+                    "visible": true
+                },
+                {
+                    "id": "description",
+                    "name": "DESCRIPTION",
+                    "title": "DESCRIPTION",
+                    "visible": true
+                },
+                {
+                    "id": "physical-address",
+                    "name": "PHYSICAL_ADDRESS",
+                    "title": "PHYSICAL_ADDRESS",
+                    "visible": true
+                },
+                {
+                    "id": "alias-address",
+                    "name": "ALIAS_ADDRESS",
+                    "title": "ALIAS_ADDRESS",
+                    "visible": true
+                },
+                {
+                    "id": "street-address",
+                    "name": "STREET_ADDRESS",
+                    "title": "STREET_ADDRESS",
+                    "visible": true
+                },
+                {
+                    "id": "postal-code",
+                    "name": "POSTAL_CODE",
+                    "title": "POSTAL_CODE",
+                    "visible": true
+                },
+                {
+                    "id": "locality",
+                    "name": "LOCALITY",
+                    "title": "LOCALITY",
+                    "visible": true
+                },
+                {
+                    "id": "contact-phone",
+                    "name": "CONTACT_PHONE",
+                    "title": "CONTACT_PHONE",
+                    "visible": true
+                },
+                {
+                    "id": "contact-email",
+                    "name": "CONTACT_EMAIL",
+                    "title": "CONTACT_EMAIL",
+                    "visible": true
+                },
+                {
+                    "id": "contact-fax",
+                    "name": "CONTACT_FAX",
+                    "title": "CONTACT_FAX",
+                    "visible": true
+                },
+                {
+                    "id": "website-url",
+                    "name": "WEBSITE_URL",
+                    "title": "WEBSITE_URL",
+                    "visible": true
+                },
+                {
+                    "id": "image-url",
+                    "name": "IMAGE_URL",
+                    "title": "IMAGE_URL",
+                    "visible": true
+                },
+                {
+                    "id": "latitude",
+                    "name": "LATITUDE",
+                    "title": "LATITUDE",
+                    "visible": true
+                },
+                {
+                    "id": "longitude",
+                    "name": "LONGITUDE",
+                    "title": "LONGITUDE",
+                    "visible": true
+                },
+                {
+                    "id": "keywords",
+                    "name": "KEYWORDS",
+                    "title": "KEYWORDS",
+                    "visible": true
+                },
+                {
+                    "id": "date-updated",
+                    "name": "DATE_UPDATED",
+                    "title": "DATE_UPDATED",
+                    "visible": true
+                },
+                {
+                    "id": "site-geocoded-ind",
+                    "name": "SITE_GEOCODED_IND",
+                    "title": "SITE_GEOCODED_IND",
+                    "visible": true
+                },
+                {
+                    "id": "contact-names",
+                    "name": "CONTACT_NAMES",
+                    "title": "CONTACT_NAMES",
+                    "visible": true
+                },
+                {
+                    "id": "contact-telephone-cell",
+                    "name": "CONTACT_TELEPHONE_CELL",
+                    "title": "CONTACT_TELEPHONE_CELL",
+                    "visible": true
+                },
+                {
+                    "id": "contact-telephone-direct-dial",
+                    "name": "CONTACT_TELEPHONE_DIRECT_DIAL",
+                    "title": "CONTACT_TELEPHONE_DIRECT_DIAL",
+                    "visible": true
+                },
+                {
+                    "id": "contact-telephone-toll-free",
+                    "name": "CONTACT_TELEPHONE_TOLL_FREE",
+                    "title": "CONTACT_TELEPHONE_TOLL_FREE",
+                    "visible": true
+                },
+                {
+                    "id": "service-name",
+                    "name": "SERVICE_NAME",
+                    "title": "SERVICE_NAME",
+                    "visible": true
+                },
+                {
+                    "id": "service-name-french",
+                    "name": "SERVICE_NAME_FRENCH",
+                    "title": "SERVICE_NAME_FRENCH",
+                    "visible": true
+                },
+                {
+                    "id": "sequence-id",
+                    "name": "SEQUENCE_ID",
+                    "title": "SEQUENCE_ID",
+                    "visible": true
+                },
+                {
+                    "id": "se-anno-cad-data",
+                    "name": "SE_ANNO_CAD_DATA",
+                    "title": "SE_ANNO_CAD_DATA",
+                    "visible": true
+                },
+                {
+                    "id": "bbox",
+                    "name": "bbox",
+                    "title": "bbox",
+                    "visible": true
+                }
+            ]
+        },
+        {
+            "title": "Services à la petite enfance",
+            "dataUrl": "https://openmaps.gov.bc.ca/geo/pub/WHSE_IMAGERY_AND_BASE_MAPS.GSR_FRPH_EARLY_CHILDCARE_SVW/ows?service=WMS&request=GetMap&version=1.1.1&layers=pub%3AWHSE_IMAGERY_AND_BASE_MAPS.GSR_FRPH_EARLY_CHILDCARE_SVW&styles=3601&format=application/json;type=geojson&transparent=true&cql_filter=include&srs=EPSG%3A4326&width=645&height=728&bbox=-131.8579103,46.6645175,-117.6855469,56.547372",
+            "id": "early-childhood",
+            "attributes": [
+                {
+                    "id": "custodian-org-description",
+                    "name": "CUSTODIAN_ORG_DESCRIPTION",
+                    "title": "CUSTODIAN_ORG_DESCRIPTION",
+                    "visible": true
+                },
+                {
+                    "id": "business-category-class",
+                    "name": "BUSINESS_CATEGORY_CLASS",
+                    "title": "BUSINESS_CATEGORY_CLASS",
+                    "visible": true
+                },
+                {
+                    "id": "business-category-description",
+                    "name": "BUSINESS_CATEGORY_DESCRIPTION",
+                    "title": "BUSINESS_CATEGORY_DESCRIPTION",
+                    "visible": true
+                },
+                {
+                    "id": "occupant-type-description",
+                    "name": "OCCUPANT_TYPE_DESCRIPTION",
+                    "title": "OCCUPANT_TYPE_DESCRIPTION",
+                    "visible": true
+                },
+                {
+                    "id": "source-data-id",
+                    "name": "SOURCE_DATA_ID",
+                    "title": "SOURCE_DATA_ID",
+                    "visible": true
+                },
+                {
+                    "id": "supplied-source-id-ind",
+                    "name": "SUPPLIED_SOURCE_ID_IND",
+                    "title": "SUPPLIED_SOURCE_ID_IND",
+                    "visible": true
+                },
+                {
+                    "id": "occupant-name",
+                    "name": "OCCUPANT_NAME",
+                    "title": "OCCUPANT_NAME",
+                    "visible": true
+                },
+                {
+                    "id": "description",
+                    "name": "DESCRIPTION",
+                    "title": "DESCRIPTION",
+                    "visible": true
+                },
+                {
+                    "id": "physical-address",
+                    "name": "PHYSICAL_ADDRESS",
+                    "title": "PHYSICAL_ADDRESS",
+                    "visible": true
+                },
+                {
+                    "id": "alias-address",
+                    "name": "ALIAS_ADDRESS",
+                    "title": "ALIAS_ADDRESS",
+                    "visible": true
+                },
+                {
+                    "id": "street-address",
+                    "name": "STREET_ADDRESS",
+                    "title": "STREET_ADDRESS",
+                    "visible": true
+                },
+                {
+                    "id": "postal-code",
+                    "name": "POSTAL_CODE",
+                    "title": "POSTAL_CODE",
+                    "visible": true
+                },
+                {
+                    "id": "locality",
+                    "name": "LOCALITY",
+                    "title": "LOCALITY",
+                    "visible": true
+                },
+                {
+                    "id": "contact-phone",
+                    "name": "CONTACT_PHONE",
+                    "title": "CONTACT_PHONE",
+                    "visible": true
+                },
+                {
+                    "id": "contact-email",
+                    "name": "CONTACT_EMAIL",
+                    "title": "CONTACT_EMAIL",
+                    "visible": true
+                },
+                {
+                    "id": "contact-fax",
+                    "name": "CONTACT_FAX",
+                    "title": "CONTACT_FAX",
+                    "visible": true
+                },
+                {
+                    "id": "website-url",
+                    "name": "WEBSITE_URL",
+                    "title": "WEBSITE_URL",
+                    "visible": true
+                },
+                {
+                    "id": "image-url",
+                    "name": "IMAGE_URL",
+                    "title": "IMAGE_URL",
+                    "visible": true
+                },
+                {
+                    "id": "latitude",
+                    "name": "LATITUDE",
+                    "title": "LATITUDE",
+                    "visible": true
+                },
+                {
+                    "id": "longitude",
+                    "name": "LONGITUDE",
+                    "title": "LONGITUDE",
+                    "visible": true
+                },
+                {
+                    "id": "keywords",
+                    "name": "KEYWORDS",
+                    "title": "KEYWORDS",
+                    "visible": true
+                },
+                {
+                    "id": "date-updated",
+                    "name": "DATE_UPDATED",
+                    "title": "DATE_UPDATED",
+                    "visible": true
+                },
+                {
+                    "id": "site-geocoded-ind",
+                    "name": "SITE_GEOCODED_IND",
+                    "title": "SITE_GEOCODED_IND",
+                    "visible": true
+                },
+                {
+                    "id": "service-name",
+                    "name": "SERVICE_NAME",
+                    "title": "SERVICE_NAME",
+                    "visible": true
+                },
+                {
+                    "id": "service-name-french",
+                    "name": "SERVICE_NAME_FRENCH",
+                    "title": "SERVICE_NAME_FRENCH",
+                    "visible": true
+                },
+                {
+                    "id": "sequence-id",
+                    "name": "SEQUENCE_ID",
+                    "title": "SEQUENCE_ID",
+                    "visible": true
+                },
+                {
+                    "id": "se-anno-cad-data",
+                    "name": "SE_ANNO_CAD_DATA",
+                    "title": "SE_ANNO_CAD_DATA",
+                    "visible": true
+                },
+                {
+                    "id": "bbox",
+                    "name": "bbox",
+                    "title": "bbox",
+                    "visible": true
+                }
+            ]
+        },
+        {
+            "title": "WorkBC Centres",
+            "dataUrl": "https://openmaps.gov.bc.ca/geo/pub/WHSE_IMAGERY_AND_BASE_MAPS.GSR_EMPL_SRVCS_OFFICES_SVW/ows?service=WMS&request=GetMap&version=1.1.1&layers=pub%3AWHSE_IMAGERY_AND_BASE_MAPS.GSR_EMPL_SRVCS_OFFICES_SVW&styles=3958&format=application/json;type=geojson&transparent=true&cql_filter=include&srs=EPSG%3A4326&width=645&height=728&bbox=-131.8579103,46.6645175,-117.6855469,56.547372",
+            "id": "workbc-centres",
+            "attributes": [
+                {
+                    "id": "custodian-org-description",
+                    "name": "CUSTODIAN_ORG_DESCRIPTION",
+                    "title": "CUSTODIAN_ORG_DESCRIPTION",
+                    "visible": true
+                },
+                {
+                    "id": "business-category-class",
+                    "name": "BUSINESS_CATEGORY_CLASS",
+                    "title": "BUSINESS_CATEGORY_CLASS",
+                    "visible": true
+                },
+                {
+                    "id": "business-category-description",
+                    "name": "BUSINESS_CATEGORY_DESCRIPTION",
+                    "title": "BUSINESS_CATEGORY_DESCRIPTION",
+                    "visible": true
+                },
+                {
+                    "id": "occupant-type-description",
+                    "name": "OCCUPANT_TYPE_DESCRIPTION",
+                    "title": "OCCUPANT_TYPE_DESCRIPTION",
+                    "visible": true
+                },
+                {
+                    "id": "source-data-id",
+                    "name": "SOURCE_DATA_ID",
+                    "title": "SOURCE_DATA_ID",
+                    "visible": true
+                },
+                {
+                    "id": "supplied-source-id-ind",
+                    "name": "SUPPLIED_SOURCE_ID_IND",
+                    "title": "SUPPLIED_SOURCE_ID_IND",
+                    "visible": true
+                },
+                {
+                    "id": "occupant-name",
+                    "name": "OCCUPANT_NAME",
+                    "title": "OCCUPANT_NAME",
+                    "visible": true
+                },
+                {
+                    "id": "description",
+                    "name": "DESCRIPTION",
+                    "title": "DESCRIPTION",
+                    "visible": true
+                },
+                {
+                    "id": "physical-address",
+                    "name": "PHYSICAL_ADDRESS",
+                    "title": "PHYSICAL_ADDRESS",
+                    "visible": true
+                },
+                {
+                    "id": "alias-address",
+                    "name": "ALIAS_ADDRESS",
+                    "title": "ALIAS_ADDRESS",
+                    "visible": true
+                },
+                {
+                    "id": "street-address",
+                    "name": "STREET_ADDRESS",
+                    "title": "STREET_ADDRESS",
+                    "visible": true
+                },
+                {
+                    "id": "postal-code",
+                    "name": "POSTAL_CODE",
+                    "title": "POSTAL_CODE",
+                    "visible": true
+                },
+                {
+                    "id": "locality",
+                    "name": "LOCALITY",
+                    "title": "LOCALITY",
+                    "visible": true
+                },
+                {
+                    "id": "contact-phone",
+                    "name": "CONTACT_PHONE",
+                    "title": "CONTACT_PHONE",
+                    "visible": true
+                },
+                {
+                    "id": "contact-email",
+                    "name": "CONTACT_EMAIL",
+                    "title": "CONTACT_EMAIL",
+                    "visible": true
+                },
+                {
+                    "id": "contact-fax",
+                    "name": "CONTACT_FAX",
+                    "title": "CONTACT_FAX",
+                    "visible": true
+                },
+                {
+                    "id": "website-url",
+                    "name": "WEBSITE_URL",
+                    "title": "WEBSITE_URL",
+                    "visible": true
+                },
+                {
+                    "id": "image-url",
+                    "name": "IMAGE_URL",
+                    "title": "IMAGE_URL",
+                    "visible": true
+                },
+                {
+                    "id": "latitude",
+                    "name": "LATITUDE",
+                    "title": "LATITUDE",
+                    "visible": true
+                },
+                {
+                    "id": "longitude",
+                    "name": "LONGITUDE",
+                    "title": "LONGITUDE",
+                    "visible": true
+                },
+                {
+                    "id": "keywords",
+                    "name": "KEYWORDS",
+                    "title": "KEYWORDS",
+                    "visible": true
+                },
+                {
+                    "id": "date-updated",
+                    "name": "DATE_UPDATED",
+                    "title": "DATE_UPDATED",
+                    "visible": true
+                },
+                {
+                    "id": "site-geocoded-ind",
+                    "name": "SITE_GEOCODED_IND",
+                    "title": "SITE_GEOCODED_IND",
+                    "visible": true
+                },
+                {
+                    "id": "catchment-area-id",
+                    "name": "CATCHMENT_AREA_ID",
+                    "title": "CATCHMENT_AREA_ID",
+                    "visible": true
+                },
+                {
+                    "id": "hours-of-operation",
+                    "name": "HOURS_OF_OPERATION",
+                    "title": "HOURS_OF_OPERATION",
+                    "visible": true
+                },
+                {
+                    "id": "languages-offered-list",
+                    "name": "LANGUAGES_OFFERED_LIST",
+                    "title": "LANGUAGES_OFFERED_LIST",
+                    "visible": true
+                },
+                {
+                    "id": "store-front-number",
+                    "name": "STORE_FRONT_NUMBER",
+                    "title": "STORE_FRONT_NUMBER",
+                    "visible": true
+                },
+                {
+                    "id": "sequence-id",
+                    "name": "SEQUENCE_ID",
+                    "title": "SEQUENCE_ID",
+                    "visible": true
+                },
+                {
+                    "id": "se-anno-cad-data",
+                    "name": "SE_ANNO_CAD_DATA",
+                    "title": "SE_ANNO_CAD_DATA",
+                    "visible": true
+                },
+                {
+                    "id": "bbox",
+                    "name": "bbox",
+                    "title": "bbox",
+                    "visible": true
+                }
+            ]
+        },
+        {
+            "title": "Sites touristiques",
+            "dataUrl": "https://openmaps.gov.bc.ca/geo/pub/WHSE_IMAGERY_AND_BASE_MAPS.GSR_FRPH_TOURISM_SVW/ows?service=WMS&request=GetMap&version=1.1.1&layers=pub%3AWHSE_IMAGERY_AND_BASE_MAPS.GSR_FRPH_TOURISM_SVW&styles=3601&format=application/json;type=geojson&transparent=true&cql_filter=include&srs=EPSG%3A4326&width=645&height=728&bbox=-131.8579103,46.6645175,-117.6855469,56.547372",            
+            "id": "tourist-sites",
+            "attributes": [
+                {
+                    "id": "custodian-org-description",
+                    "name": "CUSTODIAN_ORG_DESCRIPTION",
+                    "title": "CUSTODIAN_ORG_DESCRIPTION",
+                    "visible": true
+                },
+                {
+                    "id": "business-category-class",
+                    "name": "BUSINESS_CATEGORY_CLASS",
+                    "title": "BUSINESS_CATEGORY_CLASS",
+                    "visible": true
+                },
+                {
+                    "id": "business-category-description",
+                    "name": "BUSINESS_CATEGORY_DESCRIPTION",
+                    "title": "BUSINESS_CATEGORY_DESCRIPTION",
+                    "visible": true
+                },
+                {
+                    "id": "occupant-type-description",
+                    "name": "OCCUPANT_TYPE_DESCRIPTION",
+                    "title": "OCCUPANT_TYPE_DESCRIPTION",
+                    "visible": true
+                },
+                {
+                    "id": "source-data-id",
+                    "name": "SOURCE_DATA_ID",
+                    "title": "SOURCE_DATA_ID",
+                    "visible": true
+                },
+                {
+                    "id": "supplied-source-id-ind",
+                    "name": "SUPPLIED_SOURCE_ID_IND",
+                    "title": "SUPPLIED_SOURCE_ID_IND",
+                    "visible": true
+                },
+                {
+                    "id": "occupant-name",
+                    "name": "OCCUPANT_NAME",
+                    "title": "OCCUPANT_NAME",
+                    "visible": true
+                },
+                {
+                    "id": "description",
+                    "name": "DESCRIPTION",
+                    "title": "DESCRIPTION",
+                    "visible": true
+                },
+                {
+                    "id": "physical-address",
+                    "name": "PHYSICAL_ADDRESS",
+                    "title": "PHYSICAL_ADDRESS",
+                    "visible": true
+                },
+                {
+                    "id": "alias-address",
+                    "name": "ALIAS_ADDRESS",
+                    "title": "ALIAS_ADDRESS",
+                    "visible": true
+                },
+                {
+                    "id": "street-address",
+                    "name": "STREET_ADDRESS",
+                    "title": "STREET_ADDRESS",
+                    "visible": true
+                },
+                {
+                    "id": "postal-code",
+                    "name": "POSTAL_CODE",
+                    "title": "POSTAL_CODE",
+                    "visible": true
+                },
+                {
+                    "id": "locality",
+                    "name": "LOCALITY",
+                    "title": "LOCALITY",
+                    "visible": true
+                },
+                {
+                    "id": "contact-phone",
+                    "name": "CONTACT_PHONE",
+                    "title": "CONTACT_PHONE",
+                    "visible": true
+                },
+                {
+                    "id": "contact-email",
+                    "name": "CONTACT_EMAIL",
+                    "title": "CONTACT_EMAIL",
+                    "visible": true
+                },
+                {
+                    "id": "contact-fax",
+                    "name": "CONTACT_FAX",
+                    "title": "CONTACT_FAX",
+                    "visible": true
+                },
+                {
+                    "id": "website-url",
+                    "name": "WEBSITE_URL",
+                    "title": "WEBSITE_URL",
+                    "visible": true
+                },
+                {
+                    "id": "image-url",
+                    "name": "IMAGE_URL",
+                    "title": "IMAGE_URL",
+                    "visible": true
+                },
+                {
+                    "id": "latitude",
+                    "name": "LATITUDE",
+                    "title": "LATITUDE",
+                    "visible": true
+                },
+                {
+                    "id": "longitude",
+                    "name": "LONGITUDE",
+                    "title": "LONGITUDE",
+                    "visible": true
+                },
+                {
+                    "id": "keywords",
+                    "name": "KEYWORDS",
+                    "title": "KEYWORDS",
+                    "visible": true
+                },
+                {
+                    "id": "date-updated",
+                    "name": "DATE_UPDATED",
+                    "title": "DATE_UPDATED",
+                    "visible": true
+                },
+                {
+                    "id": "site-geocoded-ind",
+                    "name": "SITE_GEOCODED_IND",
+                    "title": "SITE_GEOCODED_IND",
+                    "visible": true
+                },
+                {
+                    "id": "contact-names",
+                    "name": "CONTACT_NAMES",
+                    "title": "CONTACT_NAMES",
+                    "visible": true
+                },
+                {
+                    "id": "occupant-description-french",
+                    "name": "OCCUPANT_DESCRIPTION_FRENCH",
+                    "title": "OCCUPANT_DESCRIPTION_FRENCH",
+                    "visible": true
+                },
+                {
+                    "id": "service-name",
+                    "name": "SERVICE_NAME",
+                    "title": "SERVICE_NAME",
+                    "visible": true
+                },
+                {
+                    "id": "service-name-french",
+                    "name": "SERVICE_NAME_FRENCH",
+                    "title": "SERVICE_NAME_FRENCH",
+                    "visible": true
+                },
+                {
+                    "id": "tourism-area",
+                    "name": "TOURISM_AREA",
+                    "title": "TOURISM_AREA",
+                    "visible": true
+                },
+                {
+                    "id": "tourism-area-french",
+                    "name": "TOURISM_AREA_FRENCH",
+                    "title": "TOURISM_AREA_FRENCH",
+                    "visible": true
+                },
+                {
+                    "id": "sequence-id",
+                    "name": "SEQUENCE_ID",
+                    "title": "SEQUENCE_ID",
+                    "visible": true
+                },
+                {
+                    "id": "se-anno-cad-data",
+                    "name": "SE_ANNO_CAD_DATA",
+                    "title": "SE_ANNO_CAD_DATA",
+                    "visible": true
+                },
+                {
+                    "id": "bbox",
+                    "name": "bbox",
+                    "title": "bbox",
+                    "visible": true
+                }
+            ]
+        }
+    ]
+}
