@@ -1,0 +1,137 @@
+name: BUILDPackage
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+# -------- DEBUGGING --------
+on: 
+  push:
+    branches: ['dev']
+
+
+# on:
+#   pull_request:
+#     branches: ['master']
+#     types: ['opened', 'reopened']
+
+jobs:
+  # This workflow contains a single job called "build"
+  buildjob:
+    defaults:
+      run:
+        shell: bash
+
+    name: Build BCDC-SMK container image
+    # The type of runner that the job will run on
+    runs-on: ubuntu-18.04
+    outputs:
+      dockerversiontag: ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
+    steps:
+
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+      id: checkout
+      with:
+        fetch-depth: 0
+
+    - name: calculateImageTag
+      id: calculateImageTag
+      run: echo ::set-output name=DOCKER_VERSION_TAG::$(date +%Y%m%d-%H%M)
+
+    # --------- GET THE ISSUE URL AND CACHE IT -------
+    # - name: output the docker image tag, issue url and the event path
+    #   id: testoutput
+    #   run: |
+        
+    #     echo tag version is ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
+    #     echo ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }} > docker_image_tag.txt
+
+    #     issue_url=$(jq --raw-output .pull_request.issue_url "$GITHUB_EVENT_PATH")
+    #     echo $issue_url > issue_url.txt
+    #     cp $GITHUB_EVENT_PATH git_event.txt
+
+    # --------- CACHE THE IMAGE TAG and ISSUE URL IN AN ARTIFACT
+    # - name: upload image tag
+    #   id: uploadimagetag
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: imagetag
+    #     path: |
+    #       docker_image_tag.txt
+    #       issue_url.txt
+    #       git_event.txt
+
+
+    # trying the docker/build-push-action@v2
+    # which needs the qemu / buildx / login steps
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Login to GitHub Packages Docker Registry
+      uses: docker/login-action@v1
+      with:
+        registry: docker.pkg.github.com
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and push
+      id: docker_build
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
+        # build-args: |
+        #   arg1=value1
+        #   arg2=value2
+
+
+    # -------- CREATE THE DOCKER IMAGE --------
+    # - name: Create the docker image
+    #   uses: docker/build-push-action@v1
+    #   with:
+    #     registry: docker.pkg.github.com
+    #     username: $GITHUB_ACTOR
+    #     password: ${{ secrets.GITHUB_TOKEN  }}
+    #     repository: bcgov/bcdc-smk/bcdc-smk
+    #     tag_with_ref: true
+    #     tag_with_sha: true
+    #     add_git_labels: true
+    #     tags: ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
+    #     push: true
+
+    # -------- DEBUGGING uncomment when done --------
+    # - name: Tag the pull request with build tag
+    #   id: tagpullrequest
+    #   run: |
+    #     DOCKER_VERSION_TAG=${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
+
+    #     echo tag version is $DOCKER_VERSION_TAG
+    #     #pull_number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+    #     echo github event path: $GITHUB_EVENT_PATH
+    #     echo $GITHUB_WORKSPACE
+
+    #     # use this for pulls
+    #     issue_url=$(jq --raw-output .pull_request.issue_url "$GITHUB_EVENT_PATH")
+    #     echo issue url is $issue_url
+
+    #     # for debugging using existing pull_request
+    #     if [ -z "$issue_url" ] || [ "$issue_url" = "null" ]
+    #       then
+    #         issue_url="https://api.github.com/repos/bcgov/bcdc-smk/issues/19"
+    #     fi
+
+    #     # ---- adding the tag that was assigned to the image to the issue ----
+    #     jsonwithlabels=$(curl --header "Content-Type: application/json" \
+    #     --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+    #     --request GET \
+    #     $issue_url | jq '.labels |= . + ["'$DOCKER_VERSION_TAG'"] | {("labels"): .["labels"]?}')
+        
+    #     # now send modified json back to the api with the new label
+    #     curl \
+    #     --location --request POST $issue_url \
+    #     --header "Content-Type: application/json" \
+    #     --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+    #     --data "$jsonwithlabels"
+
