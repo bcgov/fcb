@@ -5,7 +5,7 @@ name: BUILDPackage
 # -------- DEBUGGING --------
 on: 
   push:
-    branches: ['dev']
+    branches: ['dev', 'smk-cdci']
 
 
 # on:
