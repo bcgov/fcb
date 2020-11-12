@@ -83,7 +83,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         push: true
-        tags: ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
+        tags: user/smk-fap-fcb:${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
         # build-args: |
         #   arg1=value1
         #   arg2=value2
