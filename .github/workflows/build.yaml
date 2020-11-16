@@ -37,7 +37,7 @@ jobs:
       id: calculateImageTag
       run: |
         echo ::set-output name=DOCKER_VERSION_TAG::$(date +%Y%m%d-%H%M)
-        echo ::set-output name=tags::ghcr.io/${{github.repository_owner}}/${{github.repository}}:${GITHUB_REF#refs/tags/v}
+        echo ::set-output name=tags::docker.pkg.github.com/${{github.repository_owner}}/${{github.repository}}:${GITHUB_REF#refs/tags/v}
         echo logged in as ${{ secrets.GHCR_USER }}
 
 
