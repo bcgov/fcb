@@ -37,7 +37,9 @@ jobs:
       id: calculateImageTag
       run: |
         echo ::set-output name=DOCKER_VERSION_TAG::$(date +%Y%m%d-%H%M)
+        echo ::set-output name=tags::ghcr.io/${{github.repository_owner}}/${{github.repository}}:${GITHUB_REF#refs/tags/v}
         echo logged in as ${{ secrets.GHCR_USER }}
+
 
     # --------- GET THE ISSUE URL AND CACHE IT -------
     # - name: output the docker image tag, issue url and the event path
@@ -85,9 +87,17 @@ jobs:
     - name: Build and push
       id: docker_build
       uses: docker/build-push-action@v2
+      if: "startsWith(github.ref, 'refs/tags/v')"
       with:
         push: true
-        tags: bcgov/smk-fap-fcb:${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
+        #tags: bcgov/smk-fap-fcb:${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
+        builder: ${{ steps.buildx.outputs.name }}
+        context: .
+        file: ./docker/image/app/Dockerfile
+        tags: ${{ steps.calculateImageTag.outputs.tags }}
+        platforms: linux/amd64,linux/arm64,linux/386
+        secrets: |
+            GIT_AUTH_TOKEN=${{ secrets.GHCR_TOKEN }}
         # build-args: |
         #   arg1=value1
         #   arg2=value2
