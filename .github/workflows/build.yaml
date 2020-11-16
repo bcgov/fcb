@@ -95,8 +95,8 @@ jobs:
         context: ./${{ github.workflow }}/
         file: ./${{ github.workflow }}/Dockerfile
         tags: |
-          ghcr.io/${{ github.repository_owner }}/${{ github.workflow }}:latest
-          ghcr.io/${{ github.repository_owner }}/${{ github.workflow }}:${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
+          ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:latest
+          ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
         #tags: ${{ steps.calculateImageTag.outputs.tags }}
         #platforms: linux/amd64,linux/arm64,linux/386
         #secrets: |
