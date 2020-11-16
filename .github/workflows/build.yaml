@@ -96,25 +96,15 @@ jobs:
       with:
         push: true
         #tags: bcgov/smk-fap-fcb:${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
-        builder: ${{ steps.buildx.outputs.name }}
+        #builder: ${{ steps.buildx.outputs.name }}
         tags: bcgov/smk-fap-fcb:latest
         #tags: ${{ steps.calculateImageTag.outputs.tags2 }}
-
         #  docker.pkg.github.com/${{ github.repository_owner }}/${{ github.repository }}:latest
-          
         # docker.pkg.github.com/${{ github.repository_owner }}/${{ github.repository }}:${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
-        
         #  ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:latest
         #  ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
         
-        
-        #tags: ${{ steps.calculateImageTag.outputs.tags }}
-        #platforms: linux/amd64,linux/arm64,linux/386
-        #secrets: |
-        #    GIT_AUTH_TOKEN=${{ secrets.GHCR_TOKEN }}
-        # build-args: |
-        #   arg1=value1
-        #   arg2=value2
+   
 
 
     # -------- CREATE THE DOCKER IMAGE --------
