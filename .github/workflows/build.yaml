@@ -95,6 +95,7 @@ jobs:
       #if: "startsWith(github.ref, 'refs/tags/v')"
       with:
         push: true
+        context: .
         #tags: bcgov/smk-fap-fcb:${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
         #builder: ${{ steps.buildx.outputs.name }}
         tags: bcgov/smk-fap-fcb:latest
