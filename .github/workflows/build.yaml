@@ -40,7 +40,7 @@ jobs:
         echo ::set-output name=tags::docker.pkg.github.com/${{github.repository_owner}}/${{github.repository}}:${GITHUB_REF#refs/tags/v}
         IMAGE="${REGISTRY}/${{ github.repository }}/${{ github.event.repository.name }}
 		    TAGS="${IMAGE}:latest"
-        echo ::set-output name=tags2::$TAGS
+        echo ::set-output name=tags2::${TAGS}
 
         #echo ::set-output name=tags2::docker.pkg.github.com/${{github.repository_owner}}/${{github.repository}}:${GITHUB_REF#refs/tags/v}
         echo logged in as ${{ secrets.GHCR_USER }}
