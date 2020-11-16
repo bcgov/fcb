@@ -97,9 +97,7 @@ jobs:
         push: true
         #tags: bcgov/smk-fap-fcb:${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
         builder: ${{ steps.buildx.outputs.name }}
-        #context: ./${{ github.workflow }}/
-        #file: ./${{ github.workflow }}/Dockerfile
-        tags: ${{ steps.calculateImageTag.outputs.tags2 }}
+        #tags: ${{ steps.calculateImageTag.outputs.tags2 }}
 
         #  docker.pkg.github.com/${{ github.repository_owner }}/${{ github.repository }}:latest
           
