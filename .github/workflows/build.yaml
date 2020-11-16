@@ -96,6 +96,7 @@ jobs:
       with:
         #push: true
         context: .
+        outputs: type=oci,dest=/tmp/image.tar
         file: ./Dockerfile
         #tags: bcgov/smk-fap-fcb:${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
         #builder: ${{ steps.buildx.outputs.name }}
