@@ -37,7 +37,7 @@ jobs:
       id: calculateImageTag
       run: |
         echo ::set-output name=DOCKER_VERSION_TAG::$(date +%Y%m%d-%H%M)
-        echo logged in as ${{ github.repository_owner }}
+        echo logged in as ${{ secrets.GHCR_USER }}
 
     # --------- GET THE ISSUE URL AND CACHE IT -------
     # - name: output the docker image tag, issue url and the event path
@@ -79,7 +79,7 @@ jobs:
       with:
         #registry: docker.pkg.github.com
         registry: ghcr.io
-        username: ${{ github.repository_owner }}
+        username: ${{ secrets.GHCR_USER }}
         password: ${{ secrets.GHCR_TOKEN }}
 
     - name: Build and push
