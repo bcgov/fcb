@@ -81,6 +81,9 @@ jobs:
       with:
         buildkitd-flags: --debug
 
+    - name: Set up containerd
+      uses: crazy-max/ghaction-setup-containerd@v1
+      
     - name: Login to GitHub Packages Docker Registry
       uses: docker/login-action@v1
       with:
