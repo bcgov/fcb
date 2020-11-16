@@ -38,6 +38,11 @@ jobs:
       run: |
         echo ::set-output name=DOCKER_VERSION_TAG::$(date +%Y%m%d-%H%M)
         echo ::set-output name=tags::docker.pkg.github.com/${{github.repository_owner}}/${{github.repository}}:${GITHUB_REF#refs/tags/v}
+        IMAGE="${REGISTRY}/${{ github.repository }}/${{ github.event.repository.name }}
+		    TAGS="${IMAGE}:latest"
+        echo ::set-output name=tags2::$TAGS
+
+        #echo ::set-output name=tags2::docker.pkg.github.com/${{github.repository_owner}}/${{github.repository}}:${GITHUB_REF#refs/tags/v}
         echo logged in as ${{ secrets.GHCR_USER }}
 
 
@@ -93,8 +98,9 @@ jobs:
         builder: ${{ steps.buildx.outputs.name }}
         #context: ./${{ github.workflow }}/
         #file: ./${{ github.workflow }}/Dockerfile
-        tags: |
-          docker.pkg.github.com/${{ github.repository_owner }}/${{ github.repository }}:latest
+        tags: ${{ steps.calculateImageTag.outputs.tags2 }}
+
+        #  docker.pkg.github.com/${{ github.repository_owner }}/${{ github.repository }}:latest
           
         # docker.pkg.github.com/${{ github.repository_owner }}/${{ github.repository }}:${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
         
