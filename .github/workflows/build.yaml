@@ -36,7 +36,7 @@ jobs:
     - name: calculateImageTag
       id: calculateImageTag
       run: |
-        echo ::set-output name=DOCKER_VERSION_TAG::docker.pkg.github.com/${{ github.repository_owner }}/${{ github.repository }}/${{ github.repository }}:$(date +%Y%m%d-%H%M)
+        echo ::set-output name=DOCKER_VERSION_TAG::docker.pkg.github.com/${{github.repository_owner}}/${{github.repository}}/${{github.repository}}:$(date +%Y%m%d-%H%M)
         echo tag is ${{ DOCKER_VERSION_TAG }}
         
         # echo ::set-output name=DOCKER_VERSION_TAG::$(date +%Y%m%d-%H%M)
