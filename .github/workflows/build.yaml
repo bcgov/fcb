@@ -36,6 +36,7 @@ jobs:
     - name: calculateImageTag
       id: calculateImageTag
       run: |
+        echo 'strawberry'
         echo "::set-output name=DOCKER_VERSION_TAG::docker.pkg.github.com/${{github.repository_owner}}/${{github.repository}}/${{github.repository}}:$(date +%Y%m%d-%H%M)"
         echo tag is ${{ DOCKER_VERSION_TAG }}
         
