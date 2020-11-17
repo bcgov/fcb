@@ -103,7 +103,7 @@ jobs:
         #file: ./Dockerfile
         #tags: bcgov/smk-fap-fcb:${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
         #builder: ${{ steps.buildx.outputs.name }}
-        tags: bcgov/smk-fap-fcb:latest
+        tags: docker.pkg.github.com/bcgov/smk-fap-fcb/smk-fap-fcb:latest
         load: true
         #tags: ${{ steps.calculateImageTag.outputs.tags2 }}
         #  docker.pkg.github.com/${{ github.repository_owner }}/${{ github.repository }}:latest
@@ -113,7 +113,7 @@ jobs:
     - name: Import image in containerd
       run: |
         docker images
-        docker push bcgov/smk-fap-fcb:latest
+        docker push docker.pkg.github.com/bcgov/smk-fap-fcb/smk-fap-fcb:latest
 
       # sudo ctr i import --base-name docker.pkg.github.com/bcgov/smk-fap-fcb/smk-fap-fcb --digests --all-platforms /tmp/image.tar
 
