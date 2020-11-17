@@ -40,7 +40,9 @@ jobs:
         REGISTRY="docker.pkg.github.com"
         IMAGE="${REGISTRY}/${{ github.repository }}/${{ github.event.repository.name }}"
         TAGS="${IMAGE}:${DATESTAMP}"
+        LATEST="${IMAGE}:latest"
         echo ::set-output name=DOCKER_VERSION_TAG::${TAGS}
+        echo ::set-output name=DOCKER_LATEST_TAG::${LATEST}
 
       # echo ::set-output name=tags2::docker.pkg.github.com/${{github.repository_owner}}/${{github.repository}}:${GITHUB_REF#refs/tags/v}
       # echo logged in as ${{ secrets.GHCR_USER }}
@@ -110,7 +112,11 @@ jobs:
         #tags: bcgov/smk-fap-fcb:${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
         #builder: ${{ steps.buildx.outputs.name }}
         # tags: docker.pkg.github.com/bcgov/smk-fap-fcb/smk-fap-fcb:latest
-        tags: ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
+        tags: |
+          ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
+          ${{ steps.calculateImageTag.outputs.DOCKER_LATEST_TAG }}
+          
+        #tags: ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
         load: true
         #tags: ${{ steps.calculateImageTag.outputs.tags2 }}
         #  docker.pkg.github.com/${{ github.repository_owner }}/${{ github.repository }}:latest
