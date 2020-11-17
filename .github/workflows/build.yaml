@@ -36,21 +36,24 @@ jobs:
     - name: calculateImageTag
       id: calculateImageTag
       run: |
-        #echo 'strawberry'
-
-        # echo "::set-output name=DOCKER_VERSION_TAG::docker.pkg.github.com/${{github.repository_owner}}/${{github.repository}}/${{github.repository}}:$(date +%Y%m%d-%H%M)"
-        # echo tag is ${{ DOCKER_VERSION_TAG }}
-        
-        # echo ::set-output name=DOCKER_VERSION_TAG::$(date +%Y%m%d-%H%M)
-        # echo ::set-output name=tags::docker.pkg.github.com/${{github.repository_owner}}/${{github.repository}}:${GITHUB_REF#refs/tags/v}
         DATESTAMP=$(date +%Y%m%d-%H%M)
         REGISTRY="docker.pkg.github.com"
         IMAGE="${REGISTRY}/${{ github.repository }}/${{ github.event.repository.name }}"
         TAGS="${IMAGE}:${DATESTAMP}"
         echo ::set-output name=DOCKER_VERSION_TAG::${TAGS}
 
-        # echo ::set-output name=tags2::docker.pkg.github.com/${{github.repository_owner}}/${{github.repository}}:${GITHUB_REF#refs/tags/v}
-        # echo logged in as ${{ secrets.GHCR_USER }}
+      # echo ::set-output name=tags2::docker.pkg.github.com/${{github.repository_owner}}/${{github.repository}}:${GITHUB_REF#refs/tags/v}
+      # echo logged in as ${{ secrets.GHCR_USER }}
+
+      #echo 'strawberry'
+
+      # echo "::set-output name=DOCKER_VERSION_TAG::docker.pkg.github.com/${{github.repository_owner}}/${{github.repository}}/${{github.repository}}:$(date +%Y%m%d-%H%M)"
+      # echo tag is ${{ DOCKER_VERSION_TAG }}
+      
+      # echo ::set-output name=DOCKER_VERSION_TAG::$(date +%Y%m%d-%H%M)
+      # echo ::set-output name=tags::docker.pkg.github.com/${{github.repository_owner}}/${{github.repository}}:${GITHUB_REF#refs/tags/v}
+
+
 
     # --------- GET THE ISSUE URL AND CACHE IT -------
     # - name: output the docker image tag, issue url and the event path
