@@ -115,6 +115,7 @@ jobs:
 
     - name: Push image with containerd
       run: |
+        sudo ctr images list
         sudo ctr --debug i push --user "${{ secrets.GHCR_USER }}:${{ secrets.GHCR_TOKEN }}" docker.pkg.github.com/bcgov/smk-fap-fcb/smk-fap-fcb:latest
    
 
