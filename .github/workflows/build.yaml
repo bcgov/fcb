@@ -104,6 +104,7 @@ jobs:
         #tags: bcgov/smk-fap-fcb:${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
         #builder: ${{ steps.buildx.outputs.name }}
         tags: bcgov/smk-fap-fcb:latest
+        load: true
         #tags: ${{ steps.calculateImageTag.outputs.tags2 }}
         #  docker.pkg.github.com/${{ github.repository_owner }}/${{ github.repository }}:latest
         # docker.pkg.github.com/${{ github.repository_owner }}/${{ github.repository }}:${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
@@ -112,9 +113,12 @@ jobs:
     - name: Import image in containerd
       run: |
         sudo ctr i import --base-name docker.pkg.github.com/bcgov/smk-fap-fcb/smk-fap-fcb --digests --all-platforms /tmp/image.tar
+        docker images
+        docker push bcgov/smk-fap-fcb:latest
 
     - name: Push image with containerd
       run: |
+        docker images
         sudo ctr images list
         sudo ctr --debug i push --user "${{ secrets.GHCR_USER }}:${{ secrets.GHCR_TOKEN }}" docker.pkg.github.com/bcgov/smk-fap-fcb/smk-fap-fcb:latest
    
