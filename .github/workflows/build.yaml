@@ -38,7 +38,7 @@ jobs:
       run: |
         echo 'strawberry'
         echo "::set-output name=DOCKER_VERSION_TAG::docker.pkg.github.com/${{github.repository_owner}}/${{github.repository}}/${{github.repository}}:$(date +%Y%m%d-%H%M)"
-        echo tag is ${{ DOCKER_VERSION_TAG }}
+        # echo tag is ${{ DOCKER_VERSION_TAG }}
         
         # echo ::set-output name=DOCKER_VERSION_TAG::$(date +%Y%m%d-%H%M)
         # echo ::set-output name=tags::docker.pkg.github.com/${{github.repository_owner}}/${{github.repository}}:${GITHUB_REF#refs/tags/v}
@@ -48,8 +48,8 @@ jobs:
         # TAGS="${IMAGE}:latest"
         # echo ::set-output name=tags2::${TAGS}
 
-        #echo ::set-output name=tags2::docker.pkg.github.com/${{github.repository_owner}}/${{github.repository}}:${GITHUB_REF#refs/tags/v}
-        #echo logged in as ${{ secrets.GHCR_USER }}
+        # echo ::set-output name=tags2::docker.pkg.github.com/${{github.repository_owner}}/${{github.repository}}:${GITHUB_REF#refs/tags/v}
+        # echo logged in as ${{ secrets.GHCR_USER }}
 
     # --------- GET THE ISSUE URL AND CACHE IT -------
     # - name: output the docker image tag, issue url and the event path
