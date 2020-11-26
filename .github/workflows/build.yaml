@@ -50,7 +50,6 @@ jobs:
          OPENSHIFT_SERVER_URL=${{ secrets.OPENSHIFT_SERVER_URL }}
          OPENSHIFT_TOKEN_DEV=${{ secrets.OPENSHIFT_TOKEN_DEV }}
       if: env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null
-      run: echo testing run and with in same action
       with:
         version: '3.11.232'
         openshift_server_url: ${{ secrets.OPENSHIFT_SERVER_URL }}
