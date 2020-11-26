@@ -1,7 +1,7 @@
 kind: NetworkSecurityPolicy
 apiVersion: security.devops.gov.bc.ca/v1alpha1
 metadata:
-  name: kirk-api-external-ingress
+  name: {{ .Values.app_name }}-external-ingress
 spec:
   description: |
     Allow the frontend (web) to receive connections from the Internet.

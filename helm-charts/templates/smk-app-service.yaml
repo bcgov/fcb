@@ -6,7 +6,7 @@ metadata:
   labels:
     app: {{ .Values.app_name }}
     role: {{ .Values.web_role }}
-    name: {{ .Values.app_name }}-dc
+    deploymentconfig: {{ .Values.app_name }}-dc
     service: {{ .Values.app_name }}-svc
     env: {{ .Values.env }}
   name: {{ .Values.app_name }}-svc

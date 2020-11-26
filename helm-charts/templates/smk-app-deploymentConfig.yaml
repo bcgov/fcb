@@ -15,8 +15,9 @@ spec:
   replicas: 2
   revisionHistoryLimit: 10
   selector:
-    app: {{ .Values.app_name }}
     deploymentconfig: {{ .Values.app_name }}-dc
+    app: {{ .Values.app_name }}
+    env: {{ .Values.env }}
   strategy:
     activeDeadlineSeconds: 21600
     resources: {}
@@ -32,10 +33,10 @@ spec:
       annotations:
         openshift.io/generated-by: OpenShiftNewApp
       labels:
-        deploymentconfig: {{ .Values.app_name }}-dc
         role: {{ .Values.web_role }}
         app: {{ .Values.app_name }}
         env: {{ .Values.env }}
+        deploymentconfig: {{ .Values.app_name }}-dc
     spec:
       imagePullSecrets:
         - name: {{ .Values.app_image_pull_secret_params.name }}
@@ -48,7 +49,7 @@ spec:
               path: /
               port: {{ .Values.app_port }}
               scheme: HTTP
-            initialDelaySeconds: 1
+            initialDelaySeconds: 15
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 7
@@ -63,7 +64,7 @@ spec:
               path: /
               port: {{ .Values.app_port }}
               scheme: HTTP
-            initialDelaySeconds: 1
+            initialDelaySeconds: 15
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 7

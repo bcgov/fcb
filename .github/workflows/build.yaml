@@ -44,17 +44,43 @@ jobs:
         echo ::set-output name=DOCKER_VERSION_TAG::${TAGS}
         echo ::set-output name=DOCKER_LATEST_TAG::${LATEST}
 
-      # echo ::set-output name=tags2::docker.pkg.github.com/${{github.repository_owner}}/${{github.repository}}:${GITHUB_REF#refs/tags/v}
-      # echo logged in as ${{ secrets.GHCR_USER }}
+    - name: OpenShift Action
+      id: GHAOpenshiftTest
+      uses: redhat-developer/openshift-actions@v1.1
+      env: 
+         OPENSHIFT_SERVER_URL=${{ secrets.OPENSHIFT_SERVER_URL }}
+         OPENSHIFT_TOKEN_DEV=${{ secrets.OPENSHIFT_TOKEN_DEV }}
+      if: env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null
+      run: echo testing run and with in same action
+      with:
+        version: '3.11.232'
+        openshift_server_url: ${{ secrets.OPENSHIFT_SERVER_URL }}
+        parameters: '{"apitoken": "${{ secrets.OPENSHIFT_TOKEN_DEV }}", "acceptUntrustedCerts": "true"}'
+        cmd: 'version'
 
-      #echo 'strawberry'
-
-      # echo "::set-output name=DOCKER_VERSION_TAG::docker.pkg.github.com/${{github.repository_owner}}/${{github.repository}}/${{github.repository}}:$(date +%Y%m%d-%H%M)"
-      # echo tag is ${{ DOCKER_VERSION_TAG }}
-      
-      # echo ::set-output name=DOCKER_VERSION_TAG::$(date +%Y%m%d-%H%M)
-      # echo ::set-output name=tags::docker.pkg.github.com/${{github.repository_owner}}/${{github.repository}}:${GITHUB_REF#refs/tags/v}
-
+    - name: cacheImageTag
+      id: cacheImageTag
+      env: 
+         OPENSHIFT_SERVER_URL=${{ secrets.OPENSHIFT_SERVER_URL }}
+         OPENSHIFT_TOKEN_DEV=${{ secrets.OPENSHIFT_TOKEN_DEV }}
+      if: env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null
+      run:
+        # does configmap exists
+        CONFMAP_NAME=imagetag2deploy
+        CONF_EXISTS=$(oc get configmaps -o json |  jq '[.items[] | select(.metadata.name == "'$CONFMAP_NAME'")] | length')
+        echo conf exists is $CONF_EXISTS
+        
+        # if config map exists then replace, otherwise create
+        if [ $CONF_EXISTS -eq 0 ]; then
+            methodType="create"
+        else
+            methodType="replace"
+        fi
+        echo methodType is $methodType
+        oc create configmap $CONFMAP_NAME --from-literal=current_image_tag=9999 --dry-run -o yaml | oc $methodType -f -
+        # update the current config map with the image tag
+        # to retreive the config map later:
+        #   VAR=$(oc get configmap $CONFMAP_NAME  -o json | jq .data.current_image_tag)
 
 
     # --------- GET THE ISSUE URL AND CACHE IT -------
@@ -118,35 +144,16 @@ jobs:
           ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
           ${{ steps.calculateImageTag.outputs.DOCKER_LATEST_TAG }}
 
-        #tags: ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
         load: true
-        #tags: ${{ steps.calculateImageTag.outputs.tags2 }}
-        #  docker.pkg.github.com/${{ github.repository_owner }}/${{ github.repository }}:latest
-        # docker.pkg.github.com/${{ github.repository_owner }}/${{ github.repository }}:${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
-        #  ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:latest
-        #  ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
     - name: Push to Github Packages
       run: |
-        docker push ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
+        echo pushing the image
+
+#        docker push ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
 
 
 
    
-
-
-    # -------- CREATE THE DOCKER IMAGE --------
-    # - name: Create the docker image
-    #   uses: docker/build-push-action@v1
-    #   with:
-    #     registry: docker.pkg.github.com
-    #     username: $GITHUB_ACTOR
-    #     password: ${{ secrets.GITHUB_TOKEN  }}
-    #     repository: bcgov/bcdc-smk/bcdc-smk
-    #     tag_with_ref: true
-    #     tag_with_sha: true
-    #     add_git_labels: true
-    #     tags: ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
-    #     push: true
 
     # -------- DEBUGGING uncomment when done --------
     # - name: Tag the pull request with build tag
