@@ -70,7 +70,7 @@ jobs:
         CONF_EXISTS=$(oc get configmaps -o json |  jq '[.items[] | select(.metadata.name == "'$CONFMAP_NAME'")] | length')
         echo conf exists is $CONF_EXISTS
         
-        # if config map exists then replace, otherwise create
+        echo ---if config map exists then replace, otherwise create---
         if [ $CONF_EXISTS -eq 0 ]; then
             methodType="create"
         else
