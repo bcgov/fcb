@@ -7,7 +7,6 @@ on:
   push:
     branches: ['dev', 'smk-cdci']
 
-
 # on:
 #   pull_request:
 #     branches: ['master']
