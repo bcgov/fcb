@@ -60,7 +60,6 @@ jobs:
       id: cacheImageTag
       if: env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null
       run:
-        # does configmap existss
         CONFMAP_NAME=imagetag2deploy
         CONF_EXISTS=$(oc get configmaps -o json |  jq '[.items[] | select(.metadata.name == "'$CONFMAP_NAME'")] | length')
         echo conf exists is $CONF_EXISTS
