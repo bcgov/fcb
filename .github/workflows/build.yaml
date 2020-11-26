@@ -49,9 +49,6 @@ jobs:
     - name: OpenShift Action
       id: GHAOpenshiftTest
       uses: redhat-developer/openshift-actions@v1.1
-      # env: 
-      #    OPENSHIFT_SERVER_URL=${{ secrets.OPENSHIFT_SERVER_URL }}
-      #    OPENSHIFT_TOKEN_DEV=${{ secrets.OPENSHIFT_TOKEN_DEV }}
       if: env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null
       with:
         version: '3.11.232'
