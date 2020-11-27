@@ -35,6 +35,8 @@ jobs:
     env:
       OPENSHIFT_SERVER_URL: ${{secrets.OPENSHIFT_SERVER_URL}}
       OPENSHIFT_TOKEN_DEV: ${{secrets.OPENSHIFT_TOKEN_DEV}}
+      GHCR_USER: ${{ secrets.GHCR_USER }}
+      GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
     outputs:
       dockerversiontag: ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
       
@@ -120,8 +122,10 @@ jobs:
         buildkitd-flags: --debug
 
     # --------- required by build-push-action
+    # - explicitly setting the GHCR_USER and TOKEN to help with transition to GHCR.IO
     - name: Login to GitHub Packages Docker Registry
       uses: docker/login-action@v1
+      if: env.GHCR_USER != null &&  env.GHCR_TOKEN != null
       with:
         registry: docker.pkg.github.com
         username: ${{ secrets.GHCR_USER }}
@@ -131,6 +135,7 @@ jobs:
     #    Push disabled because not working with this action atm
     - name: Build and push
       id: docker_build
+      if: env.GHCR_USER != null &&  env.GHCR_TOKEN != null
       uses: docker/build-push-action@v2
       with:
         context: .
@@ -141,15 +146,19 @@ jobs:
 
     # --------- Push image to remote
     - name: Push to Github Packages
+      if: env.GHCR_USER != null &&  env.GHCR_TOKEN != null
       run: |
         echo pushing the image
         # ---- commented out until pipeline goes to prod.
         docker push ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
 
     # -------- Update the issue --------
+    # only update if:
+    #    event type is pr
+    #    secrets for github user / token populated
     - name: Tag the pull request with build tag
       id: tagpullrequest
-      if: env.GITHUB_EVENT_NAME == pull_request
+      if: env.GITHUB_EVENT_NAME == pull_request && env.GHCR_USER != null &&  env.GHCR_TOKEN != null
       run: |
         DOCKER_VERSION_TAG=${{ steps.calculateImageTag.outputs.TIMESTAMPTAG }}
 
