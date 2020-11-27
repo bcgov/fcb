@@ -60,7 +60,6 @@ jobs:
       id: cacheImageTag
       if: env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null
       run: |
-        oc --help
         IMAGETAG=${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
         CONFMAP_NAME=imagetag2deploy
         CONF_EXISTS=$(oc get configmaps -o json |  jq '[.items[] | select(.metadata.name == "'$CONFMAP_NAME'")] | length')
@@ -74,7 +73,7 @@ jobs:
             methodType="replace"
         fi
         echo methodType is $methodType
-        oc create configmap $CONFMAP_NAME --from-literal=current_image_tag=9999 --dry-run -o yaml > template.yaml
+        oc create configmap $CONFMAP_NAME --from-literal=current_image_tag=$IMAGETAG --dry-run -o yaml > template.yaml
         oc $methodType -f template.yaml
         # update the current config map with the image tag
         # to retreive the config map later:
