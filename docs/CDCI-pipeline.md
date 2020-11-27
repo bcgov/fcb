@@ -10,6 +10,21 @@ the following steps:
 
 # Details
 
+The full CD/CI pipeline is handled by github actions.  Hot the pipeline code
+gets added to the repo is still yet to be determined.  Some idea include:
+
+1. code is injected into the reposository when the smk-cli tool is run
+1. smk repo's inherit from a github templated repo that contains the actions code
+1. users copy code into the repo
+
+The last option is likely how things will initially be handled.  Possibly will
+evolve to one of the other options as time allows.
+
+The CD/CI pipeline will be built so that it will simply skip over steps that 
+cannot be run due to the absence of secrets.  Once secrets are added to the
+repo the next time the action runs it will process what it can based on 
+what secrets are populated.
+
 ## Build
 
 Build is initiated by a PR to Github's master branch.  The build creates a 
@@ -17,15 +32,40 @@ docker image and stores it as a [github package](https://github.com/orgs/bcgov/p
 
 Images are labelled using a timestamp.
 
+The build process calculates an image tag, then caches it in OCP as a configmap for 
+subsequent deployments.  If the ocp credentials are not populated then the
+tag will not get populated.
+
+### Credentials used by Build
+
+* GHCR_TOKEN: used to authenticate to github for different api calls
+* GHCR_USER: used to authenticate to github, not actually required for the 
+            current flow, but future proofing the code to allow for eventual
+            migration from github packages to github container registry 
+            (ghcr.io)
+* OPENSHIFT_SERVER_URL: the url that is used to communicate with openshift (the url used to authenticate oc cli)
+* OPENSHIFT_TOKEN_DEV: service account api key for the oc project.  This key
+    is generated the first time the helm chart is run in ocp4.  This is the api key for the dev namespace.  Used by steps that deploy to dev.
+
+
 ## Deployment Pre-requisites
 
 All actions should NOT fail even without these parameters being populated, 
 however they just won't actually do anything.  Once these parameters are populated, subsequent PR's should successfully trigger a deployment to Github.
 
-OPENSHIFT_TOKEN_DEV=<api key for service account used to deploy to dev>
-OPENSHIFT_TOKEN_PROD=<api key for service account used to deploy to prod>
-OPENSHIFT_TOKEN_URL=<url to openshift instance>
-OCP4-HELM-VALUES=<text to put in here is defined below>
+Deployment actions use all the secrets used by the build, and for the action that completes the final deployment to prod the additional secrets are used:
+
+* OPENSHIFT_TOKEN_PROD=<api key for service account used to deploy to prod>
+* OPENSHIFT_NAMESPACES=<a configmap with three entries, <dev|test|prod>, where each entry is equal to the ocp namespace used for different envs.
+
+example OPENSHIFT_NAMESPACES secret:
+``` json
+{
+    "dev": "glid27-dev",
+    "test": "glid27-test",
+    "prod": "glid27-prod"
+}
+```
 
 ### Define Helm Chart Values
 

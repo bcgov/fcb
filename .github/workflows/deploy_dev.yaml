@@ -1,0 +1,126 @@
+
+name: "DEV Deploy"
+
+#TODO: once working change the event the action is associated to the one below
+on:
+  workflow_run:
+    workflows: ["BUILDPackage", "build"]
+    types: 
+      - completed
+
+jobs:
+  deploydev:
+    defaults:
+      run:
+        shell: bash
+    runs-on: ubuntu-18.04
+    env:
+      OPENSHIFT_SERVER_URL: ${{secrets.OPENSHIFT_SERVER_URL}}
+      OPENSHIFT_TOKEN_DEV: ${{secrets.OPENSHIFT_TOKEN_DEV}}
+      GHCR_USER: ${{ secrets.GHCR_USER }}
+      GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+    # outputs:
+    #   dockerversiontag: ${{ steps.retrieveimagetag.outputs.DOCKER_VERSION_TAG }}
+    #   issue_url: ${{ steps.retrieveimagetag.outputs.ISSUE_URL }}
+    #   routepath: ${{ steps.deploydev.outputs.ROUTEPATH }}
+    #   github_event_path: ${{ steps.retrieveimagetag.outputs.GITHUB_EVENT_PATH }}
+    steps:
+
+    # Checking out code to get access to the openshift deploy template later on
+    # could also reference the github url?
+    - uses: actions/checkout@v2
+      id: checkout
+      with:
+        fetch-depth: 0
+
+    # LOGGING INTO OC
+    - name: OpenShift Action
+      id: GHAOpenshiftTest
+      uses: redhat-developer/openshift-actions@v1.1
+      if: env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null
+      with:
+        version: '3.11.232'
+        openshift_server_url: ${{ secrets.OPENSHIFT_SERVER_URL }}
+        parameters: '{"apitoken": "${{ secrets.OPENSHIFT_TOKEN_DEV }}", "acceptUntrustedCerts": "true"}'
+        cmd: 'version'
+
+      # RETRIEVE THE IMAGE TAG and the ISSUE
+    - name: Retrieve image tag
+      id: retrieveimagetag
+      if: env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null && env.GHCR_USER != null and env.GHCR_TOKEN != null
+      run: |
+        CONFMAP_NAME=imagetag2deploy
+        CONFMAPIMAGETAG=current_image_tag
+        CONFMAPISSUETAG=issueURL
+        REPONAME=${{github.repository}}
+        EMAIL=$(curl -H "Accept: application/vnd.github.v3+json" \
+                -H "Authorization: token $GHCR_TOKEN" \
+                https://api.github.com/users/$GHCR_USER | jq '.email')
+        IMAGE_REGISTRY=docker.pkg.github.com/${{ github.repository_owner }}/${{ github.repository }}/${{ github.repository }}
+
+        OCDEVNAMESPACE=$(echo $OPENSHIFT_NAMESPACES | jq '.dev')
+        oc project $OCDEVNAMESPACE
+
+        IMAGE_TAG=$(oc get configmap $CONFMAP_NAME  -o json | jq .data.$CONFMAPIMAGETAG)
+        ISSUE_URL=$(oc get configmap $CONFMAP_NAME  -o json | jq .data.$CONFMAPISSUETAG)
+        GITHUB_EVENT_PATH=$(oc get configmap $CONFMAP_NAME  -o json | jq .data.$GITHUB_EVENT_PATH)
+
+        helm upgrade --install  $REPONAME helm-charts \
+           --set app_name=$REPONAME \
+           --set env=dev \
+           --set app_image_pull_secret_params.email=$EMAIL \
+           --set app_image_pull_secret_params.username=$GHCR_USER \
+           --set app_image_pull_secret_params.password=$GHCR_TOKEN \ 
+           --set app_image_pull_secret_params.imagetag=$CONFMAPIMAGETAG \ 
+           --set app_image_pull_secret_params.registry=$IMAGE_REGISTRY
+
+    # # ADD THE ROUTE TO THE ISSUE
+    # - name: Update issue
+    #   id: updateissue
+    #   run: |
+    #     echo the GITHUB_EVENT_PATH
+    #     cat $GITHUB_EVENT_PATH
+    #     ROUTEPATH=${{ steps.deploydev.outputs.ROUTEPATH }}
+
+    #     # GET THE ISSUE URL
+    #     #issue_url=$(jq --raw-output .pull_request.issue_url "$GITHUB_EVENT_PATH")
+    #     #echo issue url is $issue_url
+    #     ## for debugging using existing pull_request
+    #     #if [ -z "$issue_url" ] || [ "$issue_url" = "null" ]
+    #     #  then
+    #     #    issue_url="https://api.github.com/repos/bcgov/bcdc-smk/issues/19/comments"
+    #     #fi
+    #     #echo issue url $issue_url
+    #     ISSUE_URL=${{ steps.retrieveimagetag.outputs.ISSUE_URL }}
+
+    #     # ADD COMMENT TO THE ISSUE
+    #     echo 'adding route to the comment for the issue'
+    #     GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+    #     ISSUE_COMMENT="link to demo deployment of app\n https://${{ steps.deploydev.outputs.ROUTEPATH }}\n\nVerify that it looks good, if so merge the pr, otherwise close"
+    #     ISSUE_BODY='{"body": "'$ISSUE_COMMENT'"}'
+
+    #     curl $ISSUE_URL -X POST --header "Authorization: Bearer $GITHUB_TOKEN" \
+    #       --header "Accept: application/vnd.github.v3+json" \
+    #       --data-raw "$ISSUE_BODY"
+
+    # - name: "Send Review Request 2"
+    #   id: requestreview
+    #   run: |
+    #     # git_event.txt
+    #     EVENT_INFO=$(cat git_event.txt)
+    #     GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+
+    #     PR_NUMBER=$(echo $EVENT_INFO | jq ".number")
+    #     echo pr number is $PR_NUMBER
+    #     PR_URL=$(echo $EVENT_INFO | jq ".pull_request.url" | tr -d '"')
+    #     echo pr url is $PR_URL
+    #     REVIEW_URL="$PR_URL/requested_reviewers"
+    #     echo review url $REVIEW_URL
+    #     REVIEWERS='{"reviewers":["GuyTheFlower", "NicoledeGreef"]}'
+    #     echo reviewers are $REVIEWERS
+
+    #     curl --location --request POST  "$REVIEW_URL" \
+    #     --header "Authorization: Bearer $GITHUB_TOKEN" \
+    #     --header 'Content-Type: text/plain' \
+    #     --data-raw "$REVIEWERS"
+
