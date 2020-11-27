@@ -1,0 +1,34 @@
+# Default values for helm-charts.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# should get overridden with the specific smk app name
+app_name: smkapp
+
+# label for role, used for building nsps
+web_role: web
+env: dev
+
+app_port: 8888
+
+# Values that should be overriden:
+#  email, username, password, registry, imagetag
+# these are my passwords, please don't share
+app_image_pull_secret_params:
+  name: image-pull-secrets
+  email: guy.lafleur@montreal.canadians.ca
+  username: guyLafleur
+  password: b05t0NSuuuuuxx999342
+  registry: docker.pkg.github.com/bcgov/smk-fc-fap/smk-fc-fap
+  imagetag: latest
+
+kong_config:
+  name: name-of-kong-config-service-account
+  apikey: api-key-that-goes-with-the-service-account
+
+
+github_actions_sa:
+  name: gha_sa
+
+deploy_service_account: true
+

@@ -1,0 +1,29 @@
+{{- if .Values.deploy_service_account -}}
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ .Values.app_name }}-rb
+roleRef:
+  kind: Role
+  name: {{ .Values.app_name }}-role
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.app_name }}-sa
+{{ end }}
+# ---
+#
+# {{- if .Values.deploy_service_account -}}
+# kind: RoleBinding
+# apiVersion: rbac.authorization.k8s.io/v1
+# metadata:
+#   name: {{ .Values.app_name }}-edit-rb
+# roleRef:
+#   kind: ClusterRole
+#   name: edit
+#   apiGroup: rbac.authorization.k8s.io
+# subjects:
+#   - kind: ServiceAccount
+#     name: {{ .Values.app_name }}-sa
+#     #apiGroup: rbac.authorization.k8s.io
+# {{ end }}

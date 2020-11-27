@@ -1,0 +1,174 @@
+name: BUILDPackage
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+# -------- DEBUGGING --------
+on: 
+  push:
+    branches: ['dev', 'smk-cdci']
+
+# on:
+#   pull_request:
+#     branches: ['master']
+#     types: ['opened', 'reopened']
+
+jobs:
+  # This workflow contains a single job called "build"
+  buildjob:
+    defaults:
+      run:
+        shell: bash
+
+    name: Build BCDC-SMK container image
+    # The type of runner that the job will run on
+    runs-on: ubuntu-18.04
+    env:
+      OPENSHIFT_SERVER_URL: ${{secrets.OPENSHIFT_SERVER_URL}}
+      OPENSHIFT_TOKEN_DEV: ${{secrets.OPENSHIFT_TOKEN_DEV}}
+    outputs:
+      dockerversiontag: ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
+      
+    steps:
+
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+      id: checkout
+      with:
+        fetch-depth: 0
+
+    # Calculate the image tag, used later, and cached in a oc config map
+    # if oc secrets provided
+    - name: calculateImageTag
+      id: calculateImageTag
+      run: |
+        DATESTAMP=$(date +%Y%m%d-%H%M)
+        REGISTRY="docker.pkg.github.com"
+        IMAGE="${REGISTRY}/${{ github.repository }}/${{ github.event.repository.name }}"
+        TAGS="${IMAGE}:${DATESTAMP}"
+        LATEST="${IMAGE}:latest"
+        echo ::set-output name=DOCKER_VERSION_TAG::${TAGS}
+        echo ::set-output name=DOCKER_LATEST_TAG::${LATEST}
+        echo ::set-output name=TIMESTAMPTAG::${DATESTAMP}
+        echo event name is $GITHUB_EVENT_NAME
+
+    # Log into openshift
+    - name: OpenShift Action
+      id: GHAOpenshiftTest
+      uses: redhat-developer/openshift-actions@v1.1
+      if: env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null
+      with:
+        version: '3.11.232'
+        openshift_server_url: ${{ secrets.OPENSHIFT_SERVER_URL }}
+        parameters: '{"apitoken": "${{ secrets.OPENSHIFT_TOKEN_DEV }}", "acceptUntrustedCerts": "true"}'
+        cmd: 'version'
+
+    # --------- cache the image tag in a oc config map
+    - name: cacheImageTag
+      id: cacheImageTag
+      if: env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null
+      run: |
+        IMAGETAG=${{ steps.calculateImageTag.outputs.TIMESTAMPTAG }}
+        CONFMAP_NAME=imagetag2deploy
+        CONF_EXISTS=$(oc get configmaps -o json |  jq '[.items[] | select(.metadata.name == "'$CONFMAP_NAME'")] | length')
+        echo conf exists is $CONF_EXISTS
+        echo imagetag is $IMAGETAG
+        
+        if [ $CONF_EXISTS -eq 0 ] 
+          then
+            methodType="create"
+        else
+            methodType="replace"
+        fi
+        echo methodType is $methodType
+        oc create configmap $CONFMAP_NAME --from-literal=current_image_tag=$IMAGETAG --dry-run -o yaml > template.yaml
+        oc $methodType -f template.yaml
+
+        # to retreive the config map later:
+        #   VAR=$(oc get configmap $CONFMAP_NAME  -o json | jq .data.current_image_tag)
+
+
+    # --------- GET THE ISSUE URL AND CACHE IT -------
+    - name: output the docker image tag, issue url and the event path
+      id: testoutput
+      run: |
+        
+        echo tag version is ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
+        echo ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }} > docker_image_tag.txt
+
+        issue_url=$(jq --raw-output .pull_request.issue_url "$GITHUB_EVENT_PATH")
+        echo $issue_url > issue_url.txt
+        cp $GITHUB_EVENT_PATH git_event.txt
+
+    # --------- required by build-push-action
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+    
+    # --------- required by build-push-action
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+      with:
+        buildkitd-flags: --debug
+
+    # --------- required by build-push-action
+    - name: Login to GitHub Packages Docker Registry
+      uses: docker/login-action@v1
+      with:
+        registry: docker.pkg.github.com
+        username: ${{ secrets.GHCR_USER }}
+        password: ${{ secrets.GHCR_TOKEN }}
+
+    # --------- Build image
+    #    Push disabled because not working with this action atm
+    - name: Build and push
+      id: docker_build
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        tags: |
+          ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
+          ${{ steps.calculateImageTag.outputs.DOCKER_LATEST_TAG }}
+        load: true
+
+    # --------- Push image to remote
+
+    - name: Push to Github Packages
+      run: |
+        echo pushing the image
+        # ---- commented out until pipeline goes to prod.
+        # docker push ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
+
+    # -------- Update the issue --------
+    - name: Tag the pull request with build tag
+      id: tagpullrequest
+      if: env.GITHUB_EVENT_NAME == pull_request
+      run: |
+        DOCKER_VERSION_TAG=${{ steps.calculateImageTag.outputs.TIMESTAMPTAG }}
+
+        echo tag version is $DOCKER_VERSION_TAG
+        #pull_number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+        echo github event path: $GITHUB_EVENT_PATH
+        echo $GITHUB_WORKSPACE
+
+        # use this for pulls
+        issue_url=$(jq --raw-output .pull_request.issue_url "$GITHUB_EVENT_PATH")
+        echo issue url is $issue_url
+
+        # for debugging using existing pull_request
+        if [ -z "$issue_url" ] || [ "$issue_url" = "null" ]
+          then
+            issue_url="https://api.github.com/repos/bcgov/smk-fap-fcb/issues/4"
+        fi
+
+        # ---- adding the tag that was assigned to the image to the issue ----
+        jsonwithlabels=$(curl --header "Content-Type: application/json" \
+        --header "authorization: Bearer ${{ secrets.GHCR_TOKEN }}" \
+        --request GET \
+        $issue_url | jq '.labels |= . + ["'$DOCKER_VERSION_TAG'"] | {("labels"): .["labels"]?}')
+        
+        # now send modified json back to the api with the new label
+        curl \
+        --location --request POST $issue_url \
+        --header "Content-Type: application/json" \
+        --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+        --data "$jsonwithlabels"
+

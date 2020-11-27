@@ -1,0 +1,24 @@
+kind: "Service"
+apiVersion: "v1"
+metadata:
+  annotations:
+    openshift.io/generated-by: OpenShiftNewApp
+  labels:
+    app: {{ .Values.app_name }}
+    role: {{ .Values.web_role }}
+    deploymentconfig: {{ .Values.app_name }}-dc
+    service: {{ .Values.app_name }}-svc
+    env: {{ .Values.env }}
+  name: {{ .Values.app_name }}-svc
+spec:
+  ports:
+    - name: {{ .Values.app_port }}-tcp
+      port: {{ .Values.app_port }}
+      protocol: TCP
+      targetPort: {{ .Values.app_port }}
+  selector:
+    deploymentconfig: {{ .Values.app_name }}-dc
+    role: {{ .Values.web_role }}
+    app: {{ .Values.app_name }}
+    env: {{ .Values.env }}
+  sessionAffinity: None
