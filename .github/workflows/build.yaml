@@ -59,7 +59,7 @@ jobs:
     - name: cacheImageTag
       id: cacheImageTag
       if: env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null
-      run:
+      run: |
         oc --help
         IMAGETAG=${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
         CONFMAP_NAME=imagetag2deploy
