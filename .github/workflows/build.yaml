@@ -65,7 +65,7 @@ jobs:
         echo conf exists is $CONF_EXISTS
         
         echo ---if config map exists then replace, otherwise create---
-        if [ $CONF_EXISTS -eq 0 ]; then
+        if [ $CONF_EXISTS -eq 0 ] ; then
             methodType="create"
         else
             methodType="replace"
