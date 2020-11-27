@@ -72,7 +72,8 @@ jobs:
             methodType="replace"
         fi
         echo methodType is $methodType
-        oc create configmap $CONFMAP_NAME --from-literal=current_image_tag=9999 --dry-run -o yaml | oc $methodType -f -
+        oc create configmap $CONFMAP_NAME --from-literal=current_image_tag=9999 --dry-run -o yaml > template.yaml
+        oc $methodType -f template.yaml
         # update the current config map with the image tag
         # to retreive the config map later:
         #   VAR=$(oc get configmap $CONFMAP_NAME  -o json | jq .data.current_image_tag)
