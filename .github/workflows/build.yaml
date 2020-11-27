@@ -9,7 +9,8 @@ name: BUILDPackage
 
 on:
   pull_request:
-    branches: ['master']
+    # debug: remove the dev
+    branches: ['master', 'dev']
     types: ['opened', 'reopened']
     paths-ignore:
       - openshift/**
@@ -99,17 +100,25 @@ jobs:
         #   VAR=$(oc get configmap $CONFMAP_NAME  -o json | jq .data.current_image_tag)
 
 
-    # --------- GET THE ISSUE URL AND CACHE IT -------
-    - name: output the docker image tag, issue url and the event path
-      id: testoutput
+    # --------- GET THE ISSUE URL and EVENT_INFO AND CACHE IT -------
+    - name: Store Issue URL in configmap
+      id: cacheIssueUrl
+      if: env.GITHUB_EVENT_NAME == pull_request && env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null
       run: |
-        
-        echo tag version is ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
-        echo ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }} > docker_image_tag.txt
+        CONFMAP_NAME=currentgithubissue
+        ISSUE_URL=$(jq --raw-output .pull_request.issue_url "$GITHUB_EVENT_PATH")
 
-        issue_url=$(jq --raw-output .pull_request.issue_url "$GITHUB_EVENT_PATH")
-        echo $issue_url > issue_url.txt
-        cp $GITHUB_EVENT_PATH git_event.txt
+        CONF_EXISTS=$(oc get configmaps -o json |  jq '[.items[] | select(.metadata.name == "'$CONFMAP_NAME'")] | length')
+        if [ $CONF_EXISTS -eq 0 ] 
+          then
+            methodType="create"
+        else
+            methodType="replace"
+        fi
+        oc create configmap $CONFMAP_NAME \
+          --from-literal=issueURL=$ISSUE_URL \
+          --from-literal=GITHUB_EVENT_PATH=$GITHUB_EVENT_PATH \
+          --dry-run -o yaml | oc $methodType -f -
 
     # --------- required by build-push-action
     - name: Set up QEMU
