@@ -103,7 +103,7 @@ jobs:
     # --------- GET THE ISSUE URL and EVENT_INFO AND CACHE IT -------
     - name: Store Issue URL in configmap
       id: cacheIssueUrl
-      if: env.GITHUB_EVENT_NAME == pull_request && env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null
+      if: env.GITHUB_EVENT_NAME == 'pull_request' && env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null
       run: |
         CONFMAP_NAME=currentgithubissue
         ISSUE_URL=$(jq --raw-output .pull_request.issue_url "$GITHUB_EVENT_PATH")
@@ -167,7 +167,7 @@ jobs:
     #    secrets for github user / token populated
     - name: Tag the pull request with build tag
       id: tagpullrequest
-      if: env.GITHUB_EVENT_NAME == pull_request && env.GHCR_USER != null &&  env.GHCR_TOKEN != null
+      if: env.GITHUB_EVENT_NAME == 'pull_request' && env.GHCR_USER != null &&  env.GHCR_TOKEN != null
       run: |
         DOCKER_VERSION_TAG=${{ steps.calculateImageTag.outputs.TIMESTAMPTAG }}
 
