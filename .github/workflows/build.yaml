@@ -36,6 +36,8 @@ jobs:
       with:
         fetch-depth: 0
 
+    # Calculate the image tag, used later, and cached in a oc config map
+    # if oc secrets provided
     - name: calculateImageTag
       id: calculateImageTag
       run: |
@@ -47,8 +49,9 @@ jobs:
         echo ::set-output name=DOCKER_VERSION_TAG::${TAGS}
         echo ::set-output name=DOCKER_LATEST_TAG::${LATEST}
         echo ::set-output name=TIMESTAMPTAG::${DATESTAMP}
+        echo event name is $GITHUB_EVENT_NAME
 
-
+    # Log into openshift
     - name: OpenShift Action
       id: GHAOpenshiftTest
       uses: redhat-developer/openshift-actions@v1.1
@@ -59,6 +62,7 @@ jobs:
         parameters: '{"apitoken": "${{ secrets.OPENSHIFT_TOKEN_DEV }}", "acceptUntrustedCerts": "true"}'
         cmd: 'version'
 
+    # --------- cache the image tag in a oc config map
     - name: cacheImageTag
       id: cacheImageTag
       if: env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null
@@ -78,82 +82,60 @@ jobs:
         echo methodType is $methodType
         oc create configmap $CONFMAP_NAME --from-literal=current_image_tag=$IMAGETAG --dry-run -o yaml > template.yaml
         oc $methodType -f template.yaml
-        # update the current config map with the image tag
+
         # to retreive the config map later:
         #   VAR=$(oc get configmap $CONFMAP_NAME  -o json | jq .data.current_image_tag)
 
 
     # --------- GET THE ISSUE URL AND CACHE IT -------
-    # - name: output the docker image tag, issue url and the event path
-    #   id: testoutput
-    #   run: |
+    - name: output the docker image tag, issue url and the event path
+      id: testoutput
+      run: |
         
-    #     echo tag version is ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
-    #     echo ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }} > docker_image_tag.txt
+        echo tag version is ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
+        echo ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }} > docker_image_tag.txt
 
-    #     issue_url=$(jq --raw-output .pull_request.issue_url "$GITHUB_EVENT_PATH")
-    #     echo $issue_url > issue_url.txt
-    #     cp $GITHUB_EVENT_PATH git_event.txt
+        issue_url=$(jq --raw-output .pull_request.issue_url "$GITHUB_EVENT_PATH")
+        echo $issue_url > issue_url.txt
+        cp $GITHUB_EVENT_PATH git_event.txt
 
-    # --------- CACHE THE IMAGE TAG and ISSUE URL IN AN ARTIFACT
-    # - name: upload image tag
-    #   id: uploadimagetag
-    #   uses: actions/upload-artifact@v2
-    #   with:
-    #     name: imagetag
-    #     path: |
-    #       docker_image_tag.txt
-    #       issue_url.txt
-    #       git_event.txt
-
-
-    # trying the docker/build-push-action@v2
-    # which needs the qemu / buildx / login steps
+    # --------- required by build-push-action
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
-
+    
+    # --------- required by build-push-action
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
       with:
         buildkitd-flags: --debug
 
-    # - uses: actions/delete-package-versions@v1
-    #   with:
-    #     package-version-ids: 'MDE0OlBhY2thZ2VWZXJzaW9uOTcyMDY3'
-    #     token: ${{ secrets.GITHUB_PAT }}
-
+    # --------- required by build-push-action
     - name: Login to GitHub Packages Docker Registry
       uses: docker/login-action@v1
       with:
-        #registry: ghcr.io
         registry: docker.pkg.github.com
         username: ${{ secrets.GHCR_USER }}
         password: ${{ secrets.GHCR_TOKEN }}
 
+    # --------- Build image
+    #    Push disabled because not working with this action atm
     - name: Build and push
       id: docker_build
       uses: docker/build-push-action@v2
       with:
         context: .
-        #outputs: type=oci,dest=/tmp/image.tar
-        #file: ./Dockerfile
-        #tags: bcgov/smk-fap-fcb:${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
-        #builder: ${{ steps.buildx.outputs.name }}
-        # tags: docker.pkg.github.com/bcgov/smk-fap-fcb/smk-fap-fcb:latest
         tags: |
           ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
           ${{ steps.calculateImageTag.outputs.DOCKER_LATEST_TAG }}
-
         load: true
+
+    # --------- Push image to remote
+
     - name: Push to Github Packages
       run: |
         echo pushing the image
-
-#        docker push ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
-
-
-
-   
+        # ---- commented out until pipeline goes to prod.
+        # docker push ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
 
     # -------- DEBUGGING uncomment when done --------
     # - name: Tag the pull request with build tag
