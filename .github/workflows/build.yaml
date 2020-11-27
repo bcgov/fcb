@@ -27,6 +27,7 @@ jobs:
       OPENSHIFT_TOKEN_DEV: ${{secrets.OPENSHIFT_TOKEN_DEV}}
     outputs:
       dockerversiontag: ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
+      
     steps:
 
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -45,6 +46,8 @@ jobs:
         LATEST="${IMAGE}:latest"
         echo ::set-output name=DOCKER_VERSION_TAG::${TAGS}
         echo ::set-output name=DOCKER_LATEST_TAG::${LATEST}
+        echo ::set-output name=TIMESTAMPTAG::${DATESTAMP}
+
 
     - name: OpenShift Action
       id: GHAOpenshiftTest
@@ -60,7 +63,7 @@ jobs:
       id: cacheImageTag
       if: env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null
       run: |
-        IMAGETAG=${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
+        IMAGETAG=${{ steps.calculateImageTag.outputs.TIMESTAMPTAG }}
         CONFMAP_NAME=imagetag2deploy
         CONF_EXISTS=$(oc get configmaps -o json |  jq '[.items[] | select(.metadata.name == "'$CONFMAP_NAME'")] | length')
         echo conf exists is $CONF_EXISTS
