@@ -3,14 +3,24 @@ name: BUILDPackage
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
 # -------- DEBUGGING --------
-on: 
-  push:
-    branches: ['dev', 'smk-cdci']
+# on: 
+#   push:
+#     branches: ['dev', 'smk-cdci']
 
-# on:
-#   pull_request:
-#     branches: ['master']
-#     types: ['opened', 'reopened']
+on:
+  pull_request:
+    branches: ['master']
+    types: ['opened', 'reopened']
+    paths-ignore:
+      - openshift/**
+      - .vscode/**
+      - docs/**
+      - .gitignore
+      - LICENSE
+      - open-api.json
+      - readme.md
+      - helm-charts
+      - code_of_conduct.md
 
 jobs:
   # This workflow contains a single job called "build"
@@ -130,12 +140,11 @@ jobs:
         load: true
 
     # --------- Push image to remote
-
     - name: Push to Github Packages
       run: |
         echo pushing the image
         # ---- commented out until pipeline goes to prod.
-        # docker push ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
+        docker push ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
 
     # -------- Update the issue --------
     - name: Tag the pull request with build tag
