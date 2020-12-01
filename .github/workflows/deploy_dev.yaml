@@ -57,7 +57,12 @@ jobs:
                 -H "Authorization: token $GHCR_TOKEN" \
                 https://api.github.com/users/$GHCR_USER | jq '.email')
 
+        echo ::set-output name=EMAIL::${EMAIL}
+        echo ::set-output name=REPONAME::${REPONAME}
+
         IMAGE_REGISTRY=docker.pkg.github.com/${{ github.repository_owner }}/${{ github.repository }}/${{ github.repository }}
+        echo ::set-output name=IMAGE_REGISTRY::${IMAGE_REGISTRY}
+
 
         # ---- get the namespace name and set the namespace
         OC_NAMESPACE_NAMES_CONFIG_MAP=namespaces-cm
@@ -75,16 +80,27 @@ jobs:
         ISSUE_CONFIGMAP_NAME=github-issues-configmap
         ISSUE_URL=$(oc get configmap $ISSUE_CONFIGMAP_NAME  -o json | jq .data.issue_url)
 
-        # --=- Move below to new action
 
-        # helm upgrade --install  $REPONAME helm-charts \
-        #    --set app_name=$REPONAME \
-        #    --set env=dev \
-        #    --set app_image_pull_secret_params.email=$EMAIL \
-        #    --set app_image_pull_secret_params.username=$GHCR_USER \
-        #    --set app_image_pull_secret_params.password=$GHCR_TOKEN \ 
-        #    --set app_image_pull_secret_params.imagetag=$CONFMAPIMAGETAG \ 
-        #    --set app_image_pull_secret_params.registry=$IMAGE_REGISTRY
+
+    - name: Retrieve image tag, issue url, oc namespace
+      id: retrieveimagetag
+      if: env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null && env.GHCR_USER != null && env.GHCR_TOKEN != null
+      run: |
+
+        # --=- Move below to new action
+        EMAIL=${{ steps.retrieveimagetag.outputs.EMAIL }}
+        REPONAME=${{ steps.retrieveimagetag.outputs.REPONAME }}
+        DOCKER_VERSION_TAG=${{ steps.retrieveimagetag.outputs.DOCKER_VERSION_TAG }}
+        IMAGE_REGISTRY=${{ steps.retrieveimagetag.outputs.IMAGE_REGISTRY }}
+
+        helm upgrade --install  $REPONAME helm-charts \
+           --set app_name=$REPONAME \
+           --set env=dev \
+           --set app_image_pull_secret_params.email=$EMAIL \
+           --set app_image_pull_secret_params.username=$GHCR_USER \
+           --set app_image_pull_secret_params.password=$GHCR_TOKEN \ 
+           --set app_image_pull_secret_params.imagetag=$DOCKER_VERSION_TAG \ 
+           --set app_image_pull_secret_params.registry=$IMAGE_REGISTRY
 
     # # ADD THE ROUTE TO THE ISSUE
     # - name: Update issue
