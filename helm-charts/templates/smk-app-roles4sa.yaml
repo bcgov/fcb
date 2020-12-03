@@ -4,6 +4,15 @@ apiVersion: authorization.openshift.io/v1
 metadata:
   name:  {{ .Values.app_name }}-role
 rules:
+  - resources:
+      - configmaps
+    verbs:
+      - get
+      - list
+      - create
+      - update
+      - delete
+      - patch
   - apiGroups:
       - apps.openshift.io
     resources:

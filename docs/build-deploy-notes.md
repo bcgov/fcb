@@ -34,3 +34,11 @@ SECRETS=<path to the secrets>
 helm install smk-fap-fcb helm-charts -f $SECRETS --set deploy_service_account=true
 ```
 
+# Roles / Service accounts / role binding
+
+## Get a list of the different permissions
+
+`oc describe clusterrole.rbac`
+
+That output describes the possible roles that can be applied.  
+

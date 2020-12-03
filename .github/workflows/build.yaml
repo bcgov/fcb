@@ -105,7 +105,7 @@ jobs:
       id: cacheIssueUrl
       if: env.GITHUB_EVENT_NAME == 'pull_request' && env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null
       run: |
-        CONFMAP_NAME=currentgithubissue
+        CONFMAP_NAME=github-issues-configmap
         ISSUE_URL=$(jq --raw-output .pull_request.issue_url "$GITHUB_EVENT_PATH")
 
         CONF_EXISTS=$(oc get configmaps -o json |  jq '[.items[] | select(.metadata.name == "'$CONFMAP_NAME'")] | length')
@@ -115,9 +115,10 @@ jobs:
         else
             methodType="replace"
         fi
+        
         oc create configmap $CONFMAP_NAME \
           --from-literal=issueURL=$ISSUE_URL \
-          --from-literal=GITHUB_EVENT_PATH=$GITHUB_EVENT_PATH \
+          --from-literal=github_event_path=$GITHUB_EVENT_PATH \
           --dry-run -o yaml | oc $methodType -f -
 
     # --------- required by build-push-action
