@@ -66,7 +66,7 @@ jobs:
 
         IMAGE_REGISTRY=docker.pkg.github.com/${{ github.repository_owner }}/${{ github.repository }}/${{ github.repository }}
         echo ::set-output name=IMAGE_REGISTRY::${IMAGE_REGISTRY}
-
+        oc whoami
 
         # ---- get the namespace name and set the namespace
         OC_NAMESPACE_NAMES_CONFIG_MAP=namespaces-cm
