@@ -45,7 +45,7 @@ jobs:
         cmd: 'version'
 
       # RETRIEVE THE IMAGE TAG and the ISSUE
-      # -
+      #
     - name: Retrieve image tag, issue url, oc namespace
       id: retrieveimagetag
       if: env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null && env.GHCR_USER != null && env.GHCR_TOKEN != null
@@ -80,8 +80,6 @@ jobs:
         # ---- Get the issue url and export it
         ISSUE_CONFIGMAP_NAME=github-issues-configmap
         ISSUE_URL=$(oc get configmap $ISSUE_CONFIGMAP_NAME  -o json | jq .data.issue_url)
-
-
 
     - name: Retrieve image tag, issue url, oc namespace
       id: retrieveimagetag
