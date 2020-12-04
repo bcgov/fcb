@@ -46,7 +46,7 @@ jobs:
 
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
-      if: !(env.DEBUG_DEPLOY)
+      if: !env.DEBUG_DEPLOY
       id: checkout
       with:
         fetch-depth: 0
@@ -55,7 +55,7 @@ jobs:
     # if oc secrets provided
     - name: calculateImageTag
       id: calculateImageTag
-      if: !(env.DEBUG_DEPLOY)
+      if: !env.DEBUG_DEPLOY
       run: |
         DATESTAMP=$(date +%Y%m%d-%H%M)
         REGISTRY="docker.pkg.github.com"
@@ -71,7 +71,7 @@ jobs:
     - name: OpenShift Action
       id: GHAOpenshiftTest
       uses: redhat-developer/openshift-actions@v1.1
-      if: env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null && !(env.DEBUG_DEPLOY)
+      if: env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null && !env.DEBUG_DEPLOY
       with:
         version: '3.11.232'
         openshift_server_url: ${{ secrets.OPENSHIFT_SERVER_URL }}
@@ -81,7 +81,7 @@ jobs:
     # --------- cache the image tag in a oc config map
     - name: cacheImageTag
       id: cacheImageTag
-      if: env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null && !(env.DEBUG_DEPLOY)
+      if: env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null && !env.DEBUG_DEPLOY
       run: |
         IMAGETAG=${{ steps.calculateImageTag.outputs.TIMESTAMPTAG }}
         CONFMAP_NAME=imagetag2deploy
