@@ -72,8 +72,7 @@ jobs:
         OC_NAMESPACE_NAMES_CONFIG_MAP=namespaces-cm
         OCDEVNAMESPACE=$(oc get configmap $OC_NAMESPACE_NAMES_CONFIG_MAP  -o json | jq .data.dev | tr -d '"')
         echo namespace $OCDEVNAMESPACE
-        oc project $OCDEVNAMESPACE
-
+        # could verify here that in correct namespace or error
 
         # ---- get the Image tag and export it
         IMAGE_TAG=$(oc get configmap $IMAGE_TAG_CONFMAP_NAME  -o json | jq .data.$CONFMAPIMAGETAG)
