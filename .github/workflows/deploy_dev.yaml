@@ -93,7 +93,8 @@ jobs:
 
         # --=- Move below to new action
         EMAIL=${{ steps.retrieveimagetag.outputs.EMAIL }}
-        REPONAME=${{ steps.retrieveimagetag.outputs.REPONAME }}
+        #REPONAME=${{ steps.retrieveimagetag.outputs.REPONAME }}
+        REPONAME=${{ github.event.repository.name }}
         DOCKER_VERSION_TAG=${{ steps.retrieveimagetag.outputs.DOCKER_VERSION_TAG }}
         IMAGE_REGISTRY=${{ steps.retrieveimagetag.outputs.IMAGE_REGISTRY }}
         echo repo name is $REPONAME
