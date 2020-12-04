@@ -100,6 +100,7 @@ jobs:
         echo repo name is $REPONAME
         ls
         helm status $REPONAME
+        helm version
         helm upgrade --install $REPONAME ./helm-charts \
            --set app_name=$REPONAME \
            --set env=dev \
