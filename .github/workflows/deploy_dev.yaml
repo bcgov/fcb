@@ -98,8 +98,9 @@ jobs:
         DOCKER_VERSION_TAG=${{ steps.retrieveimagetag.outputs.DOCKER_VERSION_TAG }}
         IMAGE_REGISTRY=${{ steps.retrieveimagetag.outputs.IMAGE_REGISTRY }}
         echo repo name is $REPONAME
+        ls
         helm status $REPONAME
-        helm upgrade --install  $REPONAME helm-charts \
+        helm upgrade --install $REPONAME ./helm-charts \
            --set app_name=$REPONAME \
            --set env=dev \
            --set app_image_pull_secret_params.email=$EMAIL \
