@@ -101,13 +101,13 @@ jobs:
         ls
         helm status $REPONAME
         helm version
-        helm upgrade --install $REPONAME ./helm-charts \
-           --set app_name=$REPONAME \
+        helm upgrade $REPONAME ./helm-charts --install \
+           --set app_name=$REPONAME\
            --set env=dev \
            --set app_image_pull_secret_params.email=$EMAIL \
            --set app_image_pull_secret_params.username=$GHCR_USER \
-           --set app_image_pull_secret_params.password=$GHCR_TOKEN \ 
-           --set app_image_pull_secret_params.imagetag=$DOCKER_VERSION_TAG \ 
+           --set app_image_pull_secret_params.password=$GHCR_TOKEN \
+           --set app_image_pull_secret_params.imagetag=$DOCKER_VERSION_TAG \
            --set app_image_pull_secret_params.registry=$IMAGE_REGISTRY
 
     # # ADD THE ROUTE TO THE ISSUE
