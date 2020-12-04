@@ -38,7 +38,7 @@ jobs:
       OPENSHIFT_TOKEN_DEV: ${{secrets.OPENSHIFT_TOKEN_DEV}}
       GHCR_USER: ${{ secrets.GHCR_USER }}
       GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-      DEBUG_DEPLOY: false
+      DEBUG_DEPLOY: true
     outputs:
       dockerversiontag: ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
       
