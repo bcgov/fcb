@@ -76,6 +76,7 @@ jobs:
         # ---- get the Image tag and export it
         IMAGE_TAG=$(oc get configmap $IMAGE_TAG_CONFMAP_NAME  -o json | jq .data.$CONFMAPIMAGETAG)
         echo ::set-output name=DOCKER_VERSION_TAG::${IMAGE_TAG}
+        echo image tag $IMAGE_TAG
         
         # ---- output the docker image repo
         echo ::set-output name=IMAGE_REGISTRY::${IMAGE_REGISTRY}
