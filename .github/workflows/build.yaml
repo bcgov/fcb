@@ -166,6 +166,9 @@ jobs:
       if: env.GHCR_USER != null &&  env.GHCR_TOKEN != null && env.DEBUG_DEPLOY == 'false'
       run: |
         echo pushing the image
+        echo $GITHUB_EVENT_NAME
+        echo ${{ github.event_name }}
+
         # ---- commented out until pipeline goes to prod.
         #docker push ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
 
@@ -175,7 +178,7 @@ jobs:
     #    secrets for github user / token populated
     - name: Tag the pull request with build tag
       id: tagpullrequest
-      if: github.event_name == 'pull_request' && env.GHCR_USER != null &&  env.GHCR_TOKEN != null && env.DEBUG_DEPLOY == 'false'
+      if: ${{ github.event_name }} == 'pull_request' && env.GHCR_USER != null &&  env.GHCR_TOKEN != null && env.DEBUG_DEPLOY == 'false'
       run: |
         DOCKER_VERSION_TAG=${{ steps.calculateImageTag.outputs.TIMESTAMPTAG }}
 
