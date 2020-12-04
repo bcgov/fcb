@@ -2,15 +2,15 @@
 name: "DEV Deploy"
 
 #TODO: once working change the event the action is associated to the one below
-# on:
-#   workflow_run:
-#     workflows: ["BUILDPackage", "build"]
-#     types: 
-#       - completed
+on:
+  workflow_run:
+    workflows: ["BUILDPackage", "build"]
+    types: 
+      - completed
 
-on: 
-  push:
-    branches: ['dev', 'smk-cdci']
+# on: 
+#   push:
+#     branches: ['dev', 'smk-cdci']
 
 jobs:
   deploydev:
@@ -97,10 +97,7 @@ jobs:
         REPONAME=${{ github.event.repository.name }}
         DOCKER_VERSION_TAG=${{ steps.retrieveimagetag.outputs.DOCKER_VERSION_TAG }}
         IMAGE_REGISTRY=${{ steps.retrieveimagetag.outputs.IMAGE_REGISTRY }}
-        echo repo name is $REPONAME
-        ls
-        helm status $REPONAME
-        helm version
+
         helm upgrade $REPONAME ./helm-charts --install \
            --set app_name=$REPONAME\
            --set env=dev \
