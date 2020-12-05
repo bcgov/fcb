@@ -4,16 +4,16 @@
         "type": "leaflet",
         "location": {
             "center": [
-                -127.0766259034564,
-                54.53914804830861
+                -123.66448895885162,
+                49.07166221711429
             ],
             "extent": [
-                -140.84133428539653,
-                47.65695429443695,
-                -113.31191752151626,
-                60.42907775213602
+                -125.28604795075732,
+                47.99797895072587,
+                -122.04292996694596,
+                50.122632932074694
             ],
-            "zoom": 4.772346037300465
+            "zoom": 8.0729210449213
         },
         "baseMap": "Streets",
         "device": "auto"
@@ -383,7 +383,7 @@
                 }
             ],
             "useClustering": true,
-            "dataUrl": "https://openmaps.gov.bc.ca/geo/pub/WHSE_IMAGERY_AND_BASE_MAPS.GSR_SCHOOLS_K_TO_12_SVW/ows?service=WMS&request=GetMap&version=1.1.1&layers=pub%3AWHSE_IMAGERY_AND_BASE_MAPS.GSR_SCHOOLS_K_TO_12_SVW&styles=7970&format=application/json;type=geojson&transparent=true&cql_filter=include&srs=EPSG%3A4326&width=645&height=728&bbox=-131.8579103,46.6645175,-117.6855469,56.547372",
+            "dataUrl": "https://openmaps.gov.bc.ca/geo/pub/WHSE_IMAGERY_AND_BASE_MAPS.GSR_SCHOOLS_K_TO_12_SVW/ows?service=WMS&request=GetMap&version=1.1.1&layers=pub%3AWHSE_IMAGERY_AND_BASE_MAPS.GSR_SCHOOLS_K_TO_12_SVW&styles=7970&format=application/json;type=geojson&transparent=true&cql_filter=include&srs=EPSG%3A4326&width=645&height=728&bbox=-144.19403793672322,45.39637993438814,-108.99384262912152,62.632414448856416",
             "style": {
                 "marker": true,
                 "stroke": false,
@@ -593,7 +593,7 @@
             ],
             "queries": null,
             "useClustering": true,
-            "dataUrl": "https://openmaps.gov.bc.ca/geo/pub/WHSE_IMAGERY_AND_BASE_MAPS.GSR_FRPH_HLTH_PROFESSIONAL_SVW/ows?service=WMS&request=GetMap&version=1.1.1&layers=pub%3AWHSE_IMAGERY_AND_BASE_MAPS.GSR_FRPH_HLTH_PROFESSIONAL_SVW&styles=3601&format=application/json;type=geojson&transparent=true&cql_filter=include&srs=EPSG%3A4326&width=645&height=728&bbox=-131.8579103,46.6645175,-117.6855469,56.547372",
+            "dataUrl": "https://openmaps.gov.bc.ca/geo/pub/WHSE_IMAGERY_AND_BASE_MAPS.GSR_FRPH_HLTH_PROFESSIONAL_SVW/ows?service=WMS&request=GetMap&version=1.1.1&layers=pub%3AWHSE_IMAGERY_AND_BASE_MAPS.GSR_FRPH_HLTH_PROFESSIONAL_SVW&styles=3601&format=application/json;type=geojson&transparent=true&cql_filter=include&srs=EPSG%3A4326&width=645&height=728&bbox=-144.19403793672322,45.39637993438814,-108.99384262912152,62.632414448856416",
             "style": {
                 "marker": true,
                 "stroke": false,
@@ -821,7 +821,7 @@
             ],
             "queries": null,
             "useClustering": true,
-            "dataUrl": "https://openmaps.gov.bc.ca/geo/pub/WHSE_IMAGERY_AND_BASE_MAPS.GSR_FRPH_SERVICE_DIRECTORY_SVW/ows?service=WMS&request=GetMap&version=1.1.1&layers=pub%3AWHSE_IMAGERY_AND_BASE_MAPS.GSR_FRPH_SERVICE_DIRECTORY_SVW&styles=3957&format=application/json;type=geojson&transparent=true&cql_filter=include&srs=EPSG%3A4326&width=645&height=728&bbox=-131.8579103,46.6645175,-117.6855469,56.547372",
+            "dataUrl": "https://openmaps.gov.bc.ca/geo/pub/WHSE_IMAGERY_AND_BASE_MAPS.GSR_FRPH_SERVICE_DIRECTORY_SVW/ows?service=WMS&request=GetMap&version=1.1.1&layers=pub%3AWHSE_IMAGERY_AND_BASE_MAPS.GSR_FRPH_SERVICE_DIRECTORY_SVW&styles=3957&format=application/json;type=geojson&transparent=true&cql_filter=include&srs=EPSG%3A4326&width=645&height=728&bbox=-144.19403793672322,45.39637993438814,-108.99384262912152,62.632414448856416",
             "style": {
                 "marker": true,
                 "stroke": false,
@@ -1025,7 +1025,7 @@
             ],
             "queries": null,
             "useClustering": true,
-            "dataUrl": "https://openmaps.gov.bc.ca/geo/pub/WHSE_IMAGERY_AND_BASE_MAPS.GSR_FRPH_EARLY_CHILDCARE_SVW/ows?service=WMS&request=GetMap&version=1.1.1&layers=pub%3AWHSE_IMAGERY_AND_BASE_MAPS.GSR_FRPH_EARLY_CHILDCARE_SVW&styles=3601&format=application/json;type=geojson&transparent=true&cql_filter=include&srs=EPSG%3A4326&width=645&height=728&bbox=-131.8579103,46.6645175,-117.6855469,56.547372",
+            "dataUrl": "https://openmaps.gov.bc.ca/geo/pub/WHSE_IMAGERY_AND_BASE_MAPS.GSR_FRPH_EARLY_CHILDCARE_SVW/ows?service=WMS&request=GetMap&version=1.1.1&layers=pub%3AWHSE_IMAGERY_AND_BASE_MAPS.GSR_FRPH_EARLY_CHILDCARE_SVW&styles=3601&format=application/json;type=geojson&transparent=true&cql_filter=include&srs=EPSG%3A4326&width=645&height=728&bbox=-144.19403793672322,45.39637993438814,-108.99384262912152,62.632414448856416",
             "style": {
                 "marker": true,
                 "stroke": false,
@@ -1241,7 +1241,7 @@
             ],
             "queries": null,
             "useClustering": true,
-            "dataUrl": "https://openmaps.gov.bc.ca/geo/pub/WHSE_IMAGERY_AND_BASE_MAPS.GSR_EMPL_SRVCS_OFFICES_SVW/ows?service=WMS&request=GetMap&version=1.1.1&layers=pub%3AWHSE_IMAGERY_AND_BASE_MAPS.GSR_EMPL_SRVCS_OFFICES_SVW&styles=3958&format=application/json;type=geojson&transparent=true&cql_filter=include&srs=EPSG%3A4326&width=645&height=728&bbox=-131.8579103,46.6645175,-117.6855469,56.547372",
+            "dataUrl": "https://openmaps.gov.bc.ca/geo/pub/WHSE_IMAGERY_AND_BASE_MAPS.GSR_EMPL_SRVCS_OFFICES_SVW/ows?service=WMS&request=GetMap&version=1.1.1&layers=pub%3AWHSE_IMAGERY_AND_BASE_MAPS.GSR_EMPL_SRVCS_OFFICES_SVW&styles=3958&format=application/json;type=geojson&transparent=true&cql_filter=include&srs=EPSG%3A4326&width=645&height=728&bbox=-144.19403793672322,45.39637993438814,-108.99384262912152,62.632414448856416",
             "style": {
                 "marker": true,
                 "stroke": false,
@@ -1469,7 +1469,7 @@
             ],
             "queries": null,
             "useClustering": true,
-            "dataUrl": "https://openmaps.gov.bc.ca/geo/pub/WHSE_IMAGERY_AND_BASE_MAPS.GSR_FRPH_TOURISM_SVW/ows?service=WMS&request=GetMap&version=1.1.1&layers=pub%3AWHSE_IMAGERY_AND_BASE_MAPS.GSR_FRPH_TOURISM_SVW&styles=3601&format=application/json;type=geojson&transparent=true&cql_filter=include&srs=EPSG%3A4326&width=645&height=728&bbox=-131.8579103,46.6645175,-117.6855469,56.547372",
+            "dataUrl": "https://openmaps.gov.bc.ca/geo/pub/WHSE_IMAGERY_AND_BASE_MAPS.GSR_FRPH_TOURISM_SVW/ows?service=WMS&request=GetMap&version=1.1.1&layers=pub%3AWHSE_IMAGERY_AND_BASE_MAPS.GSR_FRPH_TOURISM_SVW&styles=3601&format=application/json;type=geojson&transparent=true&cql_filter=include&srs=EPSG%3A4326&width=645&height=728&bbox=-144.19403793672322,45.39637993438814,-108.99384262912152,62.632414448856416",
             "style": {
                 "marker": true,
                 "stroke": false,
@@ -1617,9 +1617,9 @@
             "command": {
                 "select": false,
                 "radius": false,
-                "radiusUnit": false,
+                "radiusUnit": null,
                 "nearBy": true,
-                "attributeMode": false
+                "attributeMode": true
             },
             "radius": "1",
             "radiusUnit": "km",
@@ -1764,7 +1764,7 @@
         },
         {
             "order": 5,
-            "within": false,
+            "within": true,
             "command": {
                 "within": true,
                 "select": false
