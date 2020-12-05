@@ -154,4 +154,3 @@ jobs:
     #     --header "Authorization: Bearer $GITHUB_TOKEN" \
     #     --header 'Content-Type: text/plain' \
     #     --data-raw "$REVIEWERS"
-
