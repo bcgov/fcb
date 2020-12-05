@@ -1,5 +1,6 @@
 {
     "cSpell.words": [
         "github"
-    ]
+    ],
+    "python.pythonPath": "/usr/bin/python3"
 }
