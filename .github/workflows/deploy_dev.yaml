@@ -90,7 +90,6 @@ jobs:
       id: deployHelm
       if: env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != '' && env.GHCR_USER != '' && env.GHCR_TOKEN != ''
       run: |
-
         # --=- Move below to new action
         EMAIL=${{ steps.retrieveimagetag.outputs.EMAIL }}
         #REPONAME=${{ steps.retrieveimagetag.outputs.REPONAME }}
