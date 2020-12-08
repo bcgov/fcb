@@ -37,6 +37,7 @@ jobs:
 
     # Calculate the image tag, used later, and cached in a oc config map
     # if oc secrets provided
+    #
     - name: calculateImageTag
       id: calculateImageTag
       if: ${{ env.DEBUG_DEPLOY == 'false' }}
