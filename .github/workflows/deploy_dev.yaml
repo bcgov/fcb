@@ -48,10 +48,10 @@ jobs:
       id: retrieveimagetag
       if: env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != '' && env.GHCR_USER != '' && env.GHCR_TOKEN != ''
       run: |
-        IMAGE_TAG_CONFMAP_NAME=${{ github.repository }}-imagetag-cm
+        IMAGE_TAG_CONFMAP_NAME=${{ github.event.repository.name }}-imagetag-cm
         CONFMAPIMAGETAG=current_image_tag
         CONFMAPISSUETAG=issueURL
-        REPONAME=${{ github.repository }}
+        REPONAME=${{ github.event.repository.name }}
         EMAIL=$(curl -H "Accept: application/vnd.github.v3+json" \
                 -H "Authorization: token $GHCR_TOKEN" \
                 https://api.github.com/users/$GHCR_USER | jq '.email')
@@ -59,7 +59,7 @@ jobs:
         echo ::set-output name=EMAIL::${EMAIL}
         echo ::set-output name=REPONAME::${REPONAME}
 
-        IMAGE_REGISTRY=docker.pkg.github.com/${{ github.repository_owner }}/${{ github.repository }}/${{ github.repository }}
+        IMAGE_REGISTRY=docker.pkg.github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/${{ github.event.repository.name }}
         echo ::set-output name=IMAGE_REGISTRY::${IMAGE_REGISTRY}
         echo image registry $IMAGE_REGISTRY
         oc whoami
@@ -115,7 +115,7 @@ jobs:
         cat $GITHUB_EVENT_PATH
         oc_route_name=${{ github.event.repository.name }}-rt
         #GITHUB_ISSUES_CONFIGMAP=github-issues-configmap
-        GITHUB_ISSUES_CONFIGMAP=${{ github.repository }}-gh-issues-cm
+        GITHUB_ISSUES_CONFIGMAP=${{ github.event.repository.name }}-gh-issues-cm
 
         ROUTEPATH=$(oc get route $oc_route_name -o json | jq .spec.host | tr -d '"' )
         ISSUE_URL=$(oc get configmap $GITHUB_ISSUES_CONFIGMAP -o json | jq .data.issueURL | tr -d '"')
