@@ -7,21 +7,21 @@ name: BUILDPackage
 #   push:
 #     branches: ['dev', 'smk-cdci']
 
-on:
-  pull_request:
-    # debug: remove the dev,putting build action on non existent branches for debug
-    branches: ['master', 'dev']
-    types: ['opened', 'reopened']
-    paths-ignore:
-      - openshift/**
-      - .vscode/**
-      - docs/**
-      - .gitignore
-      - LICENSE
-      - open-api.json
-      - readme.md
-      - helm-charts
-      - code_of_conduct.md
+# on:
+#   pull_request:
+#     # debug: remove the dev,putting build action on non existent branches for debug
+#     branches: ['master', 'dev']
+#     types: ['opened', 'reopened']
+#     paths-ignore:
+#       - openshift/**
+#       - .vscode/**
+#       - docs/**
+#       - .gitignore
+#       - LICENSE
+#       - open-api.json
+#       - readme.md
+#       - helm-charts
+#       - code_of_conduct.md
 
 
 jobs:

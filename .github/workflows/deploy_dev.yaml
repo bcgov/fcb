@@ -2,15 +2,15 @@
 name: "DEV Deploy"
 
 #TODO: once working change the event the action is associated to the one below
-on:
-  workflow_run:
-    workflows: ["BUILDPackage", "build"]
-    types: 
-      - completed
+# on:
+#   workflow_run:
+#     workflows: ["BUILDPackage", "build"]
+#     types: 
+#       - completed
 
-# on: 
-#   push:
-#     branches: ['dev', 'smk-cdci']
+on: 
+  push:
+    branches: ['dev', 'smk-cdci']
 
 jobs:
   deploydev:
@@ -63,6 +63,7 @@ jobs:
         echo ::set-output name=IMAGE_REGISTRY::${IMAGE_REGISTRY}
         echo image registry $IMAGE_REGISTRY
         oc whoami
+        oc version
 
         # ---- get the namespace name and set the namespace
         OC_NAMESPACE_NAMES_CONFIG_MAP=namespaces-cm
