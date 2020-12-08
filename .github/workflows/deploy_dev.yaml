@@ -93,10 +93,15 @@ jobs:
       run: |
         # --=- Move below to new action
         EMAIL=${{ steps.retrieveimagetag.outputs.EMAIL }}
-        #REPONAME=${{ steps.retrieveimagetag.outputs.REPONAME }}
         REPONAME=${{ github.event.repository.name }}
         DOCKER_VERSION_TAG=${{ steps.retrieveimagetag.outputs.DOCKER_VERSION_TAG }}
         IMAGE_REGISTRY=${{ steps.retrieveimagetag.outputs.IMAGE_REGISTRY }}
+        
+        KONGSECRETSJSON=$(oc get secrets kong-secrets -o json | jq -r '.data["kong-config"]' | base64 --decode)
+        GWA_APIKEY=$(echo $KONGSECRETSJSON | jq -r '.apikey')
+        GWA_NAMESPACE=$(echo $KONGSECRETSJSON | jq -r '.gwa_namespace')
+        GWA_CLIENT_ID=$(echo $KONGSECRETSJSON | jq -r '.gwa_client_id')
+        
 
         helm upgrade $REPONAME ./helm-charts --install \
            --set app_name=$REPONAME\
@@ -105,7 +110,12 @@ jobs:
            --set app_image_pull_secret_params.username=$GHCR_USER \
            --set app_image_pull_secret_params.password=$GHCR_TOKEN \
            --set app_image_pull_secret_params.imagetag=$DOCKER_VERSION_TAG \
-           --set app_image_pull_secret_params.registry=$IMAGE_REGISTRY
+           --set app_image_pull_secret_params.registry=$IMAGE_REGISTRY \
+           --set kong_config.gwa_client_id=$GWA_CLIENT_ID \
+           --set kong_config.gwa_namespace=$GWA_NAMESPACE \
+           --set kong_config.apikey=$GWA_APIKEY \
+           --set kong_config.gwa_env=test
+
 
     # # ADD THE ROUTE TO THE ISSUE
     - name: Update issue

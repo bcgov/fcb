@@ -40,6 +40,7 @@ app_image_pull_secret_params:
 
 kong_config:
   secrets_name: secret-object-that-will-contain-this-info
+  secret_key_name: kong-config
   gwa_client_id: name-of-kong-config-service-account
   gwa_namespace: the-gwa-namespace
   apikey: api-key-that-goes-with-the-service-account
