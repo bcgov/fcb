@@ -101,7 +101,7 @@ jobs:
         GWA_APIKEY=$(echo $KONGSECRETSJSON | jq -r '.apikey')
         GWA_NAMESPACE=$(echo $KONGSECRETSJSON | jq -r '.gwa_namespace')
         GWA_CLIENT_ID=$(echo $KONGSECRETSJSON | jq -r '.gwa_client_id')
-        
+
 
         helm upgrade $REPONAME ./helm-charts --install \
            --set app_name=$REPONAME\
@@ -164,7 +164,7 @@ jobs:
       run: |
           # extract kong config info from secrets
           gitrepo=${{ github.event.repository.name }}
-          kongSecrets=$(oc get secret kong-secrets -o json | jq '.data' | jq '.["kong-config"] | @base64d | fromjson')
+          kongSecrets=$(oc get secrets kong-secrets -o json | jq '.data' | jq '.["kong-config"] | @base64d | fromjson')
           GWA_CLIENTID=$(echo $kongSecrets | jq '.gwa_client_id')
           GWA_TOKEN=$(echo $kongSecrets | jq '.apikey')
           GWA_NAMESPACE=$(echo $kongSecrets | jq '.gwa_namespace')
