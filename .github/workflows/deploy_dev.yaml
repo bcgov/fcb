@@ -48,10 +48,10 @@ jobs:
       id: retrieveimagetag
       if: env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null && env.GHCR_USER != null && env.GHCR_TOKEN != null
       run: |
-        IMAGE_TAG_CONFMAP_NAME=imagetag2deploy
+        IMAGE_TAG_CONFMAP_NAME=${{ github.repository }}-imagetag-cm
         CONFMAPIMAGETAG=current_image_tag
         CONFMAPISSUETAG=issueURL
-        REPONAME=${{github.repository}}
+        REPONAME=${{ github.repository }}
         EMAIL=$(curl -H "Accept: application/vnd.github.v3+json" \
                 -H "Authorization: token $GHCR_TOKEN" \
                 https://api.github.com/users/$GHCR_USER | jq '.email')
@@ -78,7 +78,8 @@ jobs:
         echo ::set-output name=IMAGE_REGISTRY::${IMAGE_REGISTRY}
 
         # ---- Get the issue url and export it
-        ISSUE_CONFIGMAP_NAME=github-issues-configmap
+        #ISSUE_CONFIGMAP_NAME=github-issues-configmap
+        ISSUE_CONFIGMAP_NAME=${{ github.repository }}-gh-issues-cm
         ISSUE_URL=$(oc get configmap $ISSUE_CONFIGMAP_NAME  -o json | jq .data.issue_url)
 
     - name: Deploy Helm chart
@@ -109,8 +110,11 @@ jobs:
         echo the GITHUB_EVENT_PATH
         cat $GITHUB_EVENT_PATH
         oc_route_name=${{ github.event.repository.name }}-rt
+        #GITHUB_ISSUES_CONFIGMAP=github-issues-configmap
+        GITHUB_ISSUES_CONFIGMAP=${{ github.repository }}-gh-issues-cm
+
         ROUTEPATH=$(oc get route $oc_route_name -o json | jq .spec.host | tr -d '"' )
-        ISSUE_URL=$(oc get configmap github-issues-configmap -o json | jq .data.issueURL | tr -d '"')
+        ISSUE_URL=$(oc get configmap $GITHUB_ISSUES_CONFIGMAP -o json | jq .data.issueURL | tr -d '"')
 
 
         # GET THE ISSUE URL
@@ -133,6 +137,46 @@ jobs:
         curl $ISSUE_URL -X POST --header "Authorization: Bearer $GITHUB_TOKEN" \
           --header "Accept: application/vnd.github.v3+json" \
           --data-raw "$ISSUE_BODY"
+
+    - name: Get GWA CLI
+      id: getGWA
+      run: |
+        curl -L -O https://github.com/bcgov/gwa-cli/releases/download/v1.0.14/gwa-cli-linux.zip
+        unzip gwa-cli-linux.zip
+        mv gwa-cli-linux gwa
+        export PATH=`pwd`:$PATH
+
+    - name: Configure Kong Route
+      id: kongconf
+      run: |
+          # extract kong config info from secrets
+          gitrepo=${{ github.event.repository.name }}
+          kongSecrets=$(oc get secret kong-secrets -o json | jq '.data' | jq '.["kong-config"] | @base64d | fromjson')
+          GWA_CLIENTID=$(echo $kongSecrets | jq '.gwa_client_id')
+          GWA_TOKEN=$(echo $kongSecrets | jq '.apikey')
+          GWA_NAMESPACE=$(echo $kongSecrets | jq '.gwa_namespace')
+          gwa_route_name=${gitrepo}-kong-route
+          oc_service_name=${gitrepo}-svc
+          oc_route_name="${gitrepo}-rt"
+          oc_route_host=https://$(oc get routes $oc_route_name -o json | jq '.spec.host' | tr -d '"')
+
+          gwa init -T \
+            --namespace=$GWA_NAMESPACE \
+            --client-id=$GWA_CLIENTID \
+            --client-secret=$GWA_TOKEN
+
+          python gwa/createGWAConfig.py \
+            service=$oc_service_name \
+            ocUrl=$oc_route_host \
+            gwa_namespace=$GWA_NAMESPACE \
+            gwa_route_name=$gwa_route_name \
+            url_prefix=$gitrepo > gwa_config.yaml
+          
+          gwa pg gwa_config.yaml
+          
+
+
+
 
     # - name: "Send Review Request 2"
     #   id: requestreview

@@ -39,9 +39,14 @@ app_image_pull_secret_params:
   imagetag: latest
 
 kong_config:
-  name: name-of-kong-config-service-account
+  secrets_name: secret-object-that-will-contain-this-info
+  gwa_client_id: name-of-kong-config-service-account
+  gwa_namespace: the-gwa-namespace
   apikey: api-key-that-goes-with-the-service-account
-
+  aps_nsp_name: aps-gateway-to-your-upstream-api
+  gwa_env: test
+  kong_test_project_name: 264e6f-test
+  kong_prod_project_name: 264e6f-prod
 
 github_actions_sa:
   name: gha-sa

@@ -1,0 +1,20 @@
+_format_version: '1.1'
+services:
+- name: smk-fap-fcp-svc
+  plugins: []
+  routes:
+  - hosts:
+    - smk-fap-fcb
+    methods:
+    - GET
+    name: smk-fap-fcp-kong-route
+    paths:
+    - /
+    strip_path: false
+    tags:
+    - OAS3_import
+    - ns.smk-apps
+  tags:
+  - OAS3_import
+  - ns.smk-apps
+  host: smk-fap-fcp-svc.b16795-dev.svc

@@ -2,7 +2,7 @@
 kind: Role
 apiVersion: authorization.openshift.io/v1
 metadata:
-  name:  {{ .Values.app_name }}-role
+  name:  {{ .Values.github_actions_sa.name }}-role
 rules:
   - resources:
       - configmaps

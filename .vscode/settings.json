@@ -1,5 +1,11 @@
 {
     "cSpell.words": [
+        "CONFMAP",
+        "IMAGETAG",
+        "TIMESTAMPTAG",
+        "configmap",
+        "configmaps",
         "github"
-    ]
+    ],
+    "python.pythonPath": "/usr/bin/python3"
 }
