@@ -89,7 +89,7 @@ jobs:
     # --------- required by build-push-action
     # - explicitly setting the GHCR_USER and TOKEN to help with transition to GHCR.IO
     - name: Login to GitHub Packages Docker Registry
-      uses: docker/login-action@v1
+      #uses: docker/login-action@v1
       # success() && && ${{ env.DEBUG_DEPLOY == false }} &&  ${{ env.GHCR_TOKEN }} 
       # &&
       if: ${{ success() }} && ${{ env.DEBUG_DEPLOY == 'false' }} && ${{ env.GHCR_USER != ''}} && ${{ env.GHCR_TOKEN != '' }} 
