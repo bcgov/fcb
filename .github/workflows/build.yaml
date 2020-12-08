@@ -85,6 +85,7 @@ jobs:
       id: cacheIssueUrl
       if: ${{ github.event_name }} == 'pull_request' && env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null && env.DEBUG_DEPLOY == 'false'
       run: |
+        echo github event name ${{ github.event_name }}
         CONFMAP_NAME=${{ github.event.repository.name }}-gh-issues-cm
         ISSUE_URL=$(jq --raw-output .pull_request.issue_url "$GITHUB_EVENT_PATH")
         echo issue url is $ISSUE_URL
@@ -110,7 +111,7 @@ jobs:
     # --------- required by build-push-action
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
-      if: (env.DEBUG_DEPLOY == 'false') && ${{ success() }}
+      if: env.DEBUG_DEPLOY == 'false' && ${{ success() }}
       with:
         buildkitd-flags: --debug
 
@@ -139,7 +140,7 @@ jobs:
 
     # --------- Push image to remote
     - name: Push to Github Packages
-      if: ${{ success() }} && env.GHCR_USER != null &&  env.GHCR_TOKEN != null && env.DEBUG_DEPLOY == 'false'
+      if: success() && env.GHCR_USER != null &&  env.GHCR_TOKEN != null && env.DEBUG_DEPLOY == 'false'
       run: |
         echo pushing the image
         echo $GITHUB_EVENT_NAME
@@ -151,7 +152,7 @@ jobs:
     # --------- cache the image tag in a oc config map
     - name: cacheImageTag
       id: cacheImageTag
-      if: ${{ success() }} && env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null && env.DEBUG_DEPLOY == 'false'
+      if: success() && ${{ env.OPENSHIFT_SERVER_URL != null }} &&  ${{ env.OPENSHIFT_TOKEN_DEV != null }} && ${{ env.DEBUG_DEPLOY == 'false' }}
       run: |
         IMAGETAG=${{ steps.calculateImageTag.outputs.TIMESTAMPTAG }}
         # needs to be made unique to app being deployed
