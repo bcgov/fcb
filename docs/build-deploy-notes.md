@@ -25,7 +25,8 @@ repository.
 * service account (.Values.github_actions_sa.name)
 * roles (named after service account with '-role' suffix)
 * role bindings (named after service account with '-rb' suffix)
-* github actions 
+* github actions image pull secrets
+
 
 
 Some objects in the helm template will get deployed once, then re-

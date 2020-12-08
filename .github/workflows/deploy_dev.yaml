@@ -61,6 +61,7 @@ jobs:
 
         IMAGE_REGISTRY=docker.pkg.github.com/${{ github.repository_owner }}/${{ github.repository }}/${{ github.repository }}
         echo ::set-output name=IMAGE_REGISTRY::${IMAGE_REGISTRY}
+        echo image registry $IMAGE_REGISTRY
         oc whoami
 
         # ---- get the namespace name and set the namespace
@@ -70,6 +71,7 @@ jobs:
         # could verify here that in correct namespace or error
 
         # ---- get the Image tag and export it
+        echo image name $IMAGE_TAG_CONFMAP_NAME
         IMAGE_TAG=$(oc get configmap $IMAGE_TAG_CONFMAP_NAME  -o json | jq .data.$CONFMAPIMAGETAG)
         echo ::set-output name=DOCKER_VERSION_TAG::${IMAGE_TAG}
         echo image tag $IMAGE_TAG
