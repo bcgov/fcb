@@ -36,7 +36,7 @@ jobs:
     - name: OpenShift Action
       id: GHAOpenshiftTest
       uses: redhat-developer/openshift-actions@v1.1
-      if: ${{ env.OPENSHIFT_SERVER_URL != '' }} &&  ${{ env.OPENSHIFT_TOKEN_DEV != '' }}
+      if: env.OPENSHIFT_SERVER_URL != '' &&  env.OPENSHIFT_TOKEN_DEV != ''
       with:
         version: '3.11.232'
         openshift_server_url: ${{ secrets.OPENSHIFT_SERVER_URL }}
@@ -46,7 +46,7 @@ jobs:
       # RETRIEVE THE IMAGE TAG and the ISSUE
     - name: Retrieve image tag, issue url, oc namespace
       id: retrieveimagetag
-      if: ${{ env.OPENSHIFT_SERVER_URL != '' }} &&  ${{ env.OPENSHIFT_TOKEN_DEV != '' }} && ${{ env.GHCR_USER != '' }} && ${{ env.GHCR_TOKEN != '' }}
+      if: env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != '' && env.GHCR_USER != '' && env.GHCR_TOKEN != ''
       run: |
         IMAGE_TAG_CONFMAP_NAME=${{ github.repository }}-imagetag-cm
         CONFMAPIMAGETAG=current_image_tag
@@ -87,7 +87,7 @@ jobs:
 
     - name: Deploy Helm chart
       id: deployHelm
-      if: ${{ env.OPENSHIFT_SERVER_URL != '' }} &&  ${{ env.OPENSHIFT_TOKEN_DEV != '' }} && ${{ env.GHCR_USER != '' }} && ${{ env.GHCR_TOKEN != '' }}
+      if: env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != '' && env.GHCR_USER != '' && ${{ env.GHCR_TOKEN != ''
       run: |
 
         # --=- Move below to new action
