@@ -88,7 +88,7 @@ jobs:
 
     - name: Deploy Helm chart
       id: deployHelm
-      if: env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != '' && env.GHCR_USER != '' && ${{ env.GHCR_TOKEN != ''
+      if: env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != '' && env.GHCR_USER != '' && env.GHCR_TOKEN != ''
       run: |
 
         # --=- Move below to new action
@@ -119,7 +119,6 @@ jobs:
 
         ROUTEPATH=$(oc get route $oc_route_name -o json | jq .spec.host | tr -d '"' )
         ISSUE_URL=$(oc get configmap $GITHUB_ISSUES_CONFIGMAP -o json | jq .data.issueURL | tr -d '"')
-
 
         # GET THE ISSUE URL
         #issue_url=$(jq --raw-output .pull_request.issue_url "$GITHUB_EVENT_PATH")
