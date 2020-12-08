@@ -39,7 +39,7 @@ jobs:
       OPENSHIFT_TOKEN_DEV: ${{secrets.OPENSHIFT_TOKEN_DEV}}
       GHCR_USER: ${{ secrets.GHCR_USER }}
       GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-      DEBUG_DEPLOY: 'true'
+      DEBUG_DEPLOY: true
     outputs:
       dockerversiontag: ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
       
@@ -105,7 +105,7 @@ jobs:
 
     # --------- required by build-push-action
     - name: Set up QEMU
-      if: env.DEBUG_DEPLOY == 'false'
+      if: ${{ env.DEBUG_DEPLOY == 'false' }}
       uses: docker/setup-qemu-action@v1
     
     # --------- required by build-push-action
