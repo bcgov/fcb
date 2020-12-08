@@ -65,4 +65,3 @@ github_issues_configmap:
   name: github-issues-configmap
   issue_url: None
   github_event_path: None
-
