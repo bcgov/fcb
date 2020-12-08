@@ -9,5 +9,4 @@ spec:
     - - $namespace={{ .Values.kong_config.kong_test_project_name }}
     - - $namespace={{ .Values.kong_config.kong_prod_project_name }}
   destination:
-    - - app.kubernetes.io/name=my-upstream-api
-  
+    - - app={{ .Values.app_name }}

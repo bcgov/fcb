@@ -17,15 +17,21 @@ docker build -t $IMAGE_NAME .
 
 # Helm deployments
 
-Service account is required for the github actions to work.  The
-first time the helm chart is deployed set the flag
-*deploy_service_account* to true, this will create the service
-account / roles / role bindings necessary for the service account
-that will be used to communicate with OCP4 from github.  Subsequent 
-deployments, without this flag being set will igonore the service 
-account and related objects.
+With this chart we are trying to re-use a single chart to deploy multiple SMK based apps that have been generated using the SMK command line tool.  Most of the objects defined in the helm chart will be duplicated to create different SMK based apps in the same 
+repository.
 
-### First time deploy:
+## objects created by Helm chart that are re-used for each app
+
+* service account (.Values.github_actions_sa.name)
+* roles (named after service account with '-role' suffix)
+* role bindings (named after service account with '-rb' suffix)
+
+
+
+Some objects in the helm template will get deployed once, then re-
+used by all subsequent deployments.  Other objects in the helm 
+chart are created multiple time on a per app basis.  In other words
+each different smk app will have its own version of these objects.
 
 
 

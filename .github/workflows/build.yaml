@@ -85,6 +85,7 @@ jobs:
       if: ${{ github.event_name }} == 'pull_request' && env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null && (env.DEBUG_DEPLOY == 'false')
       run: |
         CONFMAP_NAME=github-issues-configmap
+        CONFMAP_NAME=${{ github.event.repository.name }}-gh-issues-cm
         ISSUE_URL=$(jq --raw-output .pull_request.issue_url "$GITHUB_EVENT_PATH")
         echo issue url is $ISSUE_URL
 
@@ -153,7 +154,9 @@ jobs:
       if: ${{ success() }} && env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null && env.DEBUG_DEPLOY == 'false'
       run: |
         IMAGETAG=${{ steps.calculateImageTag.outputs.TIMESTAMPTAG }}
-        CONFMAP_NAME=imagetag2deploy
+        # needs to be made unique to app being deployed
+        # CONFMAP_NAME=imagetag2deploy
+        CONFMAP_NAME=${{ github.event.repository.name }}-imagetag-cm
         CONF_EXISTS=$(oc get configmaps -o json |  jq '[.items[] | select(.metadata.name == "'$CONFMAP_NAME'")] | length')
         echo conf exists is $CONF_EXISTS
         echo imagetag is $IMAGETAG

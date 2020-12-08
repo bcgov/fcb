@@ -17,4 +17,4 @@ services:
   tags:
   - OAS3_import
   - ns.smk-apps
-  url: https://smk-fap-fcb-rt-b16795-dev.apps.silver.devops.gov.bc.ca/
+  host: smk-fap-fcp-svc.b16795-dev.svc
