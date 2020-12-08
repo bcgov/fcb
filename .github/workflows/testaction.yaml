@@ -3,9 +3,9 @@ name: testaction
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
 # -------- DEBUGGING --------
-# on: 
-#   push:
-#     branches: ['dev', 'smk-cdci']
+on: 
+  push:
+    branches: ['smk-cdci']
 
 jobs:
   # This workflow contains a single job called "build"
@@ -14,7 +14,7 @@ jobs:
       run:
         shell: bash
 
-    name: Build BCDC-SMK container image
+    name: Testing conditional logic
     # The type of runner that the job will run on
     runs-on: ubuntu-18.04
     env:
@@ -29,18 +29,19 @@ jobs:
     steps:
 
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    # WORKING
     - uses: actions/checkout@v2
-      if: ${{ env.DEBUG_DEPLOY == 'false' }}
+      if: env.DEBUG_DEPLOY == 'false'
       id: checkout
       with:
         fetch-depth: 0
 
     # Calculate the image tag, used later, and cached in a oc config map
+    # WORKING
     # if oc secrets provided
-    #
     - name: calculateImageTag
       id: calculateImageTag
-      if: ${{ env.DEBUG_DEPLOY == 'false' }}
+      if: env.DEBUG_DEPLOY == 'false'
       run: |
         DATESTAMP=$(date +%Y%m%d-%H%M)
         REGISTRY="docker.pkg.github.com"
@@ -58,7 +59,8 @@ jobs:
     - name: OpenShift Action
       id: GHAOpenshiftTest
       #uses: redhat-developer/openshift-actions@v1.1
-      if: ${{ env.OPENSHIFT_SERVER_URL != '' }} && ${{ env.OPENSHIFT_TOKEN_DEV != '' }} && ${{ env.DEBUG_DEPLOY == 'false' }}
+      # ${{ env.OPENSHIFT_SERVER_URL != '' }} &&
+      if:  env.OPENSHIFT_TOKEN_DEV != '' && env.DEBUG_DEPLOY == 'false'
       run: |
         echo DEBUG_DEPLOY $DEBUG_DEPLOY
         echo OPENSHIFT_SERVER_URL $OPENSHIFT_SERVER_URL
@@ -66,13 +68,13 @@ jobs:
     # --------- GET THE ISSUE URL and EVENT_INFO AND CACHE IT -------
     - name: Store Issue URL in configmap
       id: cacheIssueUrl
-      if: ${{ github.event_name == 'pull_request' }} && {{ env.OPENSHIFT_SERVER_URL != '' }} && {{ env.OPENSHIFT_TOKEN_DEV != '' }} && {{ env.DEBUG_DEPLOY == 'false' }}
+      if: github.event_name == 'push' &&  env.OPENSHIFT_SERVER_URL != '' &&  env.OPENSHIFT_TOKEN_DEV != ''  &&  env.DEBUG_DEPLOY == 'false' 
       run: |
         echo github event name ${{ github.event_name }}
 
     # --------- required by build-push-action
     - name: Set up QEMU
-      if: ${{ env.DEBUG_DEPLOY == 'false' }}
+      if: env.DEBUG_DEPLOY == 'false'
       run: |
         echo qemu step
       #uses: docker/setup-qemu-action@v1
@@ -81,7 +83,7 @@ jobs:
     - name: Set up Docker Buildx
       #uses: docker/setup-buildx-action@v1
       # && success()
-      if: ${{ env.DEBUG_DEPLOY == 'false' }} && ${{ success() }}
+      if:  env.DEBUG_DEPLOY == 'false' &&  success()
       run: |
         echo BUILDX step
       # with:
@@ -90,10 +92,10 @@ jobs:
     # --------- required by build-push-action
     # - explicitly setting the GHCR_USER and TOKEN to help with transition to GHCR.IO
     - name: Login to GitHub Packages Docker Registry
-      uses: docker/login-action@v1
+      #uses: docker/login-action@v1
       # success() && && ${{ env.DEBUG_DEPLOY == false }} &&  ${{ env.GHCR_TOKEN }} 
       # &&
-      if: ${{ success() }} && ${{ env.DEBUG_DEPLOY == 'false' }} && ${{ env.GHCR_USER != ''}} && ${{ env.GHCR_TOKEN != '' }} 
+      if: success() && env.DEBUG_DEPLOY == 'false' && env.GHCR_USER != '' && env.GHCR_TOKEN != ''
       run: |
         echo LOGIN to github, $GHCR_USER
       # with:
@@ -116,7 +118,7 @@ jobs:
 
     # --------- Push image to remote
     - name: Push to Github Packages
-      if: ${{ success() }} && ${{ env.GHCR_USER != '' }} && ${{ env.GHCR_TOKEN != '' }} && ${{ env.DEBUG_DEPLOY == 'false' }}
+      if: success() && env.GHCR_USER != '' && env.GHCR_TOKEN != '' && env.DEBUG_DEPLOY == 'false'
       run: |
         echo pushing the image
         echo $GITHUB_EVENT_NAME
@@ -125,7 +127,7 @@ jobs:
     # --------- cache the image tag in a oc config map
     - name: cacheImageTag
       id: cacheImageTag
-      if: ${{ success() }} && ${{ env.OPENSHIFT_SERVER_URL != '' }} &&  ${{ env.OPENSHIFT_TOKEN_DEV != '' }} && ${{ env.DEBUG_DEPLOY == 'false' }}
+      if: success()  &&  env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != '' && env.DEBUG_DEPLOY == 'false'
       run: |
         echo cache image tag
         IMAGETAG=${{ steps.calculateImageTag.outputs.TIMESTAMPTAG }}
@@ -136,6 +138,6 @@ jobs:
     #    secrets for github user / token populated
     - name: Tag the pull request with build tag
       id: tagpullrequest
-      if: ${{ github.event_name == 'pull_request'}} && ${{ env.GHCR_USER != '' }} &&  ${{ env.GHCR_TOKEN != '' }} && ${{ env.DEBUG_DEPLOY == 'false' }}
+      if: github.event_name == 'push' &&  env.GHCR_USER != '' && env.GHCR_TOKEN != '' && env.DEBUG_DEPLOY == 'false'
       run: |
         echo here tag pull request
