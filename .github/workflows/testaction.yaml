@@ -3,26 +3,9 @@ name: BUILDPackage
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
 # -------- DEBUGGING --------
-# on: 
-#   push:
-#     branches: ['dev', 'smk-cdci']
-
-on:
-  pull_request:
-    # debug: remove the dev,putting build action on non existent branches for debug
-    branches: ['master', 'dev']
-    types: ['opened', 'reopened']
-    paths-ignore:
-      - openshift/**
-      - .vscode/**
-      - docs/**
-      - .gitignore
-      - LICENSE
-      - open-api.json
-      - readme.md
-      - helm-charts
-      - code_of_conduct.md
-
+on: 
+  push:
+    branches: ['dev', 'smk-cdci']
 
 jobs:
   # This workflow contains a single job called "build"
@@ -86,22 +69,6 @@ jobs:
       if: ${{ github.event_name == 'pull_request' }} && {{ env.OPENSHIFT_SERVER_URL != null }} && {{ env.OPENSHIFT_TOKEN_DEV != null }} && {{ env.DEBUG_DEPLOY == 'false' }}
       run: |
         echo github event name ${{ github.event_name }}
-        CONFMAP_NAME=${{ github.event.repository.name }}-gh-issues-cm
-        ISSUE_URL=$(jq --raw-output .pull_request.issue_url "$GITHUB_EVENT_PATH")
-        echo issue url is $ISSUE_URL
-
-        CONF_EXISTS=$(oc get configmaps -o json |  jq '[.items[] | select(.metadata.name == "'$CONFMAP_NAME'")] | length')
-        if [ $CONF_EXISTS -eq 0 ] 
-          then
-            methodType="create"
-        else
-            methodType="replace"
-        fi
-        
-        oc create configmap $CONFMAP_NAME \
-          --from-literal=issueURL=$ISSUE_URL \
-          --from-literal=github_event_path=$GITHUB_EVENT_PATH \
-          --dry-run -o yaml | oc $methodType -f -
 
     # --------- required by build-push-action
     - name: Set up QEMU
@@ -127,16 +94,16 @@ jobs:
 
     # --------- Build image
     #    Push disabled because not working with this action atm
-    - name: Build and push
-      id: docker_build
-      if: ${{ success() }} && env.GHCR_USER != null &&  env.GHCR_TOKEN != null && env.DEBUG_DEPLOY == 'false'
-      uses: docker/build-push-action@v2
-      with:
-        context: .
-        tags: |
-          ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
-          ${{ steps.calculateImageTag.outputs.DOCKER_LATEST_TAG }}
-        load: true
+    # - name: Build and push
+    #   id: docker_build
+    #   if: ${{ success() }} && env.GHCR_USER != null &&  env.GHCR_TOKEN != null && env.DEBUG_DEPLOY == 'false'
+    #   uses: docker/build-push-action@v2
+    #   with:
+    #     context: .
+    #     tags: |
+    #       ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
+    #       ${{ steps.calculateImageTag.outputs.DOCKER_LATEST_TAG }}
+    #     load: true
 
     # --------- Push image to remote
     - name: Push to Github Packages
@@ -146,34 +113,13 @@ jobs:
         echo $GITHUB_EVENT_NAME
         echo ${{ github.event_name }}
 
-        # ---- commented out until pipeline goes to prod.
-        docker push ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
-
     # --------- cache the image tag in a oc config map
     - name: cacheImageTag
       id: cacheImageTag
       if: success() && ${{ env.OPENSHIFT_SERVER_URL != null }} &&  ${{ env.OPENSHIFT_TOKEN_DEV != null }} && ${{ env.DEBUG_DEPLOY == 'false' }}
       run: |
+        echo cache image tag
         IMAGETAG=${{ steps.calculateImageTag.outputs.TIMESTAMPTAG }}
-        # needs to be made unique to app being deployed
-        # CONFMAP_NAME=imagetag2deploy
-        CONFMAP_NAME=${{ github.event.repository.name }}-imagetag-cm
-        CONF_EXISTS=$(oc get configmaps -o json |  jq '[.items[] | select(.metadata.name == "'$CONFMAP_NAME'")] | length')
-        echo conf exists is $CONF_EXISTS
-        echo imagetag is $IMAGETAG
-        
-        if [ $CONF_EXISTS -eq 0 ] 
-          then
-            methodType="create"
-        else
-            methodType="replace"
-        fi
-        echo methodType is $methodType
-        oc create configmap $CONFMAP_NAME --from-literal=current_image_tag=$IMAGETAG --dry-run -o yaml > template.yaml
-        oc $methodType -f template.yaml
-
-        # to retrieve the config map later:
-        #   VAR=$(oc get configmap $CONFMAP_NAME  -o json | jq .data.current_image_tag)
 
     # -------- Update the issue --------
     # only update if:
@@ -183,33 +129,4 @@ jobs:
       id: tagpullrequest
       if: ${{ github.event_name }} == 'pull_request' && env.GHCR_USER != null &&  env.GHCR_TOKEN != null && env.DEBUG_DEPLOY == 'false'
       run: |
-        DOCKER_VERSION_TAG=${{ steps.calculateImageTag.outputs.TIMESTAMPTAG }}
-
-        echo tag version is $DOCKER_VERSION_TAG
-        #pull_number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
-        echo github event path: $GITHUB_EVENT_PATH
-        echo $GITHUB_WORKSPACE
-
-        # use this for pulls
-        issue_url=$(jq --raw-output .pull_request.issue_url "$GITHUB_EVENT_PATH")
-        echo issue url is $issue_url
-
-        # for debugging using existing pull_request
-        if [ -z "$issue_url" ] || [ "$issue_url" = "null" ]
-          then
-            issue_url="https://api.github.com/repos/bcgov/smk-fap-fcb/issues/4"
-        fi
-
-        # ---- adding the tag that was assigned to the image to the issue ----
-        jsonwithlabels=$(curl --header "Content-Type: application/json" \
-        --header "authorization: Bearer ${{ secrets.GHCR_TOKEN }}" \
-        --request GET \
-        $issue_url | jq '.labels |= . + ["'$DOCKER_VERSION_TAG'"] | {("labels"): .["labels"]?}')
-        
-        # now send modified json back to the api with the new label
-        curl \
-        --location --request POST $issue_url \
-        --header "Content-Type: application/json" \
-        --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-        --data "$jsonwithlabels"
-
+        echo here tag pull request
