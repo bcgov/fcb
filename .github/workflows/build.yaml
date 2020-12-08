@@ -73,7 +73,7 @@ jobs:
     - name: OpenShift Action
       id: GHAOpenshiftTest
       uses: redhat-developer/openshift-actions@v1.1
-      if: env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null && env.DEBUG_DEPLOY == 'false'
+      if: {{ env.OPENSHIFT_SERVER_URL != null }} && {{ env.OPENSHIFT_TOKEN_DEV != null }} &&  {{ env.DEBUG_DEPLOY == 'false' }}
       with:
         version: '3.11.232'
         openshift_server_url: ${{ secrets.OPENSHIFT_SERVER_URL }}
@@ -83,7 +83,7 @@ jobs:
     # --------- GET THE ISSUE URL and EVENT_INFO AND CACHE IT -------
     - name: Store Issue URL in configmap
       id: cacheIssueUrl
-      if: ${{ github.event_name }} == 'pull_request' && env.OPENSHIFT_SERVER_URL != null &&  env.OPENSHIFT_TOKEN_DEV != null && env.DEBUG_DEPLOY == 'false'
+      if: ${{ github.event_name == 'pull_request' }} && {{ env.OPENSHIFT_SERVER_URL != null }} && {{ env.OPENSHIFT_TOKEN_DEV != null }} && {{ env.DEBUG_DEPLOY == 'false' }}
       run: |
         echo github event name ${{ github.event_name }}
         CONFMAP_NAME=${{ github.event.repository.name }}-gh-issues-cm
