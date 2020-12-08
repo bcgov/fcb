@@ -31,7 +31,7 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     # WORKING
     - uses: actions/checkout@v2
-      if: ${{ env.DEBUG_DEPLOY == 'false' }}
+      if: env.DEBUG_DEPLOY == 'false'
       id: checkout
       with:
         fetch-depth: 0
@@ -41,7 +41,7 @@ jobs:
     # if oc secrets provided
     - name: calculateImageTag
       id: calculateImageTag
-      if: ${{ ! env.DEBUG_DEPLOY }}
+      if: env.DEBUG_DEPLOY == 'false'
       run: |
         DATESTAMP=$(date +%Y%m%d-%H%M)
         REGISTRY="docker.pkg.github.com"
@@ -68,7 +68,7 @@ jobs:
     # --------- GET THE ISSUE URL and EVENT_INFO AND CACHE IT -------
     - name: Store Issue URL in configmap
       id: cacheIssueUrl
-      if: ${{ github.event_name == 'pull_request' }} && {{ env.OPENSHIFT_SERVER_URL != '' }} && {{ env.OPENSHIFT_TOKEN_DEV != '' }} && {{ env.DEBUG_DEPLOY == 'false' }}
+      if: github.event_name == 'push' &&  env.OPENSHIFT_SERVER_URL != '' &&  env.OPENSHIFT_TOKEN_DEV != ''  &&  env.DEBUG_DEPLOY == 'false' 
       run: |
         echo github event name ${{ github.event_name }}
 
