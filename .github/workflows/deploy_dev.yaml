@@ -83,7 +83,7 @@ jobs:
         # testing actions
         # ---- Get the issue url and export it
         #ISSUE_CONFIGMAP_NAME=github-issues-configmap
-        ISSUE_CONFIGMAP_NAME=${{ github.repository }}-gh-issues-cm
+        ISSUE_CONFIGMAP_NAME=${{ github.event.repository.name }}-gh-issues-cm
         echo configmap name $ISSUE_CONFIGMAP_NAME
         ISSUE_URL=$(oc get configmap $ISSUE_CONFIGMAP_NAME  -o json | jq .data.issueURL)
 
