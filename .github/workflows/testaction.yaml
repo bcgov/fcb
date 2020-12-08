@@ -118,7 +118,7 @@ jobs:
 
     # --------- Push image to remote
     - name: Push to Github Packages
-      if: ${{ success() }} && ${{ env.GHCR_USER != '' }} && ${{ env.GHCR_TOKEN != '' }} && ${{ env.DEBUG_DEPLOY == 'false' }}
+      if: success() && env.GHCR_USER != '' && ${{ env.GHCR_TOKEN != '' && env.DEBUG_DEPLOY == 'false'
       run: |
         echo pushing the image
         echo $GITHUB_EVENT_NAME
