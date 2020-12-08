@@ -29,6 +29,7 @@ jobs:
     steps:
 
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    # WORKING
     - uses: actions/checkout@v2
       if: ${{ env.DEBUG_DEPLOY == 'false' }}
       id: checkout
@@ -36,6 +37,7 @@ jobs:
         fetch-depth: 0
 
     # Calculate the image tag, used later, and cached in a oc config map
+    # WORKING
     # if oc secrets provided
     - name: calculateImageTag
       id: calculateImageTag
@@ -57,7 +59,7 @@ jobs:
     - name: OpenShift Action
       id: GHAOpenshiftTest
       #uses: redhat-developer/openshift-actions@v1.1
-      if: ${{ env.OPENSHIFT_SERVER_URL != '' }} && ${{ env.OPENSHIFT_TOKEN_DEV != '' }} && ${{ env.DEBUG_DEPLOY == 'false' }}
+      if: ${{ env.OPENSHIFT_SERVER_URL != null }} && ${{ env.OPENSHIFT_TOKEN_DEV != null }} && ${{ env.DEBUG_DEPLOY == 'false' }}
       run: |
         echo DEBUG_DEPLOY $DEBUG_DEPLOY
         echo OPENSHIFT_SERVER_URL $OPENSHIFT_SERVER_URL
