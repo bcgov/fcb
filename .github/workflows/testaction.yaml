@@ -95,7 +95,7 @@ jobs:
       #uses: docker/login-action@v1
       # success() && && ${{ env.DEBUG_DEPLOY == false }} &&  ${{ env.GHCR_TOKEN }} 
       # &&
-      if: ${{ success() }} && ${{ env.DEBUG_DEPLOY == 'false' }} && ${{ env.GHCR_USER != ''}} && ${{ env.GHCR_TOKEN != '' }} 
+      if: success() && env.DEBUG_DEPLOY == 'false' && env.GHCR_USER != '' && env.GHCR_TOKEN != ''
       run: |
         echo LOGIN to github, $GHCR_USER
       # with:
