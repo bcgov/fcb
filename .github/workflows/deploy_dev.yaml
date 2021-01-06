@@ -114,7 +114,9 @@ jobs:
            --set kong_config.gwa_client_id=$GWA_CLIENT_ID \
            --set kong_config.gwa_namespace=$GWA_NAMESPACE \
            --set kong_config.apikey=$GWA_APIKEY \
+           --set kong_config.secret_key_name=kong-config \
            --set kong_config.gwa_env=test
+
 
 
     # # ADD THE ROUTE TO THE ISSUE

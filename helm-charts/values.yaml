@@ -39,7 +39,7 @@ app_image_pull_secret_params:
   imagetag: latest
 
 kong_config:
-  secrets_name: secret-object-that-will-contain-this-info
+  secrets_name: kong-secrets
   secret_key_name: kong-config
   gwa_client_id: name-of-kong-config-service-account
   gwa_namespace: the-gwa-namespace
