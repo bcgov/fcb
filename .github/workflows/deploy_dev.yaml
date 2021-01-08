@@ -2,15 +2,15 @@
 name: "DEV Deploy"
 
 #TODO: once working change the event the action is associated to the one below
-# on:
-#   workflow_run:
-#     workflows: ["BUILDPackage", "build"]
-#     types: 
-#       - completed
+on:
+  workflow_run:
+    workflows: ["BUILDPackage", "build"]
+    types: 
+      - completed
 
-on: 
-  push:
-    branches: ['dev', 'smk-cdci']
+# on: 
+#   push:
+#     branches: ['dev', 'smk-cdci']
 
 jobs:
   deploydev:
@@ -33,7 +33,7 @@ jobs:
         fetch-depth: 0
 
     # LOGGING INTO OC
-    - name: OpenShift Action
+    - name: OpenShift Login Action
       id: GHAOpenshiftTest
       uses: redhat-developer/openshift-actions@v1.1
       if: env.OPENSHIFT_SERVER_URL != '' &&  env.OPENSHIFT_TOKEN_DEV != ''
@@ -48,6 +48,7 @@ jobs:
       id: retrieveimagetag
       if: env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != '' && env.GHCR_USER != '' && env.GHCR_TOKEN != ''
       run: |
+        # the configmap should have been created by the build action
         IMAGE_TAG_CONFMAP_NAME=${{ github.event.repository.name }}-imagetag-cm
         CONFMAPIMAGETAG=current_image_tag
         CONFMAPISSUETAG=issueURL
