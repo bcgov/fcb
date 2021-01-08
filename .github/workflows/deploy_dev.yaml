@@ -101,7 +101,6 @@ jobs:
         EMAIL=${{ steps.retrieveimagetag.outputs.EMAIL }}
         REPOANDORG=${{ github.event.repository.name }}
         REPONAME=$(basename "${REPOANDORG}")
-        #REPONAME=${{ github.event.repository.name }}
         DOCKER_VERSION_TAG=${{ steps.retrieveimagetag.outputs.DOCKER_VERSION_TAG }}
         IMAGE_REGISTRY=${{ steps.retrieveimagetag.outputs.IMAGE_REGISTRY }}
         
