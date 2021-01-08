@@ -49,7 +49,9 @@ jobs:
       if: env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != '' && env.GHCR_USER != '' && env.GHCR_TOKEN != ''
       run: |
         # the configmap should have been created by the build action
-        IMAGE_TAG_CONFMAP_NAME=${{ github.event.repository.name }}-imagetag-cm
+        REPOANDORG=${{ github.event.repository.name }}
+        JUSTREPONAME=$(basename "${REPOANDORG}")
+        IMAGE_TAG_CONFMAP_NAME=$JUSTREPONAME-imagetag-cm
         CONFMAPIMAGETAG=current_image_tag
         CONFMAPISSUETAG=issueURL
         REPONAME=${{ github.event.repository.name }}
@@ -73,7 +75,10 @@ jobs:
         # could verify here that in correct namespace or error
 
         # ---- get the Image tag and export it
+        # image name includes the org example its bcgov/imageName.  needs to be only imagename
+        # image name bcgov/smk-fap-fcb-imagetag-cm
         echo image name $IMAGE_TAG_CONFMAP_NAME
+        
         IMAGE_TAG=$(oc get configmap $IMAGE_TAG_CONFMAP_NAME  -o json | jq .data.$CONFMAPIMAGETAG)
         echo ::set-output name=DOCKER_VERSION_TAG::${IMAGE_TAG}
         echo image tag $IMAGE_TAG
