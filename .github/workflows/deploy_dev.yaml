@@ -99,8 +99,8 @@ jobs:
       run: |
         # --=- Move below to new action
         EMAIL=${{ steps.retrieveimagetag.outputs.EMAIL }}
-        REPOANDORG=${{ github.event.repository.name }}
-        REPONAME=$(basename "${REPOANDORG}")
+        REPOANDORG=${{ github.repository }}
+        REPONAME=$(basename "$REPOANDORG")
         DOCKER_VERSION_TAG=${{ steps.retrieveimagetag.outputs.DOCKER_VERSION_TAG }}
         IMAGE_REGISTRY=${{ steps.retrieveimagetag.outputs.IMAGE_REGISTRY }}
         
@@ -109,6 +109,10 @@ jobs:
         GWA_NAMESPACE=$(echo $KONGSECRETSJSON | jq -r '.gwa_namespace')
         GWA_CLIENT_ID=$(echo $KONGSECRETSJSON | jq -r '.gwa_client_id')
 
+        echo EMAIL $EMAIL
+        echo REPONAME $REPONAME
+        echo DOCKER_VERSION_TAG $DOCKER_VERSION_TAG
+        echo IMAGE_REGISTRY $IMAGE_REGISTRY
 
         helm upgrade $REPONAME ./helm-charts --install \
            --set app_name=$REPONAME\
