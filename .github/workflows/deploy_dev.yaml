@@ -156,15 +156,20 @@ jobs:
           # extract kong config info from secrets
           export PATH=`pwd`:$PATH
           ls -l
-          ./gwa-cli-linux
           gitrepo=${{ steps.retrieveimagetag.outputs.REPONAME }}
+          echo gitrepo $gitrepo
           kongSecrets=$(oc get secrets kong-secrets -o json | jq '.data' | jq '.["kong-config"] | @base64d | fromjson')
           GWA_CLIENTID=$(echo $kongSecrets | jq '.gwa_client_id')
+          echo client id $GWA_CLIENTID
           GWA_TOKEN=$(echo $kongSecrets | jq '.apikey')
           GWA_NAMESPACE=$(echo $kongSecrets | jq '.gwa_namespace')
+          echo namespace $GWA_CLIENTID
           gwa_route_name=${gitrepo}-kong-route
           oc_service_name=${gitrepo}-svc
           oc_route_name="${gitrepo}-rt"
+          echo oc_route_name $oc_route_name
+          echo oc_service_name $oc_service_name
+          echo gwa_route_name $gwa_route_name
           oc_route_host=https://$(oc get routes $oc_route_name -o json | jq '.spec.host' | tr -d '"')
 
           gwa-cli-linux init -T \
@@ -172,12 +177,17 @@ jobs:
             --client-id=$GWA_CLIENTID \
             --client-secret=$GWA_TOKEN
 
+          echo init complete
+
+          python --version
           python gwa/createGWAConfig.py \
             service=$oc_service_name \
             ocUrl=$oc_route_host \
             gwa_namespace=$GWA_NAMESPACE \
             gwa_route_name=$gwa_route_name \
             url_prefix=$gitrepo > gwa_config.yaml
+
+          echo gwa config created
           
           gwa-cli-linux pg gwa_config.yaml
           
