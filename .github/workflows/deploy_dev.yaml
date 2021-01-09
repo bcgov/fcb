@@ -48,8 +48,9 @@ jobs:
       id: retrieveimagetag
       if: env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != '' && env.GHCR_USER != '' && env.GHCR_TOKEN != ''
       run: |
-        REPOANDORG=${{ github.event.repository.name }}
+        REPOANDORG=${{ github.repository }}
         REPONAME=$(basename "${REPOANDORG}")
+        echo reponame $REPONAME
         IMAGE_TAG_CONFMAP_NAME=$JUSTREPONAME-imagetag-cm
         CONFMAPIMAGETAG=current_image_tag
         CONFMAPISSUETAG=issueURL
@@ -66,7 +67,7 @@ jobs:
         OC_NAMESPACE_NAMES_CONFIG_MAP=namespaces-cm
         OCDEVNAMESPACE=$(oc get configmap $OC_NAMESPACE_NAMES_CONFIG_MAP  -o json | jq .data.dev | tr -d '"')
         echo namespace $OCDEVNAMESPACE
-        # could verify here that in correct namespace or error
+
 
         # ---- get the Image tag and export it
         # image name includes the org example its bcgov/imageName.  needs to be only imagename
