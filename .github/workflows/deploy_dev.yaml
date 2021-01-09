@@ -149,12 +149,13 @@ jobs:
         curl -L -O https://github.com/bcgov/gwa-cli/releases/download/v1.0.14/gwa-cli-linux.zip
         unzip gwa-cli-linux.zip
         mv gwa-cli-linux gwa
-        export PATH=`pwd`:$PATH
-
+        
     - name: Configure Kong Route
       id: kongconf
       run: |
           # extract kong config info from secrets
+          export PATH=`pwd`:$PATH
+          gwa
           gitrepo=${{ steps.retrieveimagetag.outputs.REPONAME }}
           kongSecrets=$(oc get secrets kong-secrets -o json | jq '.data' | jq '.["kong-config"] | @base64d | fromjson')
           GWA_CLIENTID=$(echo $kongSecrets | jq '.gwa_client_id')
