@@ -51,7 +51,7 @@ jobs:
         REPOANDORG=${{ github.repository }}
         REPONAME=$(basename "${REPOANDORG}")
         echo reponame $REPONAME
-        IMAGE_TAG_CONFMAP_NAME=$JUSTREPONAME-imagetag-cm
+        IMAGE_TAG_CONFMAP_NAME=$REPONAME-imagetag-cm
         CONFMAPIMAGETAG=current_image_tag
         CONFMAPISSUETAG=issueURL
         EMAIL=$(curl -H "Accept: application/vnd.github.v3+json" \
