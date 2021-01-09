@@ -48,25 +48,19 @@ jobs:
       id: retrieveimagetag
       if: env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != '' && env.GHCR_USER != '' && env.GHCR_TOKEN != ''
       run: |
-        # the configmap should have been created by the build action
         REPOANDORG=${{ github.event.repository.name }}
-        JUSTREPONAME=$(basename "${REPOANDORG}")
+        REPONAME=$(basename "${REPOANDORG}")
         IMAGE_TAG_CONFMAP_NAME=$JUSTREPONAME-imagetag-cm
         CONFMAPIMAGETAG=current_image_tag
         CONFMAPISSUETAG=issueURL
-        REPONAME=${{ github.event.repository.name }}
         EMAIL=$(curl -H "Accept: application/vnd.github.v3+json" \
                 -H "Authorization: token $GHCR_TOKEN" \
                 https://api.github.com/users/$GHCR_USER | jq '.email')
+        IMAGE_REGISTRY=docker.pkg.github.com/${{ github.repository_owner }}/$REPONAME/$REPONAME
 
         echo ::set-output name=EMAIL::${EMAIL}
         echo ::set-output name=REPONAME::${REPONAME}
-
-        IMAGE_REGISTRY=docker.pkg.github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/${{ github.event.repository.name }}
         echo ::set-output name=IMAGE_REGISTRY::${IMAGE_REGISTRY}
-        echo image registry $IMAGE_REGISTRY
-        oc whoami
-        oc version
 
         # ---- get the namespace name and set the namespace
         OC_NAMESPACE_NAMES_CONFIG_MAP=namespaces-cm
@@ -86,10 +80,9 @@ jobs:
         # ---- output the docker image repo
         echo ::set-output name=IMAGE_REGISTRY::${IMAGE_REGISTRY}
 
-        # testing actions
         # ---- Get the issue url and export it
         #ISSUE_CONFIGMAP_NAME=github-issues-configmap
-        ISSUE_CONFIGMAP_NAME=${{ github.event.repository.name }}-gh-issues-cm
+        ISSUE_CONFIGMAP_NAME=${{ steps.retrieveimagetag.outputs.REPONAME }}-gh-issues-cm
         echo configmap name $ISSUE_CONFIGMAP_NAME
         ISSUE_URL=$(oc get configmap $ISSUE_CONFIGMAP_NAME  -o json | jq .data.issueURL)
 
@@ -99,35 +92,20 @@ jobs:
       run: |
         # --=- Move below to new action
         EMAIL=${{ steps.retrieveimagetag.outputs.EMAIL }}
-        REPOANDORG=${{ github.repository }}
-        REPONAME=$(basename "$REPOANDORG")
         DOCKER_VERSION_TAG=${{ steps.retrieveimagetag.outputs.DOCKER_VERSION_TAG }}
         IMAGE_REGISTRY=${{ steps.retrieveimagetag.outputs.IMAGE_REGISTRY }}
         
-        KONGSECRETSJSON=$(oc get secrets kong-secrets -o json | jq -r '.data["kong-config"]' | base64 --decode)
-        GWA_APIKEY=$(echo $KONGSECRETSJSON | jq -r '.apikey')
-        GWA_NAMESPACE=$(echo $KONGSECRETSJSON | jq -r '.gwa_namespace')
-        GWA_CLIENT_ID=$(echo $KONGSECRETSJSON | jq -r '.gwa_client_id')
-
         echo EMAIL $EMAIL
-        echo REPONAME $REPONAME
+        echo REPONAME ${{ steps.retrieveimagetag.outputs.REPONAME }}
         echo DOCKER_VERSION_TAG $DOCKER_VERSION_TAG
         echo IMAGE_REGISTRY $IMAGE_REGISTRY
 
         helm upgrade $REPONAME ./helm-charts --install \
-           --set app_name=$REPONAME\
+           --set app_name=${{ steps.retrieveimagetag.outputs.REPONAME }} \
            --set env=dev \
-           --set app_image_pull_secret_params.email=$EMAIL \
-           --set app_image_pull_secret_params.username=$GHCR_USER \
-           --set app_image_pull_secret_params.password=$GHCR_TOKEN \
+           --set app_image_pull_secret_params.name=github-imagepull-secrets \
            --set app_image_pull_secret_params.imagetag=$DOCKER_VERSION_TAG \
-           --set app_image_pull_secret_params.registry=$IMAGE_REGISTRY \
-           --set kong_config.gwa_client_id=$GWA_CLIENT_ID \
-           --set kong_config.gwa_namespace=$GWA_NAMESPACE \
-           --set kong_config.apikey=$GWA_APIKEY \
-           --set kong_config.secret_key_name=kong-config \
-           --set kong_config.gwa_env=test
-
+           --set app_image_pull_secret_params.registry=$IMAGE_REGISTRY
 
 
     # # ADD THE ROUTE TO THE ISSUE
@@ -136,9 +114,9 @@ jobs:
       run: |
         echo the GITHUB_EVENT_PATH
         cat $GITHUB_EVENT_PATH
-        oc_route_name=${{ github.event.repository.name }}-rt
+        oc_route_name=${{ steps.retrieveimagetag.outputs.REPONAME }}-rt
         #GITHUB_ISSUES_CONFIGMAP=github-issues-configmap
-        GITHUB_ISSUES_CONFIGMAP=${{ github.event.repository.name }}-gh-issues-cm
+        GITHUB_ISSUES_CONFIGMAP=${{ steps.retrieveimagetag.outputs.REPONAME }}-gh-issues-cm
 
         ROUTEPATH=$(oc get route $oc_route_name -o json | jq .spec.host | tr -d '"' )
         ISSUE_URL=$(oc get configmap $GITHUB_ISSUES_CONFIGMAP -o json | jq .data.issueURL | tr -d '"')
@@ -176,7 +154,7 @@ jobs:
       id: kongconf
       run: |
           # extract kong config info from secrets
-          gitrepo=${{ github.event.repository.name }}
+          gitrepo=${{ steps.retrieveimagetag.outputs.REPONAME }}
           kongSecrets=$(oc get secrets kong-secrets -o json | jq '.data' | jq '.["kong-config"] | @base64d | fromjson')
           GWA_CLIENTID=$(echo $kongSecrets | jq '.gwa_client_id')
           GWA_TOKEN=$(echo $kongSecrets | jq '.apikey')
