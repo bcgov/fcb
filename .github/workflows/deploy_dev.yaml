@@ -101,7 +101,7 @@ jobs:
         echo DOCKER_VERSION_TAG $DOCKER_VERSION_TAG
         echo IMAGE_REGISTRY $IMAGE_REGISTRY
 
-        helm upgrade $REPONAME ./helm-charts --install \
+        helm upgrade ${{ steps.retrieveimagetag.outputs.REPONAME }} ./helm-charts --install \
            --set app_name=${{ steps.retrieveimagetag.outputs.REPONAME }} \
            --set env=dev \
            --set app_image_pull_secret_params.name=github-imagepull-secrets \
