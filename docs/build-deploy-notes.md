@@ -27,9 +27,6 @@ repository.
 * role bindings (named after service account with '-rb' suffix)
 * github actions image pull secrets
 
-
-
-
 Some objects in the helm template will get deployed once, then re-
 used by all subsequent deployments.  Other objects in the helm 
 chart are created multiple time on a per app basis.  In other words

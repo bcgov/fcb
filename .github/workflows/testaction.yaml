@@ -3,9 +3,9 @@ name: testaction
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
 # -------- DEBUGGING --------
-on: 
-  push:
-    branches: ['smk-cdci']
+# on: 
+#   push:
+#     branches: ['smk-cdci']
 
 jobs:
   # This workflow contains a single job called "build"
@@ -27,6 +27,35 @@ jobs:
       dockerversiontag: ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
       
     steps:
+
+    - name: OpenShift Login Action
+      id: GHAOpenshiftTest
+      uses: redhat-developer/openshift-actions@v1.1
+      if: env.OPENSHIFT_SERVER_URL != '' &&  env.OPENSHIFT_TOKEN_DEV != ''
+      with:
+        version: '3.11.232'
+        openshift_server_url: ${{ secrets.OPENSHIFT_SERVER_URL }}
+        parameters: '{"apitoken": "${{ secrets.OPENSHIFT_TOKEN_DEV }}", "acceptUntrustedCerts": "true"}'
+        cmd: 'version'
+    
+    - name: testLogic
+      id: testLogic
+      run: |
+        EMAIL=${{ steps.retrieveimagetag.outputs.EMAIL }}
+        REPOANDORG=${{ github.repository }}
+        REPONAME=$(basename "$REPOANDORG")
+        #DOCKER_VERSION_TAG=${{ steps.retrieveimagetag.outputs.DOCKER_VERSION_TAG }}
+        #IMAGE_REGISTRY=${{ steps.retrieveimagetag.outputs.IMAGE_REGISTRY }}
+
+        echo REPONAME $REPONAME
+        echo DOCKER_VERSION_TAG $DOCKER_VERSION_TAG
+
+        KONGSECRETSJSON=$(oc get secrets kong-secrets -o json | jq -r '.data["kong-config"]' | base64 --decode)
+        GWA_APIKEY=$(echo $KONGSECRETSJSON | jq -r '.apikey')
+        GWA_NAMESPACE=$(echo $KONGSECRETSJSON | jq -r '.gwa_namespace')
+        GWA_CLIENT_ID=$(echo $KONGSECRETSJSON | jq -r '.gwa_client_id')
+
+
 
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     # WORKING

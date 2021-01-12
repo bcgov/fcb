@@ -1,6 +1,18 @@
 # Overview
 
-AT a high level the CD/CI pipeline used for SMK apps will perform
+SMK and the SMK command line allow non technical users to easily author
+web maps that can consume a variety of different spatial data sets 
+including:
+
+* WMS
+* ArcGIS Server Rest
+* Other misc custom data sources
+
+DataBC wants to be able to publish SMK based apps easily and efficiently into
+a single SMK openshift workspace.  The workspace (dev|test|prod|tools) in theory could host 
+hundreds of smk apps.  The deployment process should be as automated as possible.
+
+At a high level the CD/CI pipeline used for SMK apps will perform
 the following steps:
 
 1. Pull Request (PR) on Github triggers the Build
@@ -10,12 +22,12 @@ the following steps:
 
 # Details
 
-The full CD/CI pipeline is handled by github actions.  Hot the pipeline code
+The full CD/CI pipeline is handled by github actions.  How the pipeline code
 gets added to the repo is still yet to be determined.  Some idea include:
 
-1. code is injected into the reposository when the smk-cli tool is run
+1. code is injected into the repository when the smk-cli tool is run
 1. smk repo's inherit from a github templated repo that contains the actions code
-1. users copy code into the repo
+1. users copy code into the repo, (likely the inital choice)
 
 The last option is likely how things will initially be handled.  Possibly will
 evolve to one of the other options as time allows.
@@ -46,7 +58,6 @@ tag will not get populated.
 * OPENSHIFT_SERVER_URL: the url that is used to communicate with openshift (the url used to authenticate oc cli)
 * OPENSHIFT_TOKEN_DEV: service account api key for the oc project.  This key
     is generated the first time the helm chart is run in ocp4.  This is the api key for the dev namespace.  Used by steps that deploy to dev.
-
 
 ## Deployment Pre-requisites
 

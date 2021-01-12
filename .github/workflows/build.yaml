@@ -58,14 +58,21 @@ jobs:
       id: calculateImageTag
       if: env.DEBUG_DEPLOY == 'false'
       run: |
+        repoandorg=${{ github.repository }}
+        REPO=$(basename "$REPOANDORG")
+
         DATESTAMP=$(date +%Y%m%d-%H%M)
         REGISTRY="docker.pkg.github.com"
-        IMAGE="${REGISTRY}/${{ github.repository }}/${{ github.event.repository.name }}"
+        IMAGE="${REGISTRY}/${{ github.repository }}/$REPO"
         TAGS="${IMAGE}:${DATESTAMP}"
         LATEST="${IMAGE}:latest"
+        
         echo ::set-output name=DOCKER_VERSION_TAG::${TAGS}
         echo ::set-output name=DOCKER_LATEST_TAG::${LATEST}
         echo ::set-output name=TIMESTAMPTAG::${DATESTAMP}
+        echo ::set-output name=REPO::${REPO}
+
+        
         echo event name is $GITHUB_EVENT_NAME
         echo  $DEBUG_DEPLOY
 
@@ -86,7 +93,7 @@ jobs:
       if: github.event_name == 'pull_request' && env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != '' && env.DEBUG_DEPLOY == 'false'
       run: |
         echo github event name ${{ github.event_name }}
-        CONFMAP_NAME=${{ github.event.repository.name }}-gh-issues-cm
+        CONFMAP_NAME=${{ steps.calculateImageTag.outputs.REPO }}-gh-issues-cm
         ISSUE_URL=$(jq --raw-output .pull_request.issue_url "$GITHUB_EVENT_PATH")
         echo issue url is $ISSUE_URL
 
@@ -98,7 +105,7 @@ jobs:
             methodType="replace"
         fi
         
-        oc create configmap $CONFMAP_NAME \
+        oc $methodType configmap $CONFMAP_NAME \
           --from-literal=issueURL=$ISSUE_URL \
           --from-literal=github_event_path=$GITHUB_EVENT_PATH \
           --dry-run -o yaml | oc $methodType -f -
@@ -157,7 +164,7 @@ jobs:
         IMAGETAG=${{ steps.calculateImageTag.outputs.TIMESTAMPTAG }}
         # needs to be made unique to app being deployed
         # CONFMAP_NAME=imagetag2deploy
-        CONFMAP_NAME=${{ github.event.repository.name }}-imagetag-cm
+        CONFMAP_NAME=${{ steps.calculateImageTag.outputs.REPO }}-imagetag-cm
         CONF_EXISTS=$(oc get configmaps -o json |  jq '[.items[] | select(.metadata.name == "'$CONFMAP_NAME'")] | length')
         echo conf exists is $CONF_EXISTS
         echo imagetag is $IMAGETAG
@@ -212,4 +219,3 @@ jobs:
         --header "Content-Type: application/json" \
         --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
         --data "$jsonwithlabels"
-

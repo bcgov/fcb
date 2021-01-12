@@ -30,38 +30,13 @@ app_port: 8888
 # Values that should be overriden:
 #  email, username, password, registry, imagetag
 # these are my passwords, please don't share
-app_image_pull_secret_params:
-  name: image-pull-secrets
-  email: guy.lafleur@montreal.canadians.ca
-  username: guyLafleur
-  password: b05t0NSuuuuuxx999342
-  registry: docker.pkg.github.com/bcgov/smk-fc-fap/smk-fc-fap
-  imagetag: latest
-
-kong_config:
-  secrets_name: secret-object-that-will-contain-this-info
-  gwa_client_id: name-of-kong-config-service-account
-  gwa_namespace: the-gwa-namespace
-  apikey: api-key-that-goes-with-the-service-account
-  aps_nsp_name: aps-gateway-to-your-upstream-api
-  gwa_env: test
-  kong_test_project_name: 264e6f-test
-  kong_prod_project_name: 264e6f-prod
-
-github_actions_sa:
-  name: gha-sa
-
-deploy_service_account: true
-
-# Used to ensure the correct namespace has been set by gha
-namespaces_configmap:
-  name: namespaces-cm
-  dev: name_of_dev_namespace
-  test: name_of_test_namespace
-  prod: name_of_prod_namespace
 
 # Used by gha to pass the issue url to different gha jobs / stages
 github_issues_configmap:
   name: github-issues-configmap
   issue_url: None
   github_event_path: None
+
+kong_config:
+  kong_test_project_name: 264e6f-test
+  kong_prod_project_name: 264e6f-prod
