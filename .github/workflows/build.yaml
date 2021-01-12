@@ -43,6 +43,7 @@ jobs:
       DEBUG_DEPLOY: false
     outputs:
       dockerversiontag: ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
+
       
     steps:
 
@@ -61,6 +62,7 @@ jobs:
       run: |
         repoandorg=${{ github.repository }}
         REPO=$(basename "$REPOANDORG")
+        echo REPO $REPO
 
         DATESTAMP=$(date +%Y%m%d-%H%M)
         REGISTRY="docker.pkg.github.com"
@@ -94,6 +96,7 @@ jobs:
       if: github.event_name == 'pull_request' && env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != '' && env.DEBUG_DEPLOY == 'false'
       run: |
         echo github event name ${{ github.event_name }}
+        echo CONFMAP_NAME $CONFMAP_NAME
         CONFMAP_NAME=${{ steps.calculateImageTag.outputs.REPO }}-gh-issues-cm
         echo CONFMAP_NAME $CONFMAP_NAME
         ISSUE_URL=$(jq --raw-output .pull_request.issue_url "$GITHUB_EVENT_PATH")
