@@ -95,10 +95,12 @@ jobs:
       run: |
         echo github event name ${{ github.event_name }}
         CONFMAP_NAME=${{ steps.calculateImageTag.outputs.REPO }}-gh-issues-cm
+        echo CONFMAP_NAME $CONFMAP_NAME
         ISSUE_URL=$(jq --raw-output .pull_request.issue_url "$GITHUB_EVENT_PATH")
         echo issue url is $ISSUE_URL
 
         CONF_EXISTS=$(oc get configmaps -o json |  jq '[.items[] | select(.metadata.name == "'$CONFMAP_NAME'")] | length')
+        echo CONF_EXISTS $CONF_EXISTS
         if [ $CONF_EXISTS -eq 0 ] 
           then
             methodType="create"
@@ -106,7 +108,7 @@ jobs:
             methodType="replace"
         fi
         
-        oc $methodType configmap $CONFMAP_NAME \
+        oc create configmap $CONFMAP_NAME \
           --from-literal=issueURL=$ISSUE_URL \
           --from-literal=github_event_path=$GITHUB_EVENT_PATH \
           --dry-run -o yaml | oc $methodType -f -
