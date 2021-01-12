@@ -36,3 +36,7 @@ github_issues_configmap:
   name: github-issues-configmap
   issue_url: None
   github_event_path: None
+
+kong_config:
+  kong_test_project_name: 264e6f-test
+  kong_prod_project_name: 264e6f-prod

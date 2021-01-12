@@ -105,7 +105,7 @@ jobs:
             methodType="replace"
         fi
         
-        oc create configmap $CONFMAP_NAME \
+        oc $methodType configmap $CONFMAP_NAME \
           --from-literal=issueURL=$ISSUE_URL \
           --from-literal=github_event_path=$GITHUB_EVENT_PATH \
           --dry-run -o yaml | oc $methodType -f -

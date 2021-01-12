@@ -2,15 +2,15 @@
 name: "DEV Deploy"
 
 #TODO: once working change the event the action is associated to the one below
-# on:
-#   workflow_run:
-#     workflows: ["BUILDPackage", "build"]
-#     types: 
-#       - completed
+on:
+  workflow_run:
+    workflows: ["BUILDPackage", "build"]
+    types: 
+      - completed
 
-on: 
-  push:
-    branches: ['dev', 'smk-cdci']
+# on: 
+#   push:
+#     branches: ['dev', 'smk-cdci']
 
 jobs:
   deploydev:
@@ -153,65 +153,75 @@ jobs:
     - name: Configure Kong Route
       id: kongconf
       run: |
-          # extract kong config info from secrets
-          export PATH=`pwd`:$PATH
-          ls -l
-          gitrepo=${{ steps.retrieveimagetag.outputs.REPONAME }}
-          echo gitrepo $gitrepo
-          kongSecrets=$(oc get secrets kong-secrets -o json | jq '.data' | jq '.["kong-config"] | @base64d | fromjson')
-          GWA_CLIENTID=$(echo $kongSecrets | jq '.gwa_client_id')
-          echo client id $GWA_CLIENTID
-          GWA_TOKEN=$(echo $kongSecrets | jq '.apikey')
-          GWA_NAMESPACE=$(echo $kongSecrets | jq '.gwa_namespace')
-          echo namespace $GWA_CLIENTID
-          gwa_route_name=${gitrepo}-kong-route
-          oc_service_name=${gitrepo}-svc
-          oc_route_name="${gitrepo}-rt"
-          echo oc_route_name $oc_route_name
-          echo oc_service_name $oc_service_name
-          echo gwa_route_name $gwa_route_name
-          oc_route_host=https://$(oc get routes $oc_route_name -o json | jq '.spec.host' | tr -d '"')
+          #------------------------------------------------------------------------
+          # commenting this whole section out, current gwa config may work but
+          # it is incorrect, the gwa should wrap the service vs a route, the 
+          # python code that creates the input file also should get updated as
+          # the config file it spits out wraps the gwa around a route vs a service.
+          #------------------------------------------------------------------------
+          # # 
+          # # extract kong config info from secrets
+          # export PATH=`pwd`:$PATH
+          # ls -l
+          # gitrepo=${{ steps.retrieveimagetag.outputs.REPONAME }}
+          # echo gitrepo $gitrepo
+          # kongSecrets=$(oc get secrets kong-secrets -o json | jq '.data' | jq '.["kong-config"] | @base64d | fromjson')
+          # GWA_CLIENTID=$(echo $kongSecrets | jq '.gwa_client_id')
+          # echo client id $GWA_CLIENTID
+          # GWA_TOKEN=$(echo $kongSecrets | jq '.apikey')
+          # GWA_NAMESPACE=$(echo $kongSecrets | jq '.gwa_namespace')
+          # echo namespace $GWA_CLIENTID
+          # gwa_route_name=${gitrepo}-kong-route
+          # oc_service_name=${gitrepo}-svc
+          # oc_route_name="${gitrepo}-rt"
+          # echo oc_route_name $oc_route_name
+          # echo oc_service_name $oc_service_name
+          # echo gwa_route_name $gwa_route_name
+          # oc_route_host=https://$(oc get routes $oc_route_name -o json | jq '.spec.host' | tr -d '"')
 
-          gwa-cli-linux init -T \
-            --namespace=$GWA_NAMESPACE \
-            --client-id=$GWA_CLIENTID \
-            --client-secret=$GWA_TOKEN
+          # gwa-cli-linux init -T \
+          #   --namespace=$GWA_NAMESPACE \
+          #   --client-id=$GWA_CLIENTID \
+          #   --client-secret=$GWA_TOKEN
 
-          echo init complete
+          # echo init complete
 
-          python --version
-          python gwa/createGWAConfig.py \
-            service=$oc_service_name \
-            ocUrl=$oc_route_host \
-            gwa_namespace=$GWA_NAMESPACE \
-            gwa_route_name=$gwa_route_name \
-            url_prefix=$gitrepo > gwa_config.yaml
+          # python --version
+          # python3 gwa/createGWAConfig.py \
+          #   service=$oc_service_name \
+          #   ocUrl=$oc_route_host \
+          #   gwa_namespace=$GWA_NAMESPACE \
+          #   gwa_route_name=$gwa_route_name \
+          #   url_prefix=$gitrepo > gwa_config.yaml
 
-          echo gwa config created
+          # echo gwa config created
           
-          gwa-cli-linux pg gwa_config.yaml
+          # gwa-cli-linux pg gwa_config.yaml
+          echo kong config is currently disabled
           
+    - name: "Send Review Request 2"
+      id: requestreview
+      run: |
+        # get the openshift dev namespace name
+        OCDEVNAMESPACE=$(oc get configmap $OC_NAMESPACE_NAMES_CONFIG_MAP -o json | jq .data.dev | tr -d '"')
 
+        # get the issue number from the config map.. the build that 
+        # was triggered by the pr would have cached it there.
 
+        # git_event.txt
+        EVENT_INFO=$(cat git_event.txt)
+        GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
 
+        PR_NUMBER=$(echo $EVENT_INFO | jq ".number")
+        echo pr number is $PR_NUMBER
+        PR_URL=$(echo $EVENT_INFO | jq ".pull_request.url" | tr -d '"')
+        echo pr url is $PR_URL
+        REVIEW_URL="$PR_URL/requested_reviewers"
+        echo review url $REVIEW_URL
+        REVIEWERS='{"reviewers":["GuyTheFlower", "NicoledeGreef"]}'
+        echo reviewers are $REVIEWERS
 
-    # - name: "Send Review Request 2"
-    #   id: requestreview
-    #   run: |
-    #     # git_event.txt
-    #     EVENT_INFO=$(cat git_event.txt)
-    #     GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
-
-    #     PR_NUMBER=$(echo $EVENT_INFO | jq ".number")
-    #     echo pr number is $PR_NUMBER
-    #     PR_URL=$(echo $EVENT_INFO | jq ".pull_request.url" | tr -d '"')
-    #     echo pr url is $PR_URL
-    #     REVIEW_URL="$PR_URL/requested_reviewers"
-    #     echo review url $REVIEW_URL
-    #     REVIEWERS='{"reviewers":["GuyTheFlower", "NicoledeGreef"]}'
-    #     echo reviewers are $REVIEWERS
-
-    #     curl --location --request POST  "$REVIEW_URL" \
-    #     --header "Authorization: Bearer $GITHUB_TOKEN" \
-    #     --header 'Content-Type: text/plain' \
-    #     --data-raw "$REVIEWERS"
+        curl --location --request POST  "$REVIEW_URL" \
+        --header "Authorization: Bearer $GITHUB_TOKEN" \
+        --header 'Content-Type: text/plain' \
+        --data-raw "$REVIEWERS"
