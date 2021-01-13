@@ -112,6 +112,8 @@ jobs:
         fi
 
         EVENT_CONTENT=$(cat $GITHUB_EVENT_PATH)
+        echo event content is...
+        echo $EVENT_CONTENT
         
         oc create configmap $CONFMAP_NAME \
           --from-literal=issueURL=$ISSUE_URL \
