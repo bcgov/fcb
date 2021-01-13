@@ -2,15 +2,15 @@
 name: "DEV Deploy"
 
 #TODO: once working change the event the action is associated to the one below
-on:
-  workflow_run:
-    workflows: ["BUILDPackage", "build"]
-    types: 
-      - completed
+# on:
+#   workflow_run:
+#     workflows: ["BUILDPackage", "build"]
+#     types: 
+#       - completed
 
-# on: 
-#   push:
-#     branches: ['dev', 'smk-cdci']
+on: 
+  push:
+    branches: ['dev', 'smk-cdci']
 
 jobs:
   deploydev:
@@ -101,8 +101,11 @@ jobs:
         echo DOCKER_VERSION_TAG $DOCKER_VERSION_TAG
         echo IMAGE_REGISTRY $IMAGE_REGISTRY
 
-        helm upgrade ${{ steps.retrieveimagetag.outputs.REPONAME }} ./helm-charts --install \
-           --set app_name=${{ steps.retrieveimagetag.outputs.REPONAME }} \
+        REPONAME=${{ steps.retrieveimagetag.outputs.REPONAME }}
+        echo REPONAME $REPONAME
+
+        helm upgrade $REPONAME ./helm-charts --install \
+           --set app_name=$REPONAME \
            --set env=dev \
            --set app_image_pull_secret_params.name=github-imagepull-secrets \
            --set app_image_pull_secret_params.imagetag=$DOCKER_VERSION_TAG \
