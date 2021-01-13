@@ -101,13 +101,15 @@ jobs:
         echo DOCKER_VERSION_TAG $DOCKER_VERSION_TAG
         echo IMAGE_REGISTRY $IMAGE_REGISTRY
 
-        helm upgrade ${{ steps.retrieveimagetag.outputs.REPONAME }} ./helm-charts --install \
-           --set app_name=${{ steps.retrieveimagetag.outputs.REPONAME }} \
+        REPONAME=${{ steps.retrieveimagetag.outputs.REPONAME }}
+        echo REPONAME $REPONAME
+
+        helm upgrade $REPONAME ./helm-charts --install \
+           --set app_name=$REPONAME \
            --set env=dev \
            --set app_image_pull_secret_params.name=github-imagepull-secrets \
            --set app_image_pull_secret_params.imagetag=$DOCKER_VERSION_TAG \
            --set app_image_pull_secret_params.registry=$IMAGE_REGISTRY
-
 
     # # ADD THE ROUTE TO THE ISSUE
     - name: Update issue
@@ -204,12 +206,15 @@ jobs:
       run: |
         # get the openshift dev namespace name
         OCDEVNAMESPACE=$(oc get configmap $OC_NAMESPACE_NAMES_CONFIG_MAP -o json | jq .data.dev | tr -d '"')
+        REPONAME=${{ steps.retrieveimagetag.outputs.REPONAME }}
+        CONFIGMAPNAME=$REPONAME-gh-issues-cm
+        EVENT_INFO=$(oc get configmap $CONFIGMAPNAME -o json | jq '.data.github_event_json')
 
         # get the issue number from the config map.. the build that 
         # was triggered by the pr would have cached it there.
 
         # git_event.txt
-        EVENT_INFO=$(cat git_event.txt)
+        #EVENT_INFO=$(cat git_event.txt)
         GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
 
         PR_NUMBER=$(echo $EVENT_INFO | jq ".number")

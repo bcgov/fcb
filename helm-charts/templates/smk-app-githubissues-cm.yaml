@@ -1,7 +1,0 @@
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  name:  {{ .Values.github_issues_configmap.name }}
-data:
-  url: {{ .Values.github_issues_configmap.issue_url }}
-  github_event_path: {{ .Values.github_issues_configmap.github_event_path }}

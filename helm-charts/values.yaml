@@ -40,3 +40,9 @@ github_issues_configmap:
 kong_config:
   kong_test_project_name: 264e6f-test
   kong_prod_project_name: 264e6f-prod
+  aps_nsp_name: smk-apps
+
+app_image_pull_secret_params:
+  registry: docker.pkg.github.com/bcgov/smk-fap-fcb/smk-fap-fcb
+  imagetag:  20210112-1958
+
