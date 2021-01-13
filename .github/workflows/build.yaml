@@ -148,7 +148,7 @@ jobs:
         context: .
         tags: |
           ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
-          ${{ steps.calculateImageTag.outputs.DOCKER_LATEST_TAG }}
+        #${{ steps.calculateImageTag.outputs.DOCKER_LATEST_TAG }}
         load: true
 
     # --------- Push image to remote
