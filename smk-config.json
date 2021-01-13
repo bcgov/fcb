@@ -1365,27 +1365,27 @@
                     "visible": true
                 },
                 {
-                    "id": "contact-phone",
-                    "name": "CONTACT_PHONE",
-                    "title": "Téléphone",
-                    "visible": true
-                },
-                {
                     "id": "contact-email",
                     "name": "CONTACT_EMAIL",
                     "title": "Courriel",
                     "visible": true
                 },
                 {
-                    "id": "contact-fax",
-                    "name": "CONTACT_FAX",
-                    "title": "CONTACT_FAX",
-                    "visible": false
+                    "id": "contact-phone",
+                    "name": "CONTACT_PHONE",
+                    "title": "Téléphone",
+                    "visible": true
                 },
                 {
                     "id": "website-url",
                     "name": "WEBSITE_URL",
-                    "title": "WEBSITE_URL",
+                    "title": "Site",
+                    "visible": true
+                },
+                {
+                    "id": "contact-fax",
+                    "name": "CONTACT_FAX",
+                    "title": "CONTACT_FAX",
                     "visible": false
                 },
                 {
