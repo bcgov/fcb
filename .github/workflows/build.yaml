@@ -24,7 +24,6 @@ on:
       - helm-charts
       - code_of_conduct.md
 
-
 jobs:
   # This workflow contains a single job called "build"
   buildjob:
@@ -40,13 +39,11 @@ jobs:
       OPENSHIFT_TOKEN_DEV: ${{secrets.OPENSHIFT_TOKEN_DEV}}
       GHCR_USER: ${{ secrets.GHCR_USER }}
       GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-      DEBUG_DEPLOY: false
+      DEBUG_DEPLOY: true
     outputs:
       dockerversiontag: ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
-
       
     steps:
-
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
       if: env.DEBUG_DEPLOY == 'false'
@@ -156,7 +153,7 @@ jobs:
         context: .
         tags: |
           ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
-        #${{ steps.calculateImageTag.outputs.DOCKER_LATEST_TAG }}
+          ${{ steps.calculateImageTag.outputs.DOCKER_LATEST_TAG }}
         load: true
 
     # --------- Push image to remote
