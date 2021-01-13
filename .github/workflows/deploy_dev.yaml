@@ -108,7 +108,6 @@ jobs:
            --set app_image_pull_secret_params.imagetag=$DOCKER_VERSION_TAG \
            --set app_image_pull_secret_params.registry=$IMAGE_REGISTRY
 
-
     # # ADD THE ROUTE TO THE ISSUE
     - name: Update issue
       id: updateissue
