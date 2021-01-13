@@ -4,19 +4,19 @@
         "type": "leaflet",
         "location": {
             "center": [
-                -123.66448895885162,
-                49.07166221711429
+                -122.03544275102642,
+                50.69358110740745
             ],
             "extent": [
-                -125.28604795075732,
-                47.99797895072587,
-                -122.04292996694596,
-                50.122632932074694
+                -122.22111732559276,
+                50.575814782049434,
+                -121.84976817646007,
+                50.81105250371425
             ],
-            "zoom": 8.0729210449213
+            "zoom": 11.052861879139618
         },
         "baseMap": "Streets",
-        "device": "auto"
+        "device": "mobile"
     },
     "layers": [
         {
@@ -408,7 +408,7 @@
         {
             "type": "vector",
             "id": "health",
-            "title": "Professionnels de la santé parlant français",
+            "title": "Professionnels de la santé",
             "isVisible": true,
             "isQueryable": true,
             "opacity": 0.65,
@@ -612,7 +612,7 @@
             "legends": null,
             "legend": {
                 "point": true,
-                "title": "Professionnels de la santé parlant français"
+                "title": "Professionnels de la santé"
             }
         },
         {
@@ -1241,7 +1241,7 @@
             ],
             "queries": null,
             "useClustering": true,
-            "dataUrl": "https://openmaps.gov.bc.ca/geo/pub/WHSE_IMAGERY_AND_BASE_MAPS.GSR_EMPL_SRVCS_OFFICES_SVW/ows?service=WMS&request=GetMap&version=1.1.1&layers=pub%3AWHSE_IMAGERY_AND_BASE_MAPS.GSR_EMPL_SRVCS_OFFICES_SVW&styles=3958&format=application/json;type=geojson&transparent=true&cql_filter=include&srs=EPSG%3A4326&width=645&height=728&bbox=-144.19403793672322,45.39637993438814,-108.99384262912152,62.632414448856416",
+            "dataUrl": "https://openmaps.gov.bc.ca/geo/pub/WHSE_IMAGERY_AND_BASE_MAPS.GSR_EMPL_SRVCS_OFFICES_SVW/ows?service=WMS&request=GetMap&version=1.1.1&layers=pub%3AWHSE_IMAGERY_AND_BASE_MAPS.GSR_EMPL_SRVCS_OFFICES_SVW&styles=3958&format=application/json;type=geojson&transparent=true&cql_filter=%22LANGUAGES_OFFERED_LIST%22=%27English, French%27&srs=EPSG%3A4326&width=645&height=728&bbox=-144.19403793672322,45.39637993438814,-108.99384262912152,62.632414448856416",
             "style": {
                 "marker": true,
                 "stroke": false,
@@ -1365,27 +1365,27 @@
                     "visible": true
                 },
                 {
-                    "id": "contact-phone",
-                    "name": "CONTACT_PHONE",
-                    "title": "Téléphone",
-                    "visible": true
-                },
-                {
                     "id": "contact-email",
                     "name": "CONTACT_EMAIL",
                     "title": "Courriel",
                     "visible": true
                 },
                 {
-                    "id": "contact-fax",
-                    "name": "CONTACT_FAX",
-                    "title": "CONTACT_FAX",
-                    "visible": false
+                    "id": "contact-phone",
+                    "name": "CONTACT_PHONE",
+                    "title": "Téléphone",
+                    "visible": true
                 },
                 {
                     "id": "website-url",
                     "name": "WEBSITE_URL",
-                    "title": "WEBSITE_URL",
+                    "title": "Site",
+                    "visible": true
+                },
+                {
+                    "id": "contact-fax",
+                    "name": "CONTACT_FAX",
+                    "title": "CONTACT_FAX",
                     "visible": false
                 },
                 {
@@ -1525,7 +1525,7 @@
             "position": "list-menu",
             "icon": "help",
             "title": "À propos de cette application",
-            "content": "<div lang=\"EN-CA\" style=\"font-size:10.0pt;line-height:115%;mso-ascii-font-family:Calibri;mso-fareast-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:Calibri;mso-bidi-font-family:Arial;mso-ansi-language:EN-CA;mso-fareast-language:FR-CA\">\n<div>\n<p class=\"MsoNormal\" style=\"background:white\">\n<font face=\"Arial\">\nCette carte vous permet de repérer les ressources et les services en français offerts en Colombie-Britannique. Cinq domaines y sont affichés sous forme de couches successives et permettent une recherche par sujet, par catégorie et par zone géographique. À partir du menu, vous pouvez utiliser l’outil de la carte pour l’afficher en plans plus rapprochés (zoom) ou pour la voir en mode panoramique.<br> \n<br>\nVous pouvez vous concentrer sur une ou plusieurs couches à la fois avec le menu \"domaines de la carte\". Vous pouvez aussi effectuer une recherche à partir du menu \"recherche par catégorie\" ou à l’intérieur d’une zone géographique précise, sous \"chercher à proximité\".<br> \n<br>\nUne fois que vous aurez trouvé un service, cliquez sur le marqueur de la carte pour obtenir de l’information à son sujet et en connaître l’emplacement. Les lieux offrant plusieurs services s’afficheront avec plusieurs marqueurs.<br> \n<br>\n<img src=\"assets/cluster.PNG\">&nbsp;&nbsp;Les chiffres qui figurent dans un cercle représentent un groupement de ressources.  Cliquez sur le cercle ou rapprochez l’affichage pour les voir.\n</div>\n<div>\nClick on the butterfly to access the map.&nbsp;</span><br><a href=\"../bcfls/\"><img src=\"assets/french-services-map-icon.jpg\"></a>\n</div>\n</font>\n</div>",
+            "content": "<div lang=\"EN-CA\" style=\"font-size:10.0pt;line-height:115%;mso-ascii-font-family:Calibri;mso-fareast-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:Calibri;mso-bidi-font-family:Arial;mso-ansi-language:EN-CA;mso-fareast-language:FR-CA\">\n<div>\n<p class=\"MsoNormal\" style=\"background:white\">\n<font face=\"Arial\">\nCette carte vous permet de repérer les ressources et les services en français offerts en Colombie-Britannique. Six domaines y sont affichés sous forme de couches successives et permettent une recherche par sujet, par catégorie et par zone géographique. À partir du menu, vous pouvez utiliser l’outil de la carte pour l’afficher en plans plus rapprochés (zoom) ou pour la voir en mode panoramique.<br> \n<br>\nVous pouvez vous concentrer sur une ou plusieurs couches à la fois avec le menu \"domaines de la carte\". Vous pouvez aussi effectuer une recherche à partir du menu \"recherche par catégorie\" ou à l’intérieur d’une zone géographique précise, sous \"chercher à proximité\".<br> \n<br>\nUne fois que vous aurez trouvé un service, cliquez sur le marqueur de la carte pour obtenir de l’information à son sujet et en connaître l’emplacement. Les lieux offrant plusieurs services s’afficheront avec plusieurs marqueurs.<br> \n<br>\n<img src=\"assets/cluster.PNG\">&nbsp;&nbsp;Les chiffres qui figurent dans un cercle représentent un groupement de ressources.  Cliquez sur le cercle ou rapprochez l’affichage pour les voir.</font></p></div>\n</div>",
             "type": "about",
             "enabled": true
         },
@@ -1555,7 +1555,7 @@
                 {
                     "id": "health",
                     "isVisible": true,
-                    "title": "Professionnels de la santé parlant français",
+                    "title": "Professionnels de la santé",
                     "alwaysShowLegend": false
                 },
                 {
@@ -1619,9 +1619,9 @@
                 "radius": false,
                 "radiusUnit": null,
                 "nearBy": true,
-                "attributeMode": true
+                "attributeMode": false
             },
-            "radius": "1",
+            "radius": "2",
             "radiusUnit": "km",
             "type": "identify",
             "enabled": true,
@@ -1736,7 +1736,7 @@
             "title": "Ce que vous trouverez dans les divers domaines",
             "useComponent": true,
             "component": {
-                "template": "<div lang=\"EN-CA\" style=\"font-size:10.0pt;line-height:115%;mso-ascii-font-family:Calibri;mso-fareast-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:Calibri;mso-bidi-font-family:Arial;mso-ansi-language:EN-CA;mso-fareast-language:FR-CA\">\n<div>\n<p class=\"MsoNormal\" style=\"background:white\">\n\n<font face=\"Arial\">\nLes données qui apparaissent dans chacun des domaines les \"couches\" de la carte ont été fournies par les organismes francophones des domaines concernés. Vous aimeriez faire partie de la carte? Communiquez avec le secteur correspondant, qui figure ci-dessous. Les organismes envoient régulièrement des mises à jour afin d’actualiser la carte.\n<br>\nPour toute question ou pour des commentaires sur la carte actuelle, communiquez avec le Programme des affaires francophones à <a href=\"mailto:FAP@gov.bc.ca?Subject=Carte%20de%20la%20francophonie%20/%20Francophonie%20map\">FAP@gov.bc.ca</a>.</span>\n   <br><br>\n   <img src=\"assets/pin-green.png\"><b>Services à la petite enfance – en français<br></b>\n   <br>Les données comprennent: <br>\n   <ul>\n\t<li>Préscolaire et services de garde en groupe</li>\n\t<li>Préscolaire</li>\n\t<li>Programme Strong Starts</li>\n\t<li>Services de garde en groupe</li>\n\t<li>Services de garde en milieu familial</li>\n   </ul>\n   Données fournies par la <a href=\"mailto:info@fpfcb.bc.ca\" target=\"_top\">Fédération des parents francophones de la C.-B. </a>\n   <br>\n   <br>\n   <img src=\"assets/pin-red.png\"><b>Professionnels de la santé parlant français<br><br></b>\n</div>\n<div>Les données comprennent:</div>\n<div>\n   <ul>\n\t<li>Conseillers cliniciens agréés</li>\n\t<li>Diététistes</li>\n\t<li>Ergothérapeutes agréés</li>\n\t<li>Gestion de la douleur</li>\n\t<li>Massothérapeutes</li>\n\t<li>Nutritionnistes holistiques</li>\n\t<li>Opticiens</li>\n\t<li>Optométristes</li>\n\t<li>Orthophonistes</li>\n\t<li>Physiothérapeutes</li>\n\t<li>Psychologues</li>\n\t<li>Radiothérapie</li>\n\t<li>Travailleurs sociaux agréés</li>\n   </ul>\n</div>\n<div><br></div>\n<div>Données fournies par <a href=\"mailto:info@resosante.ca\" target=\"_top\">Réso-Santé</a>\n<br>\n<br><img src=\"assets/pin-yellow.png\"><b>Répertoire des services en français</b></div>\n<div><br></div>\n<div>Les données comprennent:</div>\n<div>\n   <ul>\n\t<li>Architectes</li>\n\t<li>Arts/design graphique/impression/promotion</li>\n\t<li>Association francophone</li>\n\t<li>Assurance et services financiers</li>\n\t<li>Avocats</li>\n\t<li>Centres communautaires/cours de yoga</li>\n\t<li>Chambres of commerce</li>\n\t<li>Coiffure et esthétique</li>\n\t<li>Comptables</li>\n\t<li>Éducation; écoles, préscolaire et garderies</li> \n\t<li>Églises et temples</li>\n\t<li>Gouvernement</li>\n\t<li>Hébergement</li>\n\t<li>Immobilier</li>\n\t<li>Maisons de soins infirmiers</li>\n\t<li>Médias/communication/Web</li>\n\t<li>Représentations diplomatiques</li>\n\t<li>Restaurants/traiteurs/écoles de cuisine</li>\n\t<li>Services liés à l’emploi</li>\n\t<li>Services de santé</li>\n\t<li>Services aux immigrants</li>\n\t<li>Services de soutien en TI</li>\n\t<li>Tourisme</li>\n\t<li>Traduction</li>\n   </ul>\n</div>\n<div>Données fournies par la <a href=\"mailto:ffcb@ffcb.ca\" target=\"_top\">Fédération des francophones de la C.B. </a>\n<br>\n<br>\n<img src=\"assets/pin-blue.png\"><b>Sites touristiques – avec services en français</b></div>\n<div><br></div>\n<div>Les données comprennent:</div>\n<div><br></div>\n<div>\n   <ul>\n\t<li>Attraits touristiques</li> \n\t<li>Boutiques et magasins</li> \n\t<li>Hébergement</li> \n\t<li>Restaurants</li> \n\t<li>Services</li>\n   </ul>\n</div>\n<div><br></div>\n<div>Données fournies par la <a href=\"mailto:info@sdecb.com\" target=\"_top\">Société de développement économique de la C.B.</a></div>\n<div><br><img src=\"assets/school.png\"><b>Écoles francophones (maternelle - 12ième année)</b></div>\n<div><br></div>\n<div>Ce domaine regroupe:</div>\n<div>\n   <ul>\n      <li>Les écoles d’immersion francophone</li>\n      <li>Les écoles francophones</li>\n   </ul>\n</div>\n<div><i>Français de base</i> est un programme de langue seconde offert à divers niveaux scolaires. Le français y est étudié comme une autre matière du programme; il ne sert pas de langue d’enseignement. Ce programme permet aux élèves de communiquer adéquatement en français et leur offre la possibilité de s’ouvrir à la diversité culturelle.</div>\n<div><br><i>Immersion française précoce</i> est un programme dans le cadre duquel le français est utilisé pour l’enseignement de certaines matières. Ce programme est habituellement offert aux élèves dont la langue maternelle n’est pas le français. En recevant leur diplôme, les élèves auront acquis suffisamment de compétences en français pour poursuivre des études supérieures ou pour travailler dans les deux langues officielles.<br>\n<br>Par <i>Immersion tardive</i>, on entend l’immersion française qui commence en 6 e  année.</div>\n<div><br><i>Le programme francophone</i> est offert aux élèves dont la langue maternelle est le français, ou qui y sont admissibles en vertu de l’article 23 de la Charte des droits et libertés.</div>\n<div><br>Données fournies par le ministère de l’Éducation.<br>\n<br>\n<img src=\"assets/pin.png\"><b>WorkBC Centres</b><br><br>WorkBC Centres, located throughout the province, offer individualized, in-person help to British Columbians who are looking for work.</div>\n<div><br></div>\n<div>Les centres de services à l’emploi WorkBC, situés un peu partout dans la province, offrent des services d’aide personnalisés pour aider les Britanno-Colombiens à la recherche d’un emploi.<br>\n<br>Les centres WorkBC sont accessibles à tous. On y trouve un personnel empathique et expérimenté, apte à bien comprendre vos besoins en matière d’emploi. Nous disposons de toute l’information, des services et des programmes qui pourront vous aider à trouver un emploi – et à le conserver pour longtemps.\n<br>Remerciements:<br>\n<br>\nLe Programme des affaires francophones souhaite remercier les partenaires qui ont contribué à la création de cette carte:<br>\n<table>\n<tr>\n<td style=\"overflow-wrap:anywhere\">\n<a href=\"http://www.data.gov.bc.ca/\" target=\"_blank\"><img src=\"assets/databc.png\"></a>\n</td>\n</tr>\n<tr>\n<td style=\"overflow-wrap:anywhere\">\n<a href=\"http://www.ffcb.ca/\" target=\"_blank\"><img src=\"assets/fsfcb.png\" width=\"197\"></a>\n</td>\n</tr>\n<tr>\n<td style=\"overflow-wrap:anywhere\">\n<a href=\"http://www.fpfcb.bc.ca/\" target=\"_blank\"><img src=\"assets/fdpfcb.png\" width=\"197\"></a>\n</td>\n</tr>\n<tr>\n<td style=\"overflow-wrap:anywhere\">\n<a href=\"http://www.sdecb.com/\" target=\"_blank\"><img src=\"assets/sde.png\" width=\"197\"></a>\n</td>\n</tr>\n<tr>\n<td style=\"overflow-wrap:anywhere\">\n<img src=\"assets/rscb.png\" width=\"197\"></td>\n</tr>\n</table>\n</div>\n</div>"
+                "template": "<div lang=\"EN-CA\" style=\"font-size:10.0pt;line-height:115%;mso-ascii-font-family:Calibri;mso-fareast-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:Calibri;mso-bidi-font-family:Arial;mso-ansi-language:EN-CA;mso-fareast-language:FR-CA\">\n<div>\n<p class=\"MsoNormal\" style=\"background:white\">\n\n<font face=\"Arial\">\nLes données qui apparaissent dans chacun des domaines les \"couches\" de la carte ont été fournies par les organismes francophones des domaines concernés. Vous aimeriez faire partie de la carte? Communiquez avec le secteur correspondant, qui figure ci-dessous. Les organismes envoient régulièrement des mises à jour afin d’actualiser la carte.\n<br>\nPour toute question ou pour des commentaires sur la carte actuelle, communiquez avec le Programme des affaires francophones à <a href=\"mailto:FAP@gov.bc.ca?Subject=Carte%20de%20la%20francophonie%20/%20Francophonie%20map\">FAP@gov.bc.ca</a>.</span>\n   <br><br>\n   <img src=\"assets/pin-green.png\"><b>Services à la petite enfance – en français<br></b>\n   <br>Les données comprennent: <br>\n   <ul>\n\t<li>Préscolaire et services de garde en groupe</li>\n\t<li>Préscolaire</li>\n\t<li>Programme Strong Starts</li>\n\t<li>Services de garde en groupe</li>\n\t<li>Services de garde en milieu familial</li>\n   </ul>\n   Données fournies par la <a href=\"mailto:info@fpfcb.bc.ca\" target=\"_top\">Fédération des parents francophones de la C.-B. </a>\n   <br>\n   <br>\n   <img src=\"assets/pin-red.png\"><b>Professionnels de la santé<br><br></b>\n</div>\n<div>Les données comprennent:</div>\n<div>\n   <ul>\n\t<li>Conseillers cliniciens agréés</li>\n\t<li>Diététistes</li>\n\t<li>Ergothérapeutes agréés</li>\n\t<li>Gestion de la douleur</li>\n\t<li>Massothérapeutes</li>\n\t<li>Nutritionnistes holistiques</li>\n\t<li>Opticiens</li>\n\t<li>Optométristes</li>\n\t<li>Orthophonistes</li>\n\t<li>Physiothérapeutes</li>\n\t<li>Psychologues</li>\n\t<li>Radiothérapie</li>\n\t<li>Travailleurs sociaux agréés</li>\n   </ul>\n</div>\n<div><br></div>\n<div>Données fournies par <a href=\"mailto:info@resosante.ca\" target=\"_top\">RéseauSanté Colombie-Britannique</a>\n<br>\n<br><img src=\"assets/pin-yellow.png\"><b>Répertoire des services en français</b></div>\n<div><br></div>\n<div>Les données comprennent:</div>\n<div>\n   <ul>\n\t<li>Architectes</li>\n\t<li>Arts/design graphique/impression/promotion</li>\n\t<li>Association francophone</li>\n\t<li>Assurance et services financiers</li>\n\t<li>Avocats</li>\n\t<li>Centres communautaires/cours de yoga</li>\n\t<li>Chambres of commerce</li>\n\t<li>Coiffure et esthétique</li>\n\t<li>Comptables</li>\n\t<li>Éducation; écoles, préscolaire et garderies</li> \n\t<li>Églises et temples</li>\n\t<li>Gouvernement</li>\n\t<li>Hébergement</li>\n\t<li>Immobilier</li>\n\t<li>Maisons de soins infirmiers</li>\n\t<li>Médias/communication/Web</li>\n\t<li>Représentations diplomatiques</li>\n\t<li>Restaurants/traiteurs/écoles de cuisine</li>\n\t<li>Services liés à l’emploi</li>\n\t<li>Services de santé</li>\n\t<li>Services aux immigrants</li>\n\t<li>Services de soutien en TI</li>\n\t<li>Tourisme</li>\n\t<li>Traduction</li>\n   </ul>\n</div>\n<div>Données fournies par la <a href=\"mailto:ffcb@ffcb.ca\" target=\"_top\">Fédération des francophones de la C.B. </a>\n<br>\n<br>\n<img src=\"assets/pin-blue.png\"><b>Sites touristiques – avec services en français</b></div>\n<div><br></div>\n<div>Les données comprennent:</div>\n<div><br></div>\n<div>\n   <ul>\n\t<li>Attraits touristiques</li> \n\t<li>Boutiques et magasins</li> \n\t<li>Hébergement</li> \n\t<li>Restaurants</li> \n\t<li>Services</li>\n   </ul>\n</div>\n<div><br></div>\n<div>Données fournies par la <a href=\"mailto:info@sdecb.com\" target=\"_top\">Société de développement économique de la C.B.</a></div>\n<div><br><img src=\"assets/school.png\"><b>Écoles francophones (maternelle - 12ième année)</b></div>\n<div><br></div>\n<div>Ce domaine regroupe:</div>\n<div>\n   <ul>\n      <li>Les écoles d’immersion francophone</li>\n      <li>Les écoles francophones</li>\n   </ul>\n</div>\n<div><i>Français de base</i> est un programme de langue seconde offert à divers niveaux scolaires. Le français y est étudié comme une autre matière du programme; il ne sert pas de langue d’enseignement. Ce programme permet aux élèves de communiquer adéquatement en français et leur offre la possibilité de s’ouvrir à la diversité culturelle.</div>\n<div><br><i>Immersion française précoce</i> est un programme dans le cadre duquel le français est utilisé pour l’enseignement de certaines matières. Ce programme est habituellement offert aux élèves dont la langue maternelle n’est pas le français. En recevant leur diplôme, les élèves auront acquis suffisamment de compétences en français pour poursuivre des études supérieures ou pour travailler dans les deux langues officielles.<br>\n<br>Par <i>Immersion tardive</i>, on entend l’immersion française qui commence en 6 e  année.</div>\n<div><br><i>Le programme francophone</i> est offert aux élèves dont la langue maternelle est le français, ou qui y sont admissibles en vertu de l’article 23 de la Charte des droits et libertés.</div>\n<div><br>Données fournies par le ministère de l’Éducation.<br>\n<br>\n<img src=\"assets/pin.png\"><b>WorkBC Centres</b><br><br>\n<div>Les centres de services à l’emploi WorkBC, situés un peu partout dans la province, offrent des services d’aide personnalisés pour aider les Britanno-Colombiens à la recherche d’un emploi.<br>\n<br>Les centres WorkBC sont accessibles à tous. On y trouve un personnel empathique et expérimenté, apte à bien comprendre vos besoins en matière d’emploi. Nous disposons de toute l’information, des services et des programmes qui pourront vous aider à trouver un emploi – et à le conserver pour longtemps.\n<br>Remerciements:<br>\n<br>\nLe Programme des affaires francophones souhaite remercier les partenaires qui ont contribué à la création de cette carte:<br>\n<table>\n<tr>\n<td style=\"overflow-wrap:anywhere\">\n<a href=\"http://www.data.gov.bc.ca/\" target=\"_blank\"><img src=\"assets/databc.png\"></a>\n</td>\n</tr>\n<tr>\n<td style=\"overflow-wrap:anywhere\">\n<a href=\"http://www.ffcb.ca/\" target=\"_blank\"><img src=\"assets/fsfcb.png\" width=\"197\"></a>\n</td>\n</tr>\n<tr>\n<td style=\"overflow-wrap:anywhere\">\n<a href=\"http://www.fpfcb.bc.ca/\" target=\"_blank\"><img src=\"assets/fdpfcb.png\" width=\"197\"></a>\n</td>\n</tr>\n<tr>\n<td style=\"overflow-wrap:anywhere\">\n<a href=\"http://www.sdecb.com/\" target=\"_blank\"><img src=\"assets/sde.png\" width=\"197\"></a>\n</td>\n</tr>\n<tr>\n<td style=\"overflow-wrap:anywhere\">\n<img src=\"assets/rscb.png\" width=\"197\"></td>\n</tr>\n</table>\n</div>\n</div>"
             },
             "type": "bespoke",
             "instance": "bespoke-101",
@@ -1771,7 +1771,7 @@
             },
             "type": "query",
             "instance": "schools-k-12--schools-k-12-query-0",
-            "enabled": true,
+            "enabled": false,
             "showTitle": false,
             "title": "Recherche les écoles",
             "position": "list-menu",
