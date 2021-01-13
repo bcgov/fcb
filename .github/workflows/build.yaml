@@ -109,17 +109,20 @@ jobs:
             methodType="create"
         else
             methodType="replace"
+            oc delete configmap $CONFMAP_NAME
         fi
-
-        EVENT_CONTENT=$(cat $GITHUB_EVENT_PATH)
-        echo event content is...
-        echo $EVENT_CONTENT
         
         oc create configmap $CONFMAP_NAME \
           --from-literal=issueURL=$ISSUE_URL \
           --from-literal=github_event_path=$GITHUB_EVENT_PATH \
-          --from-literal=github_event_json=$EVENT_CONTENT \
-          --dry-run -o yaml | oc $methodType -f -
+          --from-file=github_event_json=$GITHUB_EVENT_PATH 
+
+        # when 
+        # oc create configmap $CONFMAP_NAME \
+        #   --from-literal=issueURL=$ISSUE_URL \
+        #   --from-literal=github_event_path=$GITHUB_EVENT_PATH \
+        #   --from-file=github_event_json=$GITHUB_EVENT_PATH \
+        #   --dry-run -o yaml | oc $methodType -f -
 
     # --------- required by build-push-action
     - name: Set up QEMU

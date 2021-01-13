@@ -208,7 +208,7 @@ jobs:
         OCDEVNAMESPACE=$(oc get configmap $OC_NAMESPACE_NAMES_CONFIG_MAP -o json | jq .data.dev | tr -d '"')
         REPONAME=${{ steps.retrieveimagetag.outputs.REPONAME }}
         CONFIGMAPNAME=$REPONAME-gh-issues-cm
-        EVENT_INFO=$(oc get configmap $CONFIGMAPNAME -o json | jq .data.github_event_json)
+        EVENT_INFO=$(oc get configmap $CONFIGMAPNAME -o json | jq '.data.github_event_json')
 
         # get the issue number from the config map.. the build that 
         # was triggered by the pr would have cached it there.
