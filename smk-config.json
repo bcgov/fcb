@@ -4,19 +4,19 @@
         "type": "leaflet",
         "location": {
             "center": [
-                -123.66448895885162,
-                49.07166221711429
+                -123.93813298872026,
+                53.157644901771626
             ],
             "extent": [
-                -125.28604795075732,
-                47.99797895072587,
-                -122.04292996694596,
-                50.122632932074694
+                -131.09522556600103,
+                48.92480255548827,
+                -116.78104041143945,
+                57.01072529415274
             ],
-            "zoom": 8.0729210449213
+            "zoom": 5.83487380864039
         },
         "baseMap": "Streets",
-        "device": "auto"
+        "device": "mobile"
     },
     "layers": [
         {
@@ -1525,7 +1525,7 @@
             "position": "list-menu",
             "icon": "help",
             "title": "À propos de cette application",
-            "content": "<div lang=\"EN-CA\" style=\"font-size:10.0pt;line-height:115%;mso-ascii-font-family:Calibri;mso-fareast-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:Calibri;mso-bidi-font-family:Arial;mso-ansi-language:EN-CA;mso-fareast-language:FR-CA\">\n<div>\n<p class=\"MsoNormal\" style=\"background:white\">\n<font face=\"Arial\">\nCette carte vous permet de repérer les ressources et les services en français offerts en Colombie-Britannique. Cinq domaines y sont affichés sous forme de couches successives et permettent une recherche par sujet, par catégorie et par zone géographique. À partir du menu, vous pouvez utiliser l’outil de la carte pour l’afficher en plans plus rapprochés (zoom) ou pour la voir en mode panoramique.<br> \n<br>\nVous pouvez vous concentrer sur une ou plusieurs couches à la fois avec le menu \"domaines de la carte\". Vous pouvez aussi effectuer une recherche à partir du menu \"recherche par catégorie\" ou à l’intérieur d’une zone géographique précise, sous \"chercher à proximité\".<br> \n<br>\nUne fois que vous aurez trouvé un service, cliquez sur le marqueur de la carte pour obtenir de l’information à son sujet et en connaître l’emplacement. Les lieux offrant plusieurs services s’afficheront avec plusieurs marqueurs.<br> \n<br>\n<img src=\"assets/cluster.PNG\">&nbsp;&nbsp;Les chiffres qui figurent dans un cercle représentent un groupement de ressources.  Cliquez sur le cercle ou rapprochez l’affichage pour les voir.\n</div>\n<div>\nClick on the butterfly to access the map.&nbsp;</span><br><a href=\"../bcfls/\"><img src=\"assets/french-services-map-icon.jpg\"></a>\n</div>\n</font>\n</div>",
+            "content": "<div lang=\"EN-CA\" style=\"font-size:10.0pt;line-height:115%;mso-ascii-font-family:Calibri;mso-fareast-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:Calibri;mso-bidi-font-family:Arial;mso-ansi-language:EN-CA;mso-fareast-language:FR-CA\">\n<div>\n<p class=\"MsoNormal\" style=\"background:white\">\n<font face=\"Arial\">\nCette carte vous permet de repérer les ressources et les services en français offerts en Colombie-Britannique. Six domaines y sont affichés sous forme de couches successives et permettent une recherche par sujet, par catégorie et par zone géographique. À partir du menu, vous pouvez utiliser l’outil de la carte pour l’afficher en plans plus rapprochés (zoom) ou pour la voir en mode panoramique.<br> \n<br>\nVous pouvez vous concentrer sur une ou plusieurs couches à la fois avec le menu \"domaines de la carte\". Vous pouvez aussi effectuer une recherche à partir du menu \"recherche par catégorie\" ou à l’intérieur d’une zone géographique précise, sous \"chercher à proximité\".<br> \n<br>\nUne fois que vous aurez trouvé un service, cliquez sur le marqueur de la carte pour obtenir de l’information à son sujet et en connaître l’emplacement. Les lieux offrant plusieurs services s’afficheront avec plusieurs marqueurs.<br> \n<br>\n<img src=\"assets/cluster.PNG\">&nbsp;&nbsp;Les chiffres qui figurent dans un cercle représentent un groupement de ressources.  Cliquez sur le cercle ou rapprochez l’affichage pour les voir.</font></p></div>\n</div>",
             "type": "about",
             "enabled": true
         },
@@ -1771,7 +1771,7 @@
             },
             "type": "query",
             "instance": "schools-k-12--schools-k-12-query-0",
-            "enabled": true,
+            "enabled": false,
             "showTitle": false,
             "title": "Recherche les écoles",
             "position": "list-menu",
