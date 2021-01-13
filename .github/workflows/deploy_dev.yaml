@@ -2,15 +2,15 @@
 name: "DEV Deploy"
 
 #TODO: once working change the event the action is associated to the one below
-# on:
-#   workflow_run:
-#     workflows: ["BUILDPackage", "build"]
-#     types: 
-#       - completed
+on:
+  workflow_run:
+    workflows: ["BUILDPackage", "build"]
+    types: 
+      - completed
 
-on: 
-  push:
-    branches: ['dev', 'smk-cdci']
+# on: 
+#   push:
+#     branches: ['dev', 'smk-cdci']
 
 jobs:
   deploydev:
@@ -206,12 +206,15 @@ jobs:
       run: |
         # get the openshift dev namespace name
         OCDEVNAMESPACE=$(oc get configmap $OC_NAMESPACE_NAMES_CONFIG_MAP -o json | jq .data.dev | tr -d '"')
+        REPONAME=${{ steps.retrieveimagetag.outputs.REPONAME }}
+        CONFIGMAPNAME=$REPONAME-gh-issues-cm
+        EVENT_INFO=$(oc get configmap $CONFIGMAPNAME -o json | jq .data.github_event_json)
 
         # get the issue number from the config map.. the build that 
         # was triggered by the pr would have cached it there.
 
         # git_event.txt
-        EVENT_INFO=$(cat git_event.txt)
+        #EVENT_INFO=$(cat git_event.txt)
         GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
 
         PR_NUMBER=$(echo $EVENT_INFO | jq ".number")

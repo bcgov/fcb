@@ -40,7 +40,7 @@ jobs:
       OPENSHIFT_TOKEN_DEV: ${{secrets.OPENSHIFT_TOKEN_DEV}}
       GHCR_USER: ${{ secrets.GHCR_USER }}
       GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-      DEBUG_DEPLOY: true
+      DEBUG_DEPLOY: false
     outputs:
       dockerversiontag: ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
 
@@ -110,10 +110,13 @@ jobs:
         else
             methodType="replace"
         fi
+
+        EVENT_CONTENT=$(cat $GITHUB_EVENT_PATH)
         
         oc create configmap $CONFMAP_NAME \
           --from-literal=issueURL=$ISSUE_URL \
           --from-literal=github_event_path=$GITHUB_EVENT_PATH \
+          --from-literal=github_event_json=$EVENT_CONTENT \
           --dry-run -o yaml | oc $methodType -f -
 
     # --------- required by build-push-action
