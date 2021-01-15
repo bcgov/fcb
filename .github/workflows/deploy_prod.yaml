@@ -125,8 +125,8 @@ jobs:
         echo namespace $OCPRODNAMESPACE
         oc project $OCPRODNAMESPACE
         project=$(oc project --short=true)
-        if [ "$project" != "$OCDEVNAMESPACE" ]
-          then 
+        if [ "$project" != "$OCPRODNAMESPACE" ]
+          then
               exit 1
         fi
 
