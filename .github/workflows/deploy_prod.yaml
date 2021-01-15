@@ -6,17 +6,17 @@
 # https://github.community/t/run-action-only-when-a-pr-is-merged/18268
 
 # name: DEPLOYProd
-# on:
-#   pull_request:
-#     branches: 
-#       - master
-#     types: 
-#       - closed
+on:
+  pull_request:
+    branches: 
+      - master
+    types: 
+      - closed
       
 # debugging
-on: 
-  push:
-    branches: ['dev', 'smk-cdci']
+# on: 
+#   push:
+#     branches: ['dev', 'smk-cdci']
 
 jobs:
   deployprod:
@@ -91,7 +91,7 @@ jobs:
 
 
     # APPLY THE RELEASE TAG TO THE MERGED COMMIT
-    - name: Apply the tag
+    - name: Apply the tag to release
       id: applyreleasetag
       uses: actions/create-release@v1
       env:
