@@ -11,7 +11,7 @@ name: BUILDPackage
 on:
   pull_request:
     # debug: remove the dev,putting build action on non existent branches for debug
-    branches: ['master', 'dev']
+    branches: ['master']
     types: ['opened', 'reopened']
     paths-ignore:
       - openshift/**
