@@ -145,6 +145,6 @@ jobs:
 
     # Configure Kong route
     - name: Kong config
-      id: proddeploy
+      id: prodRouteDeploy
       run: |
          echo not enabled atm
