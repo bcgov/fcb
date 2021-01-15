@@ -37,7 +37,7 @@ jobs:
 
     # LOGGING INTO OC DEV
     - name: OpenShift Action
-      id: GHAOCAuthenticationPrd
+      id: GHAOCAuthenticationDev
       uses: redhat-developer/openshift-actions@v1.1
       with:
         version: '3.11.232'
@@ -143,4 +143,8 @@ jobs:
            --set app_image_pull_secret_params.imagetag=$DOCKER_VERSION_TAG \
            --set app_image_pull_secret_params.registry=$IMAGE_REGISTRY
 
-
+    # Configure Kong route
+    - name: Kong config
+      id: proddeploy
+      run: |
+         echo not enabled atm
