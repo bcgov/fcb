@@ -58,6 +58,10 @@ jobs:
 
         # calculate the repository name and export to other steps
         # ---------------------------------------------------------
+        REPOANDORG=${{ github.repository }}
+        REPONAME=$(basename "${REPOANDORG}")
+        echo reponame $REPONAME
+        echo ::set-output name=REPONAME::${REPONAME}
 
         # get the email address of the person who is defined in the secret GHCR_TOKEN
         # and export it for other steps
