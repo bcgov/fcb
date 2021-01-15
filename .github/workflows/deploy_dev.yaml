@@ -257,7 +257,7 @@ jobs:
         REVIEW_URL="$PR_URL/requested_reviewers"
         echo review url $REVIEW_URL
         # NicoledeGreef
-        REVIEWERS='{"reviewers":["franTarkenton"]}'
+        REVIEWERS='{"reviewers":["franTarkenton", "GuyTheFlower"]}'
         echo reviewers are $REVIEWERS
 
         curl --location --request POST  "$REVIEW_URL" \
