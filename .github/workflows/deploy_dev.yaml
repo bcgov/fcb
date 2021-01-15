@@ -1,0 +1,267 @@
+
+name: "DEV Deploy"
+
+#TODO: once working change the event the action is associated to the one below
+on:
+  workflow_run:
+    workflows: ["BUILDPackage", "build"]
+    types: 
+      - completed
+
+# on: 
+#   push:
+#     branches: ['dev', 'smk-cdci']
+
+jobs:
+  deploydev:
+    defaults:
+      run:
+        shell: bash
+    runs-on: ubuntu-20.04
+    env:
+      OPENSHIFT_SERVER_URL: ${{secrets.OPENSHIFT_SERVER_URL}}
+      OPENSHIFT_TOKEN_DEV: ${{secrets.OPENSHIFT_TOKEN_DEV}}
+      GHCR_USER: ${{ secrets.GHCR_USER }}
+      GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+      RUN_GWA: false
+    steps:
+
+    # Checking out code to get access to the openshift deploy template later on
+    # could also reference the github url?
+    - uses: actions/checkout@v2
+      id: checkout
+      with:
+        fetch-depth: 0
+
+    # LOGGING INTO OC
+    - name: OpenShift Login Action
+      id: GHAOpenshiftTest
+      uses: redhat-developer/openshift-actions@v1.1
+      if: env.OPENSHIFT_SERVER_URL != '' &&  env.OPENSHIFT_TOKEN_DEV != ''
+      with:
+        version: '3.11.232'
+        openshift_server_url: ${{ secrets.OPENSHIFT_SERVER_URL }}
+        parameters: '{"apitoken": "${{ secrets.OPENSHIFT_TOKEN_DEV }}", "acceptUntrustedCerts": "true"}'
+        cmd: 'version'
+
+      # RETRIEVE THE IMAGE TAG and the ISSUE
+    - name: Retrieve image tag, issue url, oc namespace
+      id: retrieveimagetag
+      if: env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != '' && env.GHCR_USER != '' && env.GHCR_TOKEN != ''
+      run: |
+        # summary of outputs created by this step:
+        #   REPONAME
+        #   EMAIL
+        #   IMAGE_REGISTRY
+        #   DOCKER_VERSION_TAG
+        #   ISSUE_URL
+
+        # calculate the repository name and export to other steps
+        # ---------------------------------------------------------
+        REPOANDORG=${{ github.repository }}
+        REPONAME=$(basename "${REPOANDORG}")
+        echo reponame $REPONAME
+        echo ::set-output name=REPONAME::${REPONAME}
+
+        # get the email address of the person who is defined in the secret GHCR_TOKEN
+        # and export it for other steps
+        # ---------------------------------------------------------
+        EMAIL=$(curl -H "Accept: application/vnd.github.v3+json" \
+                -H "Authorization: token $GHCR_TOKEN" \
+                https://api.github.com/users/$GHCR_USER | jq '.email')
+        echo ::set-output name=EMAIL::${EMAIL}
+
+        # the path to the image registry
+        # ---------------------------------------------------------
+        IMAGE_REGISTRY=docker.pkg.github.com/${{ github.repository_owner }}/$REPONAME/$REPONAME
+        echo ::set-output name=IMAGE_REGISTRY::${IMAGE_REGISTRY}
+
+        # ---- get the oc namespace name and set the namespace, verify that the project
+        #      that is being pointed to is the correct one or raise an error
+        OC_NAMESPACE_NAMES_CONFIG_MAP=namespaces-cm
+        OCDEVNAMESPACE=$(oc get configmap $OC_NAMESPACE_NAMES_CONFIG_MAP  -o json | jq .data.dev | tr -d '"')
+        echo namespace $OCDEVNAMESPACE
+        oc project $OCDEVNAMESPACE
+        project=$(oc project --short=true)
+        if [ "$project" != "$OCDEVNAMESPACE" ]
+          then 
+              exit 1
+        fi
+
+        # ---- retrieve the image tag from where it was cached in a configmap during the build
+        #      stage, and exporting it to a variable so its available to other deployment
+        #      steps
+        # ---------------------------------------------------------
+        IMAGE_TAG_CONFMAP_NAME=$REPONAME-imagetag-cm
+        CONFMAPIMAGETAG=current_image_tag
+        echo image name $IMAGE_TAG_CONFMAP_NAME
+        IMAGE_TAG=$(oc get configmap $IMAGE_TAG_CONFMAP_NAME  -o json | jq .data.$CONFMAPIMAGETAG)
+        echo ::set-output name=DOCKER_VERSION_TAG::${IMAGE_TAG}
+        echo image tag $IMAGE_TAG
+        
+        # ---- Get the issue url and export it
+        # ---------------------------------------------------------
+        #ISSUE_CONFIGMAP_NAME=github-issues-configmap
+        CONFMAPISSUEURLKEY=issueURL
+        ISSUE_CONFIGMAP_NAME=$REPONAME-gh-issues-cm
+        echo configmap name $ISSUE_CONFIGMAP_NAME
+        ISSUE_URL=$(oc get configmap $ISSUE_CONFIGMAP_NAME  -o json | jq .data.$CONFMAPISSUEURLKEY)
+        echo ISSUE_URL $ISSUE_URL
+        echo ::set-output name=ISSUE_URL::${ISSUE_URL}
+
+    - name: Deploy Helm chart
+      id: deployHelm
+      if: env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != '' && env.GHCR_USER != '' && env.GHCR_TOKEN != ''
+      run: |
+        # -- retrieving variables calculated in previous steps
+        EMAIL=${{ steps.retrieveimagetag.outputs.EMAIL }}
+        DOCKER_VERSION_TAG=${{ steps.retrieveimagetag.outputs.DOCKER_VERSION_TAG }}
+        IMAGE_REGISTRY=${{ steps.retrieveimagetag.outputs.IMAGE_REGISTRY }}
+        REPONAME=${{ steps.retrieveimagetag.outputs.REPONAME }}
+
+        # -- debug-- verify the variables have been retrieved and have the values expected
+        echo EMAIL $EMAIL
+        echo REPONAME $REPONAME
+        echo DOCKER_VERSION_TAG $DOCKER_VERSION_TAG
+        echo IMAGE_REGISTRY $IMAGE_REGISTRY
+
+        helm upgrade $REPONAME ./helm-charts --install \
+           --set app_name=$REPONAME \
+           --set env=dev \
+           --set app_image_pull_secret_params.name=github-imagepull-secrets \
+           --set app_image_pull_secret_params.imagetag=$DOCKER_VERSION_TAG \
+           --set app_image_pull_secret_params.registry=$IMAGE_REGISTRY
+
+    # # ADD THE ROUTE TO THE ISSUE
+    - name: Update issue
+      id: updateissue
+      run: |
+        # populate env vars used by this step
+        REPONAME=${{ steps.retrieveimagetag.outputs.REPONAME }}
+
+        # retrieve the route url
+        # ---------------------------------------------------------
+        oc_route_name=$REPONAME-rt
+        GITHUB_ISSUES_CONFIGMAP=$REPONAME-gh-issues-cm
+        ROUTEPATH=$(oc get route $oc_route_name -o json | jq .spec.host | tr -d '"' )
+        ROUTEURL=https://$ROUTEPATH
+
+        # get the github issue url from the configmap
+        # ---------------------------------------------------------
+        echo the GITHUB_EVENT_PATH
+        #cat $GITHUB_EVENT_PATH
+        ISSUE_URL=$(oc get configmap $GITHUB_ISSUES_CONFIGMAP -o json | jq .data.issueURL | tr -d '"')
+        echo ISSUE_URL $ISSUE_URL
+
+        # GET THE ISSUE URL from event path - Disabled
+        #issue_url=$(jq --raw-output .pull_request.issue_url "$GITHUB_EVENT_PATH")
+        #echo issue url is $issue_url
+        ## for debugging using existing pull_request
+        #if [ -z "$issue_url" ] || [ "$issue_url" = "null" ]
+        #  then
+        #    issue_url="https://api.github.com/repos/bcgov/bcdc-smk/issues/19/comments"
+        #fi
+        #echo issue url $issue_url
+        #ISSUE_URL=${{ steps.retrieveimagetag.outputs.ISSUE_URL }}
+
+        # ADD COMMENT TO THE ISSUE
+        echo 'adding route to the comment for the issue'
+        GITHUB_TOKEN=${{ secrets.GHCR_TOKEN }}
+        ISSUE_COMMENT="link to demo deployment of your smk based app is \n https://$ROUTEPATH\n\nVerify that it looks good, if so merge the pull request which will trigger a prod deployment, otherwise close the pull request without merging"
+        ISSUE_BODY='{"body": "'$ISSUE_COMMENT'"}'
+
+        curl $ISSUE_URL -X POST --header "Authorization: Bearer $GITHUB_TOKEN" \
+          --header "Accept: application/vnd.github.v3+json" \
+          --data-raw "$ISSUE_BODY"
+
+    - name: Get GWA CLI
+      id: getGWA
+      if: env.RUN_GWA == 'true'
+      run: |
+        # disabled atm
+        GWA_VERSION=v1.1.2
+        GWA_CLI_LINK=https://github.com/bcgov/gwa-cli/releases/download/${GWA_VERSION}/gwa_${GWA_VERSION}_linux_x64.zip
+        curl -L -O $GWA_CLI_LINK
+        unzip -p gwa_${GWA_VERSION}_linux_x64.zip > gwa-cli-linux
+        chmod +x gwa-cli-linux
+        
+    - name: Configure Kong Route
+      id: kongconf
+      if: env.RUN_GWA == 'true'
+      run: |
+          #------------------------------------------------------------------------
+          # commenting this whole section out, current gwa config may work but
+          # it is incorrect, the gwa should wrap the service vs a route, the 
+          # python code that creates the input file also should get updated as
+          # the config file it spits out wraps the gwa around a route vs a service.
+          #------------------------------------------------------------------------
+          # # 
+          # # extract kong config info from secrets
+          # export PATH=`pwd`:$PATH
+          # ls -l
+          # gitrepo=${{ steps.retrieveimagetag.outputs.REPONAME }}
+          # echo gitrepo $gitrepo
+          # kongSecrets=$(oc get secrets kong-secrets -o json | jq '.data' | jq '.["kong-config"] | @base64d | fromjson')
+          # GWA_CLIENTID=$(echo $kongSecrets | jq '.gwa_client_id')
+          # echo client id $GWA_CLIENTID
+          # GWA_TOKEN=$(echo $kongSecrets | jq '.apikey')
+          # GWA_NAMESPACE=$(echo $kongSecrets | jq '.gwa_namespace')
+          # echo namespace $GWA_CLIENTID
+          # gwa_route_name=${gitrepo}-kong-route
+          # oc_service_name=${gitrepo}-svc
+          # oc_route_name="${gitrepo}-rt"
+          # echo oc_route_name $oc_route_name
+          # echo oc_service_name $oc_service_name
+          # echo gwa_route_name $gwa_route_name
+          # oc_route_host=https://$(oc get routes $oc_route_name -o json | jq '.spec.host' | tr -d '"')
+
+          # gwa-cli-linux init -T \
+          #   --namespace=$GWA_NAMESPACE \
+          #   --client-id=$GWA_CLIENTID \
+          #   --client-secret=$GWA_TOKEN
+
+          # echo init complete
+
+          # python --version
+          # python3 gwa/createGWAConfig.py \
+          #   service=$oc_service_name \
+          #   ocUrl=$oc_route_host \
+          #   gwa_namespace=$GWA_NAMESPACE \
+          #   gwa_route_name=$gwa_route_name \
+          #   url_prefix=$gitrepo > gwa_config.yaml
+
+          # echo gwa config created
+          
+          # gwa-cli-linux pg gwa_config.yaml
+          echo kong config is currently disabled
+          
+    - name: "Send Review Request 2"
+      id: requestreview
+      run: |
+        # get the openshift dev namespace name
+        OCDEVNAMESPACE=$(oc get configmap $OC_NAMESPACE_NAMES_CONFIG_MAP -o json | jq .data.dev | tr -d '"')
+        REPONAME=${{ steps.retrieveimagetag.outputs.REPONAME }}
+        CONFIGMAPNAME=$REPONAME-gh-issues-cm
+        EVENT_INFO=$(oc get configmap $CONFIGMAPNAME -o json | jq '.data.github_event_json' | jq -rc)
+
+        # get the issue number from the config map.. the build that 
+        # was triggered by the pr would have cached it there.
+
+        # git_event.txt
+        #EVENT_INFO=$(cat git_event.txt)
+        GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+
+        PR_NUMBER=$(echo $EVENT_INFO | jq ".number")
+        echo pr number is $PR_NUMBER
+        PR_URL=$(echo $EVENT_INFO | jq ".pull_request.url" | tr -d '"')
+        echo pr url is $PR_URL
+        REVIEW_URL="$PR_URL/requested_reviewers"
+        echo review url $REVIEW_URL
+        # NicoledeGreef
+        REVIEWERS='{"reviewers":["franTarkenton", "GuyTheFlower"]}'
+        echo reviewers are $REVIEWERS
+
+        curl --location --request POST  "$REVIEW_URL" \
+        --header "Authorization: Bearer $GITHUB_TOKEN" \
+        --header 'Content-Type: text/plain' \
+        --data-raw "$REVIEWERS"

@@ -1,0 +1,22 @@
+_format_version: '1.1'
+services:
+- name: smk-fap-fcb-svc
+  plugins: []
+  routes:
+  - hosts:
+    - smk-fap-fcb
+    methods:
+    - GET
+    name: smk-fap-fcb-kong-route
+    paths:
+    - /
+    strip_path: false
+    tags:
+    - OAS3_import
+    - ns.smk-apps
+  tags:
+  - OAS3_import
+  - ns.smk-apps
+  host: smk-fap-fcb-svc.b16795-dev.svc
+  port: 8888
+  
