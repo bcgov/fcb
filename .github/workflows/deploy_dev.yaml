@@ -149,8 +149,9 @@ jobs:
         # get the github issue url from the configmap
         # ---------------------------------------------------------
         echo the GITHUB_EVENT_PATH
-        cat $GITHUB_EVENT_PATH
+        #cat $GITHUB_EVENT_PATH
         ISSUE_URL=$(oc get configmap $GITHUB_ISSUES_CONFIGMAP -o json | jq .data.issueURL | tr -d '"')
+        echo ISSUE_URL $ISSUE_URL
 
         # GET THE ISSUE URL from event path - Disabled
         #issue_url=$(jq --raw-output .pull_request.issue_url "$GITHUB_EVENT_PATH")
