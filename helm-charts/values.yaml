@@ -48,4 +48,3 @@ app_image_pull_secret_params:
   imagetag:  image.tag
   email: email.associated.with.registry
   password: password.used.to.access.registry
-

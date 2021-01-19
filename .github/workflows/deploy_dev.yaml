@@ -141,6 +141,12 @@ jobs:
            --set app_image_pull_secret_params.imagetag=$DOCKER_VERSION_TAG \
            --set app_image_pull_secret_params.registry=$IMAGE_REGISTRY
 
+        # verify / report on the image tag that was deployed
+        IMAGE_DEPLOYED=$(oc get dc smk-fap-fcb-dc -o json | jq '.spec.template.spec.containers[0].image' | tr -d '"' )
+        echo IMAGE_DEPLOYED $IMAGE_DEPLOYED
+        IMAGE_DEPLOYED_TAG=$(echo ${IMAGE_DEPLOYED} | cut -d':' -f2)
+        echo IMAGE_DEPLOYED_TAG $IMAGE_DEPLOYED_TAG
+
         # finally need to grant the service account access to the the 
         # image_pull_secret that was just created
         serviceAccountName=$(oc whoami | cut -d':' -f4)
