@@ -24,6 +24,8 @@ jobs:
       GHCR_USER: ${{ secrets.GHCR_USER }}
       GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
       RUN_GWA: false
+      REVIEWERS: '["GuyTheFlower", "NicoledeGreef"]'
+      MENTIONS: '["GuyTheFlower", "NicoledeGreef", "franTarkenton"]'
     steps:
 
     # Checking out code to get access to the openshift deploy template later on
@@ -185,10 +187,13 @@ jobs:
         #echo issue url $issue_url
         #ISSUE_URL=${{ steps.retrieveimagetag.outputs.ISSUE_URL }}
 
+        #format reviewers
+        MENTION_STRING=$(echo $MENTIONS | jq -rc 'map("@" + .) | .[]' | tr '\n' ',' | sed 's/, */, /g' |  sed 's/, *$//g')
+
         # ADD COMMENT TO THE ISSUE
         echo 'adding route to the comment for the issue'
         GITHUB_TOKEN=${{ secrets.GHCR_TOKEN }}
-        ISSUE_COMMENT="link to demo deployment of your smk based app is \n https://$ROUTEPATH\n\nVerify that it looks good, if so merge the pull request which will trigger a prod deployment, otherwise close the pull request without merging"
+        ISSUE_COMMENT="link to demo deployment of your smk based app is \n https://$ROUTEPATH\n\nVerify that it looks good, if so merge the pull request which will trigger a prod deployment, otherwise close the pull request without merging\n\n mentions / notifications: $MENTION_STRING"
         ISSUE_BODY='{"body": "'$ISSUE_COMMENT'"}'
 
         curl $ISSUE_URL -X POST --header "Authorization: Bearer $GITHUB_TOKEN" \
@@ -283,7 +288,7 @@ jobs:
         REVIEW_URL="$PR_URL/requested_reviewers"
         echo review url $REVIEW_URL
         # NicoledeGreef
-        REVIEWERS='{"reviewers":["franTarkenton", "GuyTheFlower", "NicoledeGreef"]}'
+        REVIEWERS='{"reviewers":'${REVIEWERS}' }'
         echo reviewers are $REVIEWERS
 
         curl --location --request POST  "$REVIEW_URL" \
