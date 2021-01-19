@@ -27,6 +27,13 @@ jobs:
       run:
         shell: bash
     runs-on: ubuntu-20.04
+    env:
+      OPENSHIFT_SERVER_URL: ${{secrets.OPENSHIFT_SERVER_URL}}
+      OPENSHIFT_TOKEN_DEV: ${{secrets.OPENSHIFT_TOKEN_DEV}}
+      OPENSHIFT_TOKEN_PROD: ${{secrets.OPENSHIFT_TOKEN_PROD}}
+      GHCR_USER: ${{ secrets.GHCR_USER }}
+      GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+
     steps:
     
     # CHECKOUT THE CODE
@@ -39,6 +46,7 @@ jobs:
     - name: OpenShift Action
       id: GHAOCAuthenticationDev
       uses: redhat-developer/openshift-actions@v1.1
+      if: env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != ''
       with:
         version: '3.11.232'
         openshift_server_url: ${{ secrets.OPENSHIFT_SERVER_URL }}
@@ -48,6 +56,7 @@ jobs:
     # GETTING THE IMAGE TAG FROM DEV OC
     - name: Retrieve tag from the artifacts
       id: retrieveimagetag
+      if: env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != ''
       run: |
         # outputs:
         # --------------------------------------------------------
@@ -93,6 +102,7 @@ jobs:
     # APPLY THE RELEASE TAG TO THE MERGED COMMIT
     - name: Apply the tag to release
       id: applyreleasetag
+      if: env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != '' && env.GHCR_TOKEN != ''
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GHCR_TOKEN }} # This token is provided by Actions, you do not need to create your own token
@@ -108,6 +118,7 @@ jobs:
     - name: OpenShift Action
       id: GHAOCAuthenticationPrd
       uses: redhat-developer/openshift-actions@v1.1
+      if: env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_PROD != ''
       with:
         version: '3.11.232'
         openshift_server_url: ${{ secrets.OPENSHIFT_SERVER_URL }}
@@ -117,6 +128,7 @@ jobs:
     # DEPLOY TO PROD
     - name: Deploy to prod
       id: proddeploy
+      if: env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_PROD != ''
       run: |
         # ---- get the oc namespace name and set the namespace, verify that the project
         #      that is being pointed to is the correct one or raise an error
@@ -148,3 +160,6 @@ jobs:
       id: prodRouteDeploy
       run: |
          echo not enabled atm
+
+    # Add the url that was created by the kong action and add it to the issue
+    # Add a comment to the issue to say that it has been deployed successfully

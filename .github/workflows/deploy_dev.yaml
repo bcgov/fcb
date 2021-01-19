@@ -30,6 +30,7 @@ jobs:
     # could also reference the github url?
     - uses: actions/checkout@v2
       id: checkout
+      if: env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != ''
       with:
         fetch-depth: 0
 
@@ -118,6 +119,7 @@ jobs:
         DOCKER_VERSION_TAG=${{ steps.retrieveimagetag.outputs.DOCKER_VERSION_TAG }}
         IMAGE_REGISTRY=${{ steps.retrieveimagetag.outputs.IMAGE_REGISTRY }}
         REPONAME=${{ steps.retrieveimagetag.outputs.REPONAME }}
+        IMAGE_PULL_SECRET_NAME=${REPONAME}-image-pull-secret
 
         # -- debug-- verify the variables have been retrieved and have the values expected
         echo EMAIL $EMAIL
@@ -125,16 +127,35 @@ jobs:
         echo DOCKER_VERSION_TAG $DOCKER_VERSION_TAG
         echo IMAGE_REGISTRY $IMAGE_REGISTRY
 
+        # potential issue:
+        #  - helm chart creates the image pull secret
+        #  - tries to use it with the service account
+        #  - service account hasn't been granted access
+
         helm upgrade $REPONAME ./helm-charts --install \
            --set app_name=$REPONAME \
            --set env=dev \
-           --set app_image_pull_secret_params.name=github-imagepull-secrets \
+           --set app_image_pull_secret_params.email=$EMAIL \
+           --set app_image_pull_secret_params.password=$GHCR_TOKEN \
+           --set app_image_pull_secret_params.name=$IMAGE_PULL_SECRET_NAME \
            --set app_image_pull_secret_params.imagetag=$DOCKER_VERSION_TAG \
            --set app_image_pull_secret_params.registry=$IMAGE_REGISTRY
+
+        # verify / report on the image tag that was deployed
+        IMAGE_DEPLOYED=$(oc get dc smk-fap-fcb-dc -o json | jq '.spec.template.spec.containers[0].image' | tr -d '"' )
+        echo IMAGE_DEPLOYED $IMAGE_DEPLOYED
+        IMAGE_DEPLOYED_TAG=$(echo ${IMAGE_DEPLOYED} | cut -d':' -f2)
+        echo IMAGE_DEPLOYED_TAG $IMAGE_DEPLOYED_TAG
+
+        # finally need to grant the service account access to the the 
+        # image_pull_secret that was just created
+        serviceAccountName=$(oc whoami | cut -d':' -f4)
+        oc patch serviceaccount $serviceAccountName -p '{"imagePullSecrets": [{"name": "'$IMAGE_PULL_SECRET_NAME'"}]}'
 
     # # ADD THE ROUTE TO THE ISSUE
     - name: Update issue
       id: updateissue
+      if: env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != '' && env.GHCR_TOKEN != ''
       run: |
         # populate env vars used by this step
         REPONAME=${{ steps.retrieveimagetag.outputs.REPONAME }}
@@ -176,7 +197,7 @@ jobs:
 
     - name: Get GWA CLI
       id: getGWA
-      if: env.RUN_GWA == 'true'
+      if: env.RUN_GWA == 'true' && env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != ''
       run: |
         # disabled atm
         GWA_VERSION=v1.1.2
@@ -187,7 +208,7 @@ jobs:
         
     - name: Configure Kong Route
       id: kongconf
-      if: env.RUN_GWA == 'true'
+      if: env.RUN_GWA == 'true' && env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != ''
       run: |
           #------------------------------------------------------------------------
           # commenting this whole section out, current gwa config may work but
@@ -237,28 +258,32 @@ jobs:
           
     - name: "Send Review Request 2"
       id: requestreview
+      if: env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != '' && env.GHCR_TOKEN != ''
       run: |
         # get the openshift dev namespace name
         OCDEVNAMESPACE=$(oc get configmap $OC_NAMESPACE_NAMES_CONFIG_MAP -o json | jq .data.dev | tr -d '"')
         REPONAME=${{ steps.retrieveimagetag.outputs.REPONAME }}
         CONFIGMAPNAME=$REPONAME-gh-issues-cm
         EVENT_INFO=$(oc get configmap $CONFIGMAPNAME -o json | jq '.data.github_event_json' | jq -rc)
-
-        # get the issue number from the config map.. the build that 
-        # was triggered by the pr would have cached it there.
+        #GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN=$GHCR_TOKEN
 
         # git_event.txt
         #EVENT_INFO=$(cat git_event.txt)
-        GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
 
+        # extract PR number from GH Action Event Info object
+        # ---------------------------------------------------------
         PR_NUMBER=$(echo $EVENT_INFO | jq ".number")
         echo pr number is $PR_NUMBER
         PR_URL=$(echo $EVENT_INFO | jq ".pull_request.url" | tr -d '"')
         echo pr url is $PR_URL
+
+        # configure reviewers - (should extract this from the repo)
+        # ---------------------------------------------------------
         REVIEW_URL="$PR_URL/requested_reviewers"
         echo review url $REVIEW_URL
         # NicoledeGreef
-        REVIEWERS='{"reviewers":["franTarkenton", "GuyTheFlower"]}'
+        REVIEWERS='{"reviewers":["franTarkenton", "GuyTheFlower", "NicoledeGreef"]}'
         echo reviewers are $REVIEWERS
 
         curl --location --request POST  "$REVIEW_URL" \
