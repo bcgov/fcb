@@ -23,7 +23,7 @@ jobs:
       OPENSHIFT_TOKEN_DEV: ${{secrets.OPENSHIFT_TOKEN_DEV}}
       GHCR_USER: ${{ secrets.GHCR_USER }}
       GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-      RUN_GWA: false
+      RUN_GWA: true
       REVIEWERS: '["GuyTheFlower", "NicoledeGreef"]'
       MENTIONS: '["GuyTheFlower", "NicoledeGreef", "franTarkenton"]'
     steps:
@@ -289,6 +289,7 @@ jobs:
 
     - name: "Add Dev Vanity Url to Issue"
       id: addDevVanityUrlToIssue
+      if: env.RUN_GWA == 'true' && env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != ''
       run: |
         ISSUEURL=${ steps.updateissue.outputs.ISSUEURL }
         VANITY_URL=${ steps.kongconf.outputs.VANITY_URL }
