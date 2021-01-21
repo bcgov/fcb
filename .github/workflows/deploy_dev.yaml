@@ -216,13 +216,13 @@ jobs:
         # extract kong config info from secret objects
         # --------------------------------------------------
         kongSecrets=$(oc get secrets kong-secrets -o json | jq '.data' | jq '.["kong-config"] | @base64d | fromjson')
-        GWA_CLIENTID=$(echo $kongSecrets | jq '.gwa_client_id')
-        GWA_TOKEN=$(echo $kongSecrets | jq '.apikey')
-        GWA_NAMESPACE=$(echo $kongSecrets | jq '.gwa_namespace')
+        GWA_CLIENTID=$(echo $kongSecrets | jq '.gwa_client_id' | tr -d '"')
+        GWA_TOKEN=$(echo $kongSecrets | jq '.apikey' | tr -d '"')
+        GWA_NAMESPACE=$(echo $kongSecrets | jq '.gwa_namespace' | tr -d '"')
         gwa_route_name=${REPONAME}-route
         oc_service_name=${REPONAME}-svc
-        oc_service_port=$(oc get service ${oc_service_name} -o json | jq '.spec.ports[0].port')
-        oc_project=$(oc project --short=true)
+        oc_service_port=$(oc get service ${oc_service_name} -o json | jq '.spec.ports[0].port' | tr -d '"')
+        oc_project=$(oc project --short=true | tr -d '"')
 
         # init the gwa config
         # --------------------------------------------------
@@ -234,13 +234,13 @@ jobs:
         # create the gwa config
         # --------------------------------------------------
         python3 gwa/createGWAConfig.py \
-          OCService=$oc_service_name \
-          reponame=$REPONAME \
-          OCNamespace=$oc_project \
-          servicePort=$oc_service_port \
-          kongDomain=api.gov.bc.ca
-          GWANamespace=$GWA_NAMESPACE \
-          GWAenv=dev > gwa_config.yaml
+          --OCService $oc_service_name \
+          --reponame $REPONAME \
+          --OCNamespace $oc_project \
+          --servicePort $oc_service_port \
+          --kongDomain api.gov.bc.ca \
+          --GWANamespace $GWA_NAMESPACE \
+          --GWAenv dev > gwa_config.yaml
 
         # publish the gwa config
         # --------------------------------------------------
