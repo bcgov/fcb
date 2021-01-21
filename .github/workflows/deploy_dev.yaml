@@ -291,8 +291,8 @@ jobs:
       id: addDevVanityUrlToIssue
       if: env.RUN_GWA == 'true' && env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != ''
       run: |
-        ISSUEURL=${ steps.updateissue.outputs.ISSUEURL }
-        VANITY_URL=${ steps.kongconf.outputs.VANITY_URL }
+        ISSUEURL=${{ steps.updateissue.outputs.ISSUEURL }}
+        VANITY_URL=${{ steps.kongconf.outputs.VANITY_URL }}
         REPONAME=${{ steps.retrieveimagetag.outputs.REPONAME }}
         MENTION_STRING=$(echo $MENTIONS | jq -rc 'map("@" + .) | .[]' | tr '\n' ',' | sed 's/, */, /g' |  sed 's/, *$//g')
         echo MENTION_STRING $MENTION_STRING
