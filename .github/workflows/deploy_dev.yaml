@@ -24,6 +24,8 @@ jobs:
       GHCR_USER: ${{ secrets.GHCR_USER }}
       GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
       RUN_GWA: false
+      REVIEWERS: '["GuyTheFlower", "NicoledeGreef"]'
+      MENTIONS: '["GuyTheFlower", "NicoledeGreef", "franTarkenton"]'
     steps:
 
     # Checking out code to get access to the openshift deploy template later on
@@ -174,32 +176,28 @@ jobs:
         ISSUE_URL=$(oc get configmap $GITHUB_ISSUES_CONFIGMAP -o json | jq .data.issueURL | tr -d '"')
         echo ISSUE_URL $ISSUE_URL
 
-        # GET THE ISSUE URL from event path - Disabled
-        #issue_url=$(jq --raw-output .pull_request.issue_url "$GITHUB_EVENT_PATH")
-        #echo issue url is $issue_url
-        ## for debugging using existing pull_request
-        #if [ -z "$issue_url" ] || [ "$issue_url" = "null" ]
-        #  then
-        #    issue_url="https://api.github.com/repos/bcgov/bcdc-smk/issues/19/comments"
-        #fi
-        #echo issue url $issue_url
-        #ISSUE_URL=${{ steps.retrieveimagetag.outputs.ISSUE_URL }}
+        #format reviewers
+        MENTION_STRING=$(echo $MENTIONS | jq -rc 'map("@" + .) | .[]' | tr '\n' ',' | sed 's/, */, /g' |  sed 's/, *$//g')
 
         # ADD COMMENT TO THE ISSUE
         echo 'adding route to the comment for the issue'
         GITHUB_TOKEN=${{ secrets.GHCR_TOKEN }}
-        ISSUE_COMMENT="link to demo deployment of your smk based app is \n https://$ROUTEPATH\n\nVerify that it looks good, if so merge the pull request which will trigger a prod deployment, otherwise close the pull request without merging"
+        ISSUE_COMMENT="link to demo deployment of your smk based app is \n https://$ROUTEPATH\n\nVerify that it looks good, if so merge the pull request which will trigger a prod deployment, otherwise close the pull request without merging\n\n mentions / notifications: $MENTION_STRING"
         ISSUE_BODY='{"body": "'$ISSUE_COMMENT'"}'
 
         curl $ISSUE_URL -X POST --header "Authorization: Bearer $GITHUB_TOKEN" \
           --header "Accept: application/vnd.github.v3+json" \
           --data-raw "$ISSUE_BODY"
+        
+        echo ::set-output name=ISSUE_URL::${ISSUE_URL}
 
     - name: Get GWA CLI
-      id: getGWA
+      id: getGWACLI
       if: env.RUN_GWA == 'true' && env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != ''
       run: |
-        # disabled atm
+
+        # Grabbing the GWA command line tool
+        #----------------------------------------------------
         GWA_VERSION=v1.1.2
         GWA_CLI_LINK=https://github.com/bcgov/gwa-cli/releases/download/${GWA_VERSION}/gwa_${GWA_VERSION}_linux_x64.zip
         curl -L -O $GWA_CLI_LINK
@@ -210,52 +208,100 @@ jobs:
       id: kongconf
       if: env.RUN_GWA == 'true' && env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != ''
       run: |
-          #------------------------------------------------------------------------
-          # commenting this whole section out, current gwa config may work but
-          # it is incorrect, the gwa should wrap the service vs a route, the 
-          # python code that creates the input file also should get updated as
-          # the config file it spits out wraps the gwa around a route vs a service.
-          #------------------------------------------------------------------------
-          # # 
-          # # extract kong config info from secrets
-          # export PATH=`pwd`:$PATH
-          # ls -l
-          # gitrepo=${{ steps.retrieveimagetag.outputs.REPONAME }}
-          # echo gitrepo $gitrepo
-          # kongSecrets=$(oc get secrets kong-secrets -o json | jq '.data' | jq '.["kong-config"] | @base64d | fromjson')
-          # GWA_CLIENTID=$(echo $kongSecrets | jq '.gwa_client_id')
-          # echo client id $GWA_CLIENTID
-          # GWA_TOKEN=$(echo $kongSecrets | jq '.apikey')
-          # GWA_NAMESPACE=$(echo $kongSecrets | jq '.gwa_namespace')
-          # echo namespace $GWA_CLIENTID
-          # gwa_route_name=${gitrepo}-kong-route
-          # oc_service_name=${gitrepo}-svc
-          # oc_route_name="${gitrepo}-rt"
-          # echo oc_route_name $oc_route_name
-          # echo oc_service_name $oc_service_name
-          # echo gwa_route_name $gwa_route_name
-          # oc_route_host=https://$(oc get routes $oc_route_name -o json | jq '.spec.host' | tr -d '"')
 
-          # gwa-cli-linux init -T \
-          #   --namespace=$GWA_NAMESPACE \
-          #   --client-id=$GWA_CLIENTID \
-          #   --client-secret=$GWA_TOKEN
+        # get the Reponame from previous step
+        # ---------------------------------------------------
+        REPONAME=${{ steps.retrieveimagetag.outputs.REPONAME }}
 
-          # echo init complete
+        # extract kong config info from secret objects
+        # --------------------------------------------------
+        kongSecrets=$(oc get secrets kong-secrets -o json | jq '.data' | jq '.["kong-config"] | @base64d | fromjson')
+        GWA_CLIENTID=$(echo $kongSecrets | jq '.gwa_client_id')
+        GWA_TOKEN=$(echo $kongSecrets | jq '.apikey')
+        GWA_NAMESPACE=$(echo $kongSecrets | jq '.gwa_namespace')
+        gwa_route_name=${REPONAME}-route
+        oc_service_name=${REPONAME}-svc
+        oc_service_port=$(oc get service ${oc_service_name} -o json | jq '.spec.ports[0].port')
+        oc_project=$(oc project --short=true)
 
-          # python --version
-          # python3 gwa/createGWAConfig.py \
-          #   service=$oc_service_name \
-          #   ocUrl=$oc_route_host \
-          #   gwa_namespace=$GWA_NAMESPACE \
-          #   gwa_route_name=$gwa_route_name \
-          #   url_prefix=$gitrepo > gwa_config.yaml
+        # init the gwa config
+        # --------------------------------------------------
+        ./gwa-cli-linux init -T \
+           --namespace=$GWA_NAMESPACE \
+           --client-id=$GWA_CLIENTID \
+           --client-secret=$GWA_TOKEN
 
-          # echo gwa config created
-          
-          # gwa-cli-linux pg gwa_config.yaml
-          echo kong config is currently disabled
-          
+        # create the gwa config
+        # --------------------------------------------------
+        python3 gwa/createGWAConfig.py \
+          OCService=$oc_service_name \
+          reponame=$REPONAME \
+          OCNamespace=$oc_project \
+          servicePort=$oc_service_port \
+          kongDomain=api.gov.bc.ca
+          GWANamespace=$GWA_NAMESPACE \
+          GWAenv=dev > gwa_config.yaml
+
+        # publish the gwa config
+        # --------------------------------------------------
+        ./gwa-cli-linux pg gwa_config.yaml
+
+        # verify the url and output it
+        # --------------------------------------------------
+
+        # authenticate to api
+        CREDS64=$(echo -ne "${GWA_CLIENTID}:${GWA_TOKEN}" | base64 -w 0 -)
+        TOKEN=$(curl 'https://authz-apps-gov-bc-ca.test.apsgw.xyz/auth/realms/aps/protocol/openid-connect/token' \
+          -H 'Accept: application/json, text/plain, */*'  \
+          -H 'Content-Type: application/x-www-form-urlencoded'  \
+          -H 'X-Requested-With: XMLHttpRequest'  \
+          -H "Authorization: Basic ${CREDS64}" \
+          -H 'Origin: https://gwa-api-gov-bc-ca.test.apsgw.xyz'  \
+          -H 'Connection: keep-alive'  \
+          --data-raw 'grant_type=client_credentials' \
+          | jq '.access_token' | tr -d '"')
+         
+        # get the services in the namespace
+        SERVICES=$(curl "https://gwa-api-gov-bc-ca.test.apsgw.xyz/v1/namespaces/${GWA_NAMESPACE}/services" \
+          -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0' \
+          -H 'Accept: */*' \
+          -H 'Accept-Language: en-US,en;q=0.5' --compressed \
+          -H "Authorization: Bearer ${TOKEN}" \
+          -H 'Connection: keep-alive' )
+        echo SERVICES $SERVICES
+
+        # extract the url associated with the service
+        function getUrl {
+        python3 - <<END
+        import json, sys, os
+        jsonObj = json.loads(os.environ['SERVICES'])
+        for obj in jsonObj:
+            if obj['name'] == os.environ['OCService']:
+                sys.stdout.write(f"https://{obj['env_host']}")
+        END
+        }
+        export OCService
+        echo OCService $OCService
+        export SERVICES
+        VANITY_URL=$(getUrl)
+        echo vanity url $VANITY_URL
+        echo ::set-output name=VANITY_URL::${VANITY_URL}
+
+    - name: "Add Dev Vanity Url to Issue"
+      id: addDevVanityUrlToIssue
+      run: |
+        ISSUEURL=${ steps.updateissue.outputs.ISSUEURL }
+        VANITY_URL=${ steps.kongconf.outputs.VANITY_URL }
+        REPONAME=${{ steps.retrieveimagetag.outputs.REPONAME }}
+        MENTION_STRING=$(echo $MENTIONS | jq -rc 'map("@" + .) | .[]' | tr '\n' ',' | sed 's/, */, /g' |  sed 's/, *$//g')
+        echo MENTION_STRING $MENTION_STRING
+        ISSUECOMMENT="The Vanity URL for the Dev deploy is: $VANITY_URL, \n\n $MENTION_STRING"
+        ISSUE_BODY='{"body": "'$ISSUE_COMMENT'"}'
+        GITHUB_TOKEN=${{ secrets.GHCR_TOKEN }}
+        curl $ISSUE_URL -X POST --header "Authorization: Bearer $GITHUB_TOKEN" \
+          --header "Accept: application/vnd.github.v3+json" \
+          --data-raw "$ISSUE_BODY"
+
     - name: "Send Review Request 2"
       id: requestreview
       if: env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != '' && env.GHCR_TOKEN != ''
@@ -283,7 +329,7 @@ jobs:
         REVIEW_URL="$PR_URL/requested_reviewers"
         echo review url $REVIEW_URL
         # NicoledeGreef
-        REVIEWERS='{"reviewers":["franTarkenton", "GuyTheFlower", "NicoledeGreef"]}'
+        REVIEWERS='{"reviewers":'${REVIEWERS}' }'
         echo reviewers are $REVIEWERS
 
         curl --location --request POST  "$REVIEW_URL" \

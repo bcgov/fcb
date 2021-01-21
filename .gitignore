@@ -2,10 +2,10 @@ node_modules
 debug.log
 caddy
 roles.txt
-.env
+.env*
 gwa-cli-linux.zip
 gwa-cli-linux
 junk
-gwa/gwa-config-service-demo.yaml
+gwa/gwa-config*
 gwa_v*_linux_x64.zip
 junk*
