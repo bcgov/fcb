@@ -276,12 +276,12 @@ jobs:
         import json, sys, os
         jsonObj = json.loads(os.environ['SERVICES'])
         for obj in jsonObj:
-            if obj['name'] == os.environ['OCService']:
+            if obj['name'] == os.environ['oc_service_name']:
                 sys.stdout.write(f"https://{obj['env_host']}")
         END
         }
-        export OCService
-        echo OCService $OCService
+        export oc_service_name
+        echo oc_service_name $oc_service_name
         export SERVICES
         VANITY_URL=$(getUrl)
         echo vanity url $VANITY_URL
