@@ -72,7 +72,6 @@ jobs:
         echo ::set-output name=TIMESTAMPTAG::${DATESTAMP}
         echo ::set-output name=REPO::${REPO}
 
-        
         echo event name is $GITHUB_EVENT_NAME
         echo  $DEBUG_DEPLOY
 

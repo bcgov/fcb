@@ -1,9 +1,9 @@
 # Overview
 
-This doc summarizes how the various build/deployment pieces work for smk based
+This doc describes how the various build/deployment github actions work for smk based
 apps deployed to openshift.
 
-In summary from the very start the steps would be:
+To take a current SMK repository and deploy it to openshift the following are the steps:
 
 1. Acquire a new openshift set of namespaces (dlv|test|prod|tools)
 1. Run the namespace init helm chart 

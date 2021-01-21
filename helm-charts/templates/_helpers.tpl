@@ -61,3 +61,11 @@ Create the name of the service account to use
 {{- end }}
 {{- end }}
 
+{{/*
+create image pull secrets for backup image github access
+*/}}
+{{- define "helm-charts.app_image_pull_secret_params" }}
+{{- with .Values.app_image_pull_secret_params }}
+{{- printf "{\"auths\":{\"%s\":{\"username\":\"%s\",\"password\":\"%s\",\"email\":\"%s\",\"auth\":\"%s\"}}}" .registry .username .password .email (printf "%s:%s" .username .password | b64enc) | b64enc }}
+{{- end }}
+{{- end }}

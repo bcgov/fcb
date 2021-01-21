@@ -12,39 +12,26 @@ class GWAConfig:
         self.namespace = None
         self.destUrlPrefix = None
 
-    def setService(self, serviceName):
-        self.service = serviceName
-
-    def setSilverUrl(self, url):
-        self.silverUrl = url
-
-    def setGWANamespace(self, namespace):
-        self.namespace = namespace
-
-    def setEndPointPath(self, endPointDir):
-        self.endPointDir = endPointDir
-
-    def setGWARouteName(self, routeName):
-        self.routeName = routeName
-
-    def setNewUrlPrefix(self, prefix):
-        self.destUrlPrefix = prefix
-
     def slurpArgs(self):
         parser = argparse.ArgumentParser(description='Provide parameter used to construct the gwa config file.')
-        parser.add_argument("service", help="openshift service that the route should bind to")
-        parser.add_argument("ocUrl", help="openshift route to your app, likely a apps.silver.devops.gov.bc.ca url")
-        parser.add_argument("gwa_namespace", help="the gwa namespace created using gwa tool")
-        parser.add_argument("gwa_route_name", help="name of the gwa route that will be created")
-        parser.add_argument("url_prefix", help="will be appended on to the start of the url to make it unique")
+        parser.add_argument("--OCService", help="openshift service that the route should bind to")
+        parser.add_argument("--reponame", help="unique name for your smk app, usually the name of your repository.")
+        parser.add_argument("--OCNamespace", help="The openshift namespace that the app resides in.")
+        parser.add_argument("--servicePort", help="The port that the open shift service is configured for.")
+        parser.add_argument("--kongDomain", help="The domain suffix that will be created.")
+        parser.add_argument("--GWANamespace", help="the gwa namespace created using gwa tool")
+        parser.add_argument("--GWAenv", help="the gwa namespace created using gwa tool")
         parser.add_argument("--endpointdir", help="the end point to add to your route", default='/')
+
         args = parser.parse_args()
-        self.setService(args.service)
-        self.setSilverUrl(args.ocUrl)
-        self.setGWANamespace(args.gwa_namespace)
-        self.setGWARouteName(args.gwa_route_name)
-        self.setNewUrlPrefix(args.url_prefix)
-        self.setEndPointPath(args.endpointdir)
+        self.OCService = args.OCService
+        self.reponame = args.reponame
+        self.OCNamespace = args.OCNamespace
+        self.servicePort = args.servicePort
+        self.kongDomain = args.kongDomain
+        self.GWANamespace = args.GWANamespace
+        self.GWAenv = args.GWAenv
+        self.endpointdir = args.endpointdir
 
     def createYaml(self):
         yamlData = \
@@ -52,26 +39,26 @@ class GWAConfig:
                 "_format_version": "1.1",
                 "services": [
                     {
-                        "name": self.service,
-                        "url": self.silverUrl,
-                        "plugins": [],
+                        "name": self.OCService,
+                        "host": f"{self.OCService}.{self.OCNamespace}.svc",
+                        "port": int(f"{self.servicePort}"),
                         "tags": [
-                            'OAS3_import', f"ns.{self.namespace}"
+                            f"ns.{self.GWANamespace}.{self.reponame}", self.reponame, self.GWAenv
                         ],
                         "routes": [
                             {
                                 'tags': 
                                 [
-                                    "OAS3_import", f"ns.{self.namespace}"
+                                    f"ns.{self.GWANamespace}.{self.reponame}", self.reponame, self.GWAenv
                                 ],
-                                'name': self.routeName,
+                                'name': f"{self.reponame}-route",
                                 "methods": [
                                     'GET' ],
                                 "paths": [
                                     self.endPointDir],
                                 "strip_path": False,
                                 "hosts": [
-                                    self.destUrlPrefix
+                                    f"{self.reponame}.{self.kongDomain}"
                                 ]
                             }
                         ]
@@ -79,7 +66,6 @@ class GWAConfig:
                 ]
             }
         yamlString = yaml.dump(yamlData, sys.stdout)
-        #print(yamlString)
 
 
 
@@ -87,11 +73,12 @@ if __name__ == "__main__":
 
     # debug
     # sys.argv.append("smk-fap-fcp-svc")
-    # sys.argv.append("https://smk-fap-fcb-rt-b16795-dev.apps.silver.devops.gov.bc.ca/")
-    # sys.argv.append("smk-apps")
-    # sys.argv.append("smk-fap-fcp-kong-route")
     # sys.argv.append("smk-fap-fcb")
-
+    # sys.argv.append("b16795-dev")
+    # sys.argv.append("8888")
+    # sys.argv.append("api.gov.bc.ca")
+    # sys.argv.append("smk-apps")
+    # sys.argv.append("dev")
 
     gwaConf = GWAConfig()
     gwaConf.slurpArgs()

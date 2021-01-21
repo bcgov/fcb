@@ -1,3 +1,6 @@
+This doc contains misc notes I made to help with the development of the cd/ci pipeline 
+that the repo runs with.
+
 # Testing the Container
 
 ## Build an image using Docker
@@ -17,8 +20,10 @@ docker build -t $IMAGE_NAME .
 
 # Helm deployments
 
-With this chart we are trying to re-use a single chart to deploy multiple SMK based apps that have been generated using the SMK command line tool.  Most of the objects defined in the helm chart will be duplicated to create different SMK based apps in the same 
-repository.
+With this chart we are trying to re-use a single chart to deploy multiple SMK
+based apps that have been generated using the SMK command line tool.  Most of
+the objects defined in the helm chart will be duplicated to create different 
+SMK based apps in the same repository.
 
 ## objects created by Helm chart that are re-used for each app
 
