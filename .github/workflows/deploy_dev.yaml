@@ -296,7 +296,7 @@ jobs:
         REPONAME=${{ steps.retrieveimagetag.outputs.REPONAME }}
         MENTION_STRING=$(echo $MENTIONS | jq -rc 'map("@" + .) | .[]' | tr '\n' ',' | sed 's/, */, /g' |  sed 's/, *$//g')
         echo MENTION_STRING $MENTION_STRING
-        ISSUECOMMENT="The Vanity URL for the Dev deploy is: $VANITY_URL, \n\n $MENTION_STRING"
+        ISSUE_COMMENT="The Vanity URL for the Dev deploy is: $VANITY_URL, \n\n $MENTION_STRING"
         ISSUE_BODY='{"body": "'$ISSUE_COMMENT'"}'
         GITHUB_TOKEN=${{ secrets.GHCR_TOKEN }}
         curl $ISSUE_URL -X POST --header "Authorization: Bearer $GITHUB_TOKEN" \
