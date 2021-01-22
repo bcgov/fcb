@@ -31,7 +31,8 @@ runs:
 
         DATESTAMP=$(date +%Y%m%d-%H%M)
         REGISTRY="docker.pkg.github.com"
-        IMAGE="${REGISTRY}/${{ github.repository }}/$REPO"
+        repolowercase=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
+        IMAGE="${REGISTRY}/$repolowercase/$REPO"
         TAGS="${IMAGE}:${DATESTAMP}"
         LATEST="${IMAGE}:latest"
         
@@ -86,13 +87,17 @@ runs:
       run: |
         ls -la
         pwd
+        # parameterize the docker registry
         GITHUBOWNERREPO=${{ github.repository }}
         GITHHUBREPO=${{ steps.calculateImageTag.outputs.REPO }}
         DOCKER_REPO=${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
+        
         echo GITHUBOWNERREPO $GITHUBOWNERREPO
         echo GITHHUBREPO $GITHHUBREPO
         echo DOCKER_REPO $DOCKER_REPO
+
         #DOCKER_IMAGE_PATH=docker.pkg.github.com/$GITHUBOWNER-REPO/$GITHHUBREPO:
+
         echo ${{ inputs.GHCR_TOKEN }} | docker login https://docker.pkg.github.com -u ${{ inputs.GHCR_USER }} --password-stdin
         docker build -t $DOCKER_REPO .
         docker push $DOCKER_REPO
