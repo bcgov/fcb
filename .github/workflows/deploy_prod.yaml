@@ -146,12 +146,17 @@ jobs:
         DOCKER_VERSION_TAG=${{ steps.retrieveimagetag.outputs.DOCKER_VERSION_TAG }}
         IMAGE_REGISTRY=${{ steps.retrieveimagetag.outputs.IMAGE_REGISTRY }}
         REPONAME=${{ steps.retrieveimagetag.outputs.REPONAME }}
+        IMAGE_PULL_SECRET_NAME=${REPONAME}-image-pull-secret
 
         # extract deploy name from the template
-        helm upgrade $REPONAME ./helm-charts --install \
+        #helm upgrade $REPONAME ./helm-charts --install \
+        helm repo add smk-helms https://bcgov.github.io/smk-helms/
+        helm upgrade $REPONAME smk-helms/smk-app-deploy --install \
            --set app_name=$REPONAME \
            --set env=prd \
-           --set app_image_pull_secret_params.name=github-imagepull-secrets \
+           --set app_image_pull_secret_params.email=$EMAIL \
+           --set app_image_pull_secret_params.password=$GHCR_TOKEN \
+           --set app_image_pull_secret_params.name=$IMAGE_PULL_SECRET_NAME \
            --set app_image_pull_secret_params.imagetag=$DOCKER_VERSION_TAG \
            --set app_image_pull_secret_params.registry=$IMAGE_REGISTRY
 
