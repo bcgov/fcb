@@ -32,7 +32,11 @@ jobs:
     - uses: ./comp-actions/smk-build
       id: buildSMKContainer
       with:
-        OC-DEV-TOKEN: ${{ secrets.TEST_SECRET }}
-      
+        OPENSHIFT_SERVER_URL: ${{ secrets.OPENSHIFT_SERVER_URL }}
+        OPENSHIFT_TOKEN_DEV: ${{ secrets.OPENSHIFT_TOKEN_DEV }}
+        GHCR_USER: ${{ secrets.GHCR_USER }}
+        GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+
+
 
 

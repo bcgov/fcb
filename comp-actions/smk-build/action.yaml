@@ -1,10 +1,18 @@
 name: 'SMK Build'
 description: 'Creates a docker image for an SMK application'
 inputs:
-  OC-DEV-TOKEN:  # id of input
-    description: 'Who to greet'
+  OPENSHIFT_SERVER_URL:
+    description: 'The url to the openshift instance, build process caches info in oc configmaps'
     required: true
-  
+  OPENSHIFT_TOKEN_DEV:
+    description: 'The openshift token for the service account access to the dev namespace'
+    required: true
+  GHCR_USER:
+    description: 'The github user, required to push docker image to repository packages'
+    required: true
+  GHCR_TOKEN:
+    description: 'the github token, for the user above, again used to push images to github packages'
+    required: true
 outputs:
   random-number: 
     description: "Random number"
@@ -39,9 +47,20 @@ runs:
       shell: bash
       run: |
         echo ----- RETREIVE PARAMS -----
-        echo dev token: ${{inputs.OC-DEV-TOKEN}}
+        #echo dev token: ${{inputs.OC-DEV-TOKEN}}
         #echo "::set-output name=random-id::$(echo $RANDOM)"
         echo "test number is 44"
         echo docker version tag: ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG}}
+    
+      # Log into openshift
+    - id: GHAOpenshiftTest
+      uses: redhat-developer/openshift-actions@v1.1
+      with:
+        version: '3.11.232'
+        openshift_server_url: ${{ inputs.OPENSHIFT_SERVER_URL }}
+        parameters: '{"apitoken": "${{ inputs.OPENSHIFT_TOKEN_DEV }}", "acceptUntrustedCerts": "true"}'
+        cmd: 'version'
+
+    
     #- run: ${{ github.action_path }}/goodbye.sh
     #  shell: bash
