@@ -78,11 +78,13 @@ runs:
         oc create configmap $CONFMAP_NAME \
           --from-literal=issueURL=$ISSUE_URL \
           --from-literal=github_event_path=$GITHUB_EVENT_PATH \
-          --from-file=github_event_json=$GITHUB_EVENT_PATH 
+          --from-file=github_event_json=$GITHUB_EVENT_PATH
 
-        # when 
-        # oc create configmap $CONFMAP_NAME \
-        #   --from-literal=issueURL=$ISSUE_URL \
-        #   --from-literal=github_event_path=$GITHUB_EVENT_PATH \
-        #   --from-file=github_event_json=$GITHUB_EVENT_PATH \
-        #   --dry-run -o yaml | oc $methodType -f -
+    - name: Build Docker Image
+      shell: bash
+      id: Build Docker Image
+      run:
+        ls -la
+        pwd
+        docker build .
+
