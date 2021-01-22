@@ -43,7 +43,7 @@ runs:
         echo event name is $GITHUB_EVENT_NAME
         echo  $DEBUG_DEPLOY      shell: bash
 
-    - id: print-outputs
+    - id: oc-login
       shell: bash
       run: |
         echo ----- RETREIVE PARAMS -----
@@ -59,13 +59,13 @@ runs:
         oc login --token=${{ inputs.OPENSHIFT_TOKEN_DEV }} --server=${{ inputs.OPENSHIFT_SERVER_URL }}
 
       # Log into openshift
-    - id: GHAOpenshiftTest
-      uses: redhat-developer/openshift-actions@v1.1
-      with:
-        version: '3.11.232'
-        openshift_server_url: ${{ inputs.OPENSHIFT_SERVER_URL }}
-        parameters: '{"apitoken": "${{ inputs.OPENSHIFT_TOKEN_DEV }}", "acceptUntrustedCerts": "true"}'
-        cmd: 'version'
+    # - id: GHAOpenshiftTest
+    #   uses: redhat-developer/openshift-actions@v1.1
+    #   with:
+    #     version: '3.11.232'
+    #     openshift_server_url: ${{ inputs.OPENSHIFT_SERVER_URL }}
+    #     parameters: '{"apitoken": "${{ inputs.OPENSHIFT_TOKEN_DEV }}", "acceptUntrustedCerts": "true"}'
+    #     cmd: 'version'
 
     
     #- run: ${{ github.action_path }}/goodbye.sh
