@@ -133,8 +133,9 @@ jobs:
         #  - helm chart creates the image pull secret
         #  - tries to use it with the service account
         #  - service account hasn't been granted access
-
-        helm upgrade $REPONAME ./helm-charts --install \
+        #  helm upgrade $REPONAME ./helm-charts --install \
+        helm repo add smk-helms https://bcgov.github.io/smk-helms/
+        helm upgrade $REPONAME smk-helms/smk-app-deploy --install \
            --set app_name=$REPONAME \
            --set env=dev \
            --set app_image_pull_secret_params.email=$EMAIL \
