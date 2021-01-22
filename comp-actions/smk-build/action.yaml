@@ -126,6 +126,7 @@ runs:
 
     - name: Tag the pull request with build tag
       id: tagpullrequest
+      shell: bash
       run: |
         DOCKER_VERSION_TAG=${{ steps.calculateImageTag.outputs.TIMESTAMPTAG }}
 
