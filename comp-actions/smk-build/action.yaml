@@ -40,6 +40,5 @@ runs:
         #echo "::set-output name=random-id::$(echo $RANDOM)"
         echo "test number is 44"
         echo docker version tag: ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG}}
-      shell: bash
     #- run: ${{ github.action_path }}/goodbye.sh
     #  shell: bash
