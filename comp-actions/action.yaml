@@ -1,0 +1,26 @@
+name: 'SMK Build'
+description: 'Creates a docker image for an SMK application'
+inputs:
+  who-to-greet:  # id of input
+    description: 'Who to greet'
+    required: true
+    default: 'World'
+outputs:
+  random-number: 
+    description: "Random number"
+    value: ${{ steps.random-number-generator.outputs.random-id }}
+runs:
+  using: "composite"
+  steps: 
+    - run: |
+        # 
+        #echo Hello ${{ inputs.who-to-greet }}.
+        echo test hello
+      shell: bash
+    - id: random-number-generator
+      run: |
+        #echo "::set-output name=random-id::$(echo $RANDOM)"
+        echo "test number is 44"
+      shell: bash
+    #- run: ${{ github.action_path }}/goodbye.sh
+    #  shell: bash
