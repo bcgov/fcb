@@ -46,11 +46,7 @@ runs:
     - id: oc-login
       shell: bash
       run: |
-        echo ----- RETREIVE PARAMS -----
-        #echo dev token: ${{inputs.OC-DEV-TOKEN}}
-        #echo "::set-output name=random-id::$(echo $RANDOM)"
-        echo "test number is 44"
-        echo docker version tag: ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG}}
+        echo ----- OC-LOGIN -----
         # get oc client
         curl https://downloads-openshift-console.apps.silver.devops.gov.bc.ca/amd64/linux/oc.tar -o oc.tar
         tar -xvf oc.tar
@@ -58,15 +54,34 @@ runs:
         PATH=$curdir:$PATH
         oc login --token=${{ inputs.OPENSHIFT_TOKEN_DEV }} --server=${{ inputs.OPENSHIFT_SERVER_URL }}
 
-      # Log into openshift
-    # - id: GHAOpenshiftTest
-    #   uses: redhat-developer/openshift-actions@v1.1
-    #   with:
-    #     version: '3.11.232'
-    #     openshift_server_url: ${{ inputs.OPENSHIFT_SERVER_URL }}
-    #     parameters: '{"apitoken": "${{ inputs.OPENSHIFT_TOKEN_DEV }}", "acceptUntrustedCerts": "true"}'
-    #     cmd: 'version'
+    - name: Store Issue URL in configmap
+      id: cacheIssueUrl
+      run: |
+        echo github event name ${{ github.event_name }}
+        echo CONFMAP_NAME $CONFMAP_NAME
+        CONFMAP_NAME=${{ steps.calculateImageTag.outputs.REPO }}-gh-issues-cm
+        echo CONFMAP_NAME $CONFMAP_NAME
+        ISSUE_URL=$(jq --raw-output .pull_request.issue_url "$GITHUB_EVENT_PATH")
+        echo issue url is $ISSUE_URL
 
-    
-    #- run: ${{ github.action_path }}/goodbye.sh
-    #  shell: bash
+        CONF_EXISTS=$(oc get configmaps -o json |  jq '[.items[] | select(.metadata.name == "'$CONFMAP_NAME'")] | length')
+        echo CONF_EXISTS $CONF_EXISTS
+        if [ $CONF_EXISTS -eq 0 ] 
+          then
+            methodType="create"
+        else
+            methodType="replace"
+            oc delete configmap $CONFMAP_NAME
+        fi
+        
+        oc create configmap $CONFMAP_NAME \
+          --from-literal=issueURL=$ISSUE_URL \
+          --from-literal=github_event_path=$GITHUB_EVENT_PATH \
+          --from-file=github_event_json=$GITHUB_EVENT_PATH 
+
+        # when 
+        # oc create configmap $CONFMAP_NAME \
+        #   --from-literal=issueURL=$ISSUE_URL \
+        #   --from-literal=github_event_path=$GITHUB_EVENT_PATH \
+        #   --from-file=github_event_json=$GITHUB_EVENT_PATH \
+        #   --dry-run -o yaml | oc $methodType -f -
