@@ -56,6 +56,7 @@ runs:
 
     - name: Store Issue URL in configmap
       id: cacheIssueUrl
+      shell: bash
       run: |
         echo github event name ${{ github.event_name }}
         echo CONFMAP_NAME $CONFMAP_NAME
