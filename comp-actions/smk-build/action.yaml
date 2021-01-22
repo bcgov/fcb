@@ -86,5 +86,14 @@ runs:
       run:
         ls -la
         pwd
-        docker build .
+        GITHUBOWNER-REPO=${{ github.repository }}
+        GITHHUBREPO=${{ steps.calculateImageTag.outputs.REPO }}
+        DOCKER_REPO=${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
+        echo GITHUBOWNER-REPO $GITHUBOWNER-REPO
+        echo GITHHUBREPO $GITHHUBREPO
+        echo DOCKER_REPO $DOCKER_REPO
+        #DOCKER_IMAGE_PATH=docker.pkg.github.com/$GITHUBOWNER-REPO/$GITHHUBREPO:
+        echo ${{ inputs.GHCR_USER }} | docker login https://docker.pkg.github.com -u ${{ inputs.GHCR_USER }} --password-stdin
+        docker build -t $DOCKER_REPO .
+        docker push $DOCKER_REPO
 
