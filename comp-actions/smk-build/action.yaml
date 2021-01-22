@@ -146,7 +146,7 @@ runs:
 
         # ---- adding the tag that was assigned to the image to the issue ----
         jsonwithlabels=$(curl --header "Content-Type: application/json" \
-        --header "authorization: Bearer ${{ secrets.GHCR_TOKEN }}" \
+        --header "authorization: Bearer ${{ inputs.GHCR_TOKEN }}" \
         --request GET \
         $issue_url | jq '.labels |= . + ["'$DOCKER_VERSION_TAG'"] | {("labels"): .["labels"]?}')
         
@@ -154,6 +154,6 @@ runs:
         curl \
         --location --request POST $issue_url \
         --header "Content-Type: application/json" \
-        --header "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+        --header "authorization: Bearer ${{ inputs.GITHUB_TOKEN }}" \
         --data "$jsonwithlabels"
 
