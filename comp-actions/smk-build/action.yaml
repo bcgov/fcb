@@ -12,15 +12,32 @@ outputs:
 runs:
   using: "composite"
   steps: 
-    - run: |
-        # 
-        #echo Hello ${{ inputs.who-to-greet }}.
-        echo test hello
-      shell: bash
-    - id: random-number-generator
+    - id: calculateImageTag
+      name: calculate Image Tag
+      run: |
+        repoandorg=${{ github.repository }}
+        REPO=$(basename "$repoandorg")
+        echo REPO $REPO
+
+        DATESTAMP=$(date +%Y%m%d-%H%M)
+        REGISTRY="docker.pkg.github.com"
+        IMAGE="${REGISTRY}/${{ github.repository }}/$REPO"
+        TAGS="${IMAGE}:${DATESTAMP}"
+        LATEST="${IMAGE}:latest"
+        
+        echo ::set-output name=DOCKER_VERSION_TAG::${TAGS}
+        echo ::set-output name=DOCKER_LATEST_TAG::${LATEST}
+        echo ::set-output name=TIMESTAMPTAG::${DATESTAMP}
+        echo ::set-output name=REPO::${REPO}
+
+        echo event name is $GITHUB_EVENT_NAME
+        echo  $DEBUG_DEPLOY      shell: bash
+
+    - id: print-outputs
       run: |
         #echo "::set-output name=random-id::$(echo $RANDOM)"
         echo "test number is 44"
+        echo docker version tag: ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG}}
       shell: bash
     #- run: ${{ github.action_path }}/goodbye.sh
     #  shell: bash
