@@ -51,7 +51,13 @@ runs:
         #echo "::set-output name=random-id::$(echo $RANDOM)"
         echo "test number is 44"
         echo docker version tag: ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG}}
-    
+        # get oc client
+        curl https://downloads-openshift-console.apps.silver.devops.gov.bc.ca/amd64/linux/oc.tar -o oc.tar
+        tar -xvf oc.tar
+        curdir=$(pwd)
+        PATH=$curdir:$PATH
+        oc login --token=${{ inputs.OPENSHIFT_TOKEN_DEV }} --server=${{ inputs.OPENSHIFT_SERVER_URL }}
+
       # Log into openshift
     - id: GHAOpenshiftTest
       uses: redhat-developer/openshift-actions@v1.1
