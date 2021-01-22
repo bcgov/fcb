@@ -1,10 +1,10 @@
 name: 'SMK Build'
 description: 'Creates a docker image for an SMK application'
 inputs:
-  who-to-greet:  # id of input
+  OC-DEV-TOKEN:  # id of input
     description: 'Who to greet'
     required: true
-    default: 'World'
+  
 outputs:
   random-number: 
     description: "Random number"
@@ -16,6 +16,7 @@ runs:
       name: calculate Image Tag
       shell: bash
       run: |
+        echo ----- CALCULATE IMAGE TAG -----
         repoandorg=${{ github.repository }}
         REPO=$(basename "$repoandorg")
         echo REPO $REPO
@@ -37,6 +38,8 @@ runs:
     - id: print-outputs
       shell: bash
       run: |
+        echo ----- RETREIVE PARAMS -----
+        echo dev token: ${{inputs.OC-DEV-TOKEN}}
         #echo "::set-output name=random-id::$(echo $RANDOM)"
         echo "test number is 44"
         echo docker version tag: ${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG}}

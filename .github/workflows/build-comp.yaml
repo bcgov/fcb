@@ -31,6 +31,8 @@ jobs:
     #- uses: bcgov/smk-actions/smk-build@main
     - uses: ./comp-actions/smk-build
       id: buildSMKContainer
+      with:
+        OC-DEV-TOKEN: blahblahblah
       
 
 
