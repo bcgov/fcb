@@ -82,18 +82,18 @@ runs:
 
     - name: Build Docker Image
       shell: bash
-      id: Build Docker Image
+      id: buildPushDockerImage
       run:
         ls -la
         pwd
-        GITHUBOWNER-REPO=${{ github.repository }}
+        GITHUBOWNERREPO=${{ github.repository }}
         GITHHUBREPO=${{ steps.calculateImageTag.outputs.REPO }}
         DOCKER_REPO=${{ steps.calculateImageTag.outputs.DOCKER_VERSION_TAG }}
-        echo GITHUBOWNER-REPO $GITHUBOWNER-REPO
+        echo GITHUBOWNERREPO $GITHUBOWNERREPO
         echo GITHHUBREPO $GITHHUBREPO
         echo DOCKER_REPO $DOCKER_REPO
         #DOCKER_IMAGE_PATH=docker.pkg.github.com/$GITHUBOWNER-REPO/$GITHHUBREPO:
-        echo ${{ inputs.GHCR_USER }} | docker login https://docker.pkg.github.com -u ${{ inputs.GHCR_USER }} --password-stdin
+        echo ${{ inputs.GHCR_TOKEN }} | docker login https://docker.pkg.github.com -u ${{ inputs.GHCR_USER }} --password-stdin
         docker build -t $DOCKER_REPO .
         docker push $DOCKER_REPO
 
