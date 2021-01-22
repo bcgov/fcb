@@ -83,7 +83,7 @@ runs:
     - name: Build Docker Image
       shell: bash
       id: buildPushDockerImage
-      run:
+      run: |
         ls -la
         pwd
         GITHUBOWNERREPO=${{ github.repository }}
