@@ -101,7 +101,8 @@ runs:
         echo prod token: ${{ inputs.OPENSHIFT_TOKEN_PRD }}
         prodToken=$(echo ${{ inputs.OPENSHIFT_TOKEN_PRD }})
         echo param set
-        prodlength=$( expr length $prodToken )
+        #prodlength=$( expr length $prodToken )
+        prodlength=${#prodToken}
         echo prod length $prodlength
 
         if [ "$prodlength" -eq 0 ]
@@ -123,7 +124,7 @@ runs:
         echo ISSUE_URL $ISSUE_URL
         echo ::set-output name=ISSUE_URL::${ISSUE_URL}
 
-        
+
 
 
     
