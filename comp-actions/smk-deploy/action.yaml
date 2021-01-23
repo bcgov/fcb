@@ -199,6 +199,7 @@ runs:
         fi
 
         #format reviewers
+        echo pr mentions ${{ inputs.PR_MENTIONS }}
         MENTION_STRING=$(echo ${{ inputs.PR_MENTIONS }} | jq -rc 'map("@" + .) | .[]' | tr '\n' ',' | sed 's/, */, /g' |  sed 's/, *$//g')
 
         # ADD COMMENT TO THE ISSUE
@@ -212,7 +213,100 @@ runs:
         
         echo ::set-output name=ISSUE_URL::${ISSUE_URL}
 
+    - name: Get GWA CLI
+      id: getGWACLI
+      shell: bash
+      run: |
 
+        # Grabbing the GWA command line tool
+        #----------------------------------------------------
+        GWA_VERSION=v1.1.2
+        GWA_CLI_LINK=https://github.com/bcgov/gwa-cli/releases/download/${GWA_VERSION}/gwa_${GWA_VERSION}_linux_x64.zip
+        curl -L -O $GWA_CLI_LINK
+        unzip -p gwa_${GWA_VERSION}_linux_x64.zip > gwa-cli-linux
+        chmod +x gwa-cli-linux
 
+    - name: Configure Kong Route
+      id: kongconf
+      shell: bash
+      run: |
+
+        # get the Reponame from previous step
+        # ---------------------------------------------------
+        REPONAME=${{ steps.getRepo.outputs.REPONAME }}
+
+        # extract kong config info from secret objects
+        # --------------------------------------------------
+        kongSecrets=$(oc get secrets kong-secrets -o json | jq '.data' | jq '.["kong-config"] | @base64d | fromjson')
+        GWA_CLIENTID=$(echo $kongSecrets | jq '.gwa_client_id' | tr -d '"')
+        GWA_TOKEN=$(echo $kongSecrets | jq '.apikey' | tr -d '"')
+        GWA_NAMESPACE=$(echo $kongSecrets | jq '.gwa_namespace' | tr -d '"')
+        gwa_route_name=${REPONAME}-route
+        oc_service_name=${REPONAME}-svc
+        oc_service_port=$(oc get service ${oc_service_name} -o json | jq '.spec.ports[0].port' | tr -d '"')
+        oc_project=$(oc project --short=true | tr -d '"')
+
+        # init the gwa config
+        # --------------------------------------------------
+        ./gwa-cli-linux init -T \
+           --namespace=$GWA_NAMESPACE \
+           --client-id=$GWA_CLIENTID \
+           --client-secret=$GWA_TOKEN
+
+        # create the gwa config
+        # --------------------------------------------------
+        python3 gwa/createGWAConfig.py \
+          --OCService $oc_service_name \
+          --reponame $REPONAME \
+          --OCNamespace $oc_project \
+          --servicePort $oc_service_port \
+          --kongDomain api.gov.bc.ca \
+          --GWANamespace $GWA_NAMESPACE \
+          --GWAenv dev > gwa_config.yaml
+
+        # publish the gwa config
+        # --------------------------------------------------
+        ./gwa-cli-linux pg gwa_config.yaml
+
+        # verify the url and output it
+        # --------------------------------------------------
+
+        # authenticate to api
+        CREDS64=$(echo -ne "${GWA_CLIENTID}:${GWA_TOKEN}" | base64 -w 0 -)
+        TOKEN=$(curl 'https://authz-apps-gov-bc-ca.test.apsgw.xyz/auth/realms/aps/protocol/openid-connect/token' \
+          -H 'Accept: application/json, text/plain, */*'  \
+          -H 'Content-Type: application/x-www-form-urlencoded'  \
+          -H 'X-Requested-With: XMLHttpRequest'  \
+          -H "Authorization: Basic ${CREDS64}" \
+          -H 'Origin: https://gwa-api-gov-bc-ca.test.apsgw.xyz'  \
+          -H 'Connection: keep-alive'  \
+          --data-raw 'grant_type=client_credentials' \
+          | jq '.access_token' | tr -d '"')
+         
+        # get the services in the namespace
+        SERVICES=$(curl "https://gwa-api-gov-bc-ca.test.apsgw.xyz/v1/namespaces/${GWA_NAMESPACE}/services" \
+          -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0' \
+          -H 'Accept: */*' \
+          -H 'Accept-Language: en-US,en;q=0.5' --compressed \
+          -H "Authorization: Bearer ${TOKEN}" \
+          -H 'Connection: keep-alive' )
+        echo SERVICES $SERVICES
+
+        # extract the url associated with the service
+        function getUrl {
+        python3 - <<END
+        import json, sys, os
+        jsonObj = json.loads(os.environ['SERVICES'])
+        for obj in jsonObj:
+            if obj['name'] == os.environ['oc_service_name']:
+                sys.stdout.write(f"https://{obj['env_host']}")
+        END
+        }
+        export oc_service_name
+        echo oc_service_name $oc_service_name
+        export SERVICES
+        VANITY_URL=$(getUrl)
+        echo vanity url $VANITY_URL
+        echo ::set-output name=VANITY_URL::${VANITY_URL}
 
 
