@@ -169,7 +169,40 @@ runs:
         oc patch serviceaccount $serviceAccountName -p '{"imagePullSecrets": [{"name": "'$IMAGE_PULL_SECRET_NAME'"}]}'
 
 
-    
+    # # ADD THE ROUTE TO THE ISSUE
+    - name: Update issue
+      id: updateissue
+      shell: bash
+      run: |
+
+        # retrieve the route url
+        # ---------------------------------------------------------
+        oc_route_name=${{ steps.getRepo.outputs.REPONAME }}-rt
+        GITHUB_ISSUES_CONFIGMAP=${{ steps.getRepo.outputs.REPONAME }}-gh-issues-cm
+        ROUTEPATH=$(oc get route $oc_route_name -o json | jq .spec.host | tr -d '"' )
+        ROUTEURL=https://$ROUTEPATH
+
+        # get the github issue url from the configmap
+        # ---------------------------------------------------------
+        #echo the GITHUB_EVENT_PATH
+        #cat $GITHUB_EVENT_PATH
+        ISSUE_URL=$(oc get configmap $GITHUB_ISSUES_CONFIGMAP -o json | jq .data.issueURL | tr -d '"')
+        echo ISSUE_URL $ISSUE_URL
+
+        #format reviewers
+        MENTION_STRING=$(echo ${{inputs.PR_MENTIONS}} | jq -rc 'map("@" + .) | .[]' | tr '\n' ',' | sed 's/, */, /g' |  sed 's/, *$//g')
+
+        # ADD COMMENT TO THE ISSUE
+        echo 'adding route to the comment for the issue'
+        ISSUE_COMMENT="link to demo deployment of your smk based app is \n https://$ROUTEPATH\n\nVerify that it looks good, if so merge the pull request which will trigger a prod deployment, otherwise close the pull request without merging\n\n mentions / notifications: $MENTION_STRING"
+        ISSUE_BODY='{"body": "'$ISSUE_COMMENT'"}'
+
+        curl $ISSUE_URL -X POST --header "Authorization: Bearer ${{ inputs.GHCR_TOKEN }}" \
+          --header "Accept: application/vnd.github.v3+json" \
+          --data-raw "$ISSUE_BODY"
+        
+        echo ::set-output name=ISSUE_URL::${ISSUE_URL}
+
 
 
 
