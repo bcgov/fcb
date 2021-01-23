@@ -102,7 +102,7 @@ runs:
 
         #DOCKER_IMAGE_PATH=docker.pkg.github.com/$GITHUBOWNER-REPO/$GITHHUBREPO:
 
-        echo ${{ inputs.GHCR_TOKEN }} | docker login https://${{ ${{ inputs.DOCKER_REGISTRY }} -u ${{ inputs.GHCR_USER }} --password-stdin
+        echo ${{ inputs.GHCR_TOKEN }} | docker login https://${{ inputs.DOCKER_REGISTRY }} -u ${{ inputs.GHCR_USER }} --password-stdin
         docker build -t $DOCKER_REPO .
         docker push $DOCKER_REPO
       
