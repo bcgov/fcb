@@ -124,10 +124,9 @@ runs:
         echo ISSUE_URL $ISSUE_URL
         echo ::set-output name=ISSUE_URL::${ISSUE_URL}
 
-
     - name: Deploy Helm chart
       id: deployHelm
-      if: env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != '' && env.GHCR_USER != '' && env.GHCR_TOKEN != ''
+      shell: bash
       run: |
         # -- retrieving variables calculated in previous steps
         # EMAIL=${{ steps.retrieveimagetag.outputs.EMAIL }}
