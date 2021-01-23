@@ -54,8 +54,8 @@ runs:
       #description: 'pulls the email of the user that is currently running the action'
       run: |
         EMAIL=$(curl -H "Accept: application/vnd.github.v3+json" \
-                -H "Authorization: token ${{ inputs:GHCR_TOKEN }}" \
-                https://api.github.com/users/${{ inputs:GHCR_USER }}| jq '.email')
+                -H "Authorization: token ${{ inputs.GHCR_TOKEN }}" \
+                https://api.github.com/users/${{ inputs.GHCR_USER }}| jq '.email')
         echo ::set-output name=EMAIL::${EMAIL}
     
     - name: 'Get docker image registry'
