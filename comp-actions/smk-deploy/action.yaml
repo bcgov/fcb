@@ -61,16 +61,16 @@ runs:
                 https://api.github.com/users/${{ inputs.GHCR_USER }}| jq '.email')
         echo ::set-output name=EMAIL::${EMAIL}
     
-    # - name: 'Get docker image registry'
-    #   id: getDockerRegistry
-    #   shell: bash
-    #   run: |
-    #         # the path to the image registry
-    #     # ---------------------------------------------------------
-    #     REPONAME=${{ steps.getRepo.outputs.REPONAME }}
-    #     echo repo $REPONAME
-    #     #IMAGE_REGISTRY=${{ inputs.DOCKER_REGISTRY }}/${{ github.repository }}/$REPONAME/$REPONAME
-    #     #echo ::set-output name=IMAGE_REGISTRY::${IMAGE_REGISTRY}
+    - name: 'Get docker image registry'
+      id: getDockerRegistry
+      shell: bash
+      run: |
+            # the path to the image registry
+        # ---------------------------------------------------------
+        REPO=${{ steps.getRepo.outputs.REPONAME }}
+        echo repo $REPO
+        IMAGE_REGISTRY=${{ inputs.DOCKER_REGISTRY }}/${{ github.repository_owner }}/$REPO/$REPO
+        echo ::set-output name=IMAGE_REGISTRY::${IMAGE_REGISTRY}
 
     # - name: 'Get docker image tag'
     #   id: getDockerImageTag
