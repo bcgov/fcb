@@ -65,7 +65,7 @@ runs:
       id: getDockerRegistry
       shell: bash
       run: |
-            # the path to the image registry
+        # the path to the image registry
         # ---------------------------------------------------------
         REPO=${{ steps.getRepo.outputs.REPONAME }}
         echo repo $REPO
