@@ -13,6 +13,9 @@ inputs:
   GHCR_TOKEN:
     description: 'the github token, for the user above, again used to push images to github packages'
     required: true
+  DOCKER_REGISTRY:
+    description: 'the docker registry where the image will be pulled from'
+    required: true
 outputs:
   random-number: 
     description: "Random number"
@@ -30,7 +33,8 @@ runs:
         echo REPO $REPO
 
         DATESTAMP=$(date +%Y%m%d-%H%M)
-        REGISTRY="docker.pkg.github.com"
+        #REGISTRY="docker.pkg.github.com"
+        REGISTRY=${{ inputs.DOCKER_REGISTRY }}
         repolowercase=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
         IMAGE="${REGISTRY}/$repolowercase/$REPO"
         TAGS="${IMAGE}:${DATESTAMP}"
@@ -98,7 +102,7 @@ runs:
 
         #DOCKER_IMAGE_PATH=docker.pkg.github.com/$GITHUBOWNER-REPO/$GITHHUBREPO:
 
-        echo ${{ inputs.GHCR_TOKEN }} | docker login https://docker.pkg.github.com -u ${{ inputs.GHCR_USER }} --password-stdin
+        echo ${{ inputs.GHCR_TOKEN }} | docker login https://${{ ${{ inputs.DOCKER_REGISTRY }} }} -u ${{ inputs.GHCR_USER }} --password-stdin
         docker build -t $DOCKER_REPO .
         docker push $DOCKER_REPO
       
