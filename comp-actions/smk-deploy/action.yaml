@@ -82,28 +82,28 @@ runs:
         echo ::set-output name=DOCKER_VERSION_TAG::${IMAGE_TAG}
         echo image tag $IMAGE_TAG
 
-    # - name: 'Get openshift namespace'
-    #   id: getOcNamespace
-    #   shell: bash
-    #   run: |
-    #     OC_NAMESPACE_NAMES_CONFIG_MAP=namespaces-cm
-    #     OCDEVNAMESPACE=$(oc get configmap $OC_NAMESPACE_NAMES_CONFIG_MAP  -o json | jq .data.dev | tr -d '"')
-    #     echo namespace $OCDEVNAMESPACE
+    - name: 'Get openshift namespace'
+      id: getOcNamespace
+      shell: bash
+      run: |
+        OC_NAMESPACE_NAMES_CONFIG_MAP=namespaces-cm
+        OCDEVNAMESPACE=$(oc get configmap $OC_NAMESPACE_NAMES_CONFIG_MAP  -o json | jq .data.dev | tr -d '"')
+        echo namespace $OCDEVNAMESPACE
 
-    #     oc project $OCDEVNAMESPACE
-    #     project=$(oc project --short=true)
-    #     if [ "$project" != "$OCDEVNAMESPACE" ]
-    #       then 
-    #           exit 1
-    #     fi
-    #     prodlength=$( expr length ${{ inputs:OPENSHIFT_TOKEN_PRD }})
-    #     echo prod length -${{ inputs:OPENSHIFT_TOKEN_PRD }}
-    #     if [ $prodlength -eq 0 ]
-    #     then
-    #       echo 'dev deploy'
-    #     else
-    #       echo 'prod deploy'
-    #     fi
+        oc project $OCDEVNAMESPACE
+        project=$(oc project --short=true)
+        if [ "$project" != "$OCDEVNAMESPACE" ]
+          then 
+              exit 1
+        fi
+        prodlength=$( expr length ${{ inputs.OPENSHIFT_TOKEN_PRD }})
+        echo prod length $prodlength
+        if [ $prodlength -eq 0 ]
+        then
+          echo 'dev deploy'
+        else
+          echo 'prod deploy'
+        fi
         
     # - name: 'Get openshift namespace'
     #   id: getOcNamespace
