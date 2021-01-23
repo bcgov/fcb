@@ -28,8 +28,8 @@ inputs:
 runs:
   using: "composite"
   steps: 
-    - id: oc-login
-      name: Openshift Login
+    - name: Openshift Login
+      id: oc-login
       shell: bash
       run: |
         echo ----- OC-LOGIN -----
@@ -122,6 +122,8 @@ runs:
         ISSUE_URL=$(oc get configmap $ISSUE_CONFIGMAP_NAME  -o json | jq .data.$CONFMAPISSUEURLKEY)
         echo ISSUE_URL $ISSUE_URL
         echo ::set-output name=ISSUE_URL::${ISSUE_URL}
+
+        
 
 
     
