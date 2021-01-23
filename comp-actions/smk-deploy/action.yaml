@@ -45,7 +45,9 @@ runs:
       shell: bash
       #description: 'returns the repo with only the repo name, ie no org attached'
       run: |
+        echo git repo ${{ github.repository }}
         repo=$(python3 $GITHUB_ACTION_PATH/getRepo.py =${{ github.repository }})
+        echo repo is $repo
         echo ::set-output name=REPONAME::${repo}
 
     - name: 'Get github user email'
