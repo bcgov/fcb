@@ -97,9 +97,12 @@ runs:
               echo exiting
               exit 1
         fi
-        prodlength=$( expr length ${{ inputs.OPENSHIFT_TOKEN_PRD }})
+        echo got here
+        echo prod token: ${{ inputs.OPENSHIFT_TOKEN_PRD }}
+        prodToken=${{ inputs.OPENSHIFT_TOKEN_PRD }}
+        prodlength=$( expr length $prodToken)
         echo prod length $prodlength
-        if [ $prodlength -eq 0 ]
+        if [ "$prodlength" -eq "0" ]
           then
             echo 'dev deploy'
           else
