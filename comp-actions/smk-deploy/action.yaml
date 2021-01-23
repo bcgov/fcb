@@ -1,0 +1,212 @@
+name: 'SMK Deploy'
+description: 'Deploys SMK docker image to openshift'
+inputs:
+  OPENSHIFT_SERVER_URL:
+    description: 'The url to the openshift instance, build process caches info in oc configmaps'
+    required: true
+  OPENSHIFT_TOKEN_DEV:
+    description: 'The openshift token for the service account access to the dev namespace'
+    required: true
+  OPENSHIFT_TOKEN_PRD:
+    description: 'The openshift token for the service account access to the prod namespace if provided then the deployment is determined to be prod.  You still need to provide the dev token however as information like the image to be deployed are stored in that repository'
+    required: false
+  GHCR_USER:
+    description: 'The github user, required to push docker image to repository packages'
+    required: true
+  GHCR_TOKEN:
+    description: 'the github token, for the user above, again used to push images to github packages'
+    required: true
+  DOCKER_REGISTRY:
+    description: 'the docker registry where the image will be pulled from'
+    required: true    
+  PR_REVIEWERS:
+    description: 'a json list of user names who will get review requests when code associated with a pr has been built and deployed'
+    required: true
+  PR_MENTIONS:
+    description: 'people who should be notified when a dev deployment has been completed'
+    required: true
+runs:
+  using: "composite"
+  steps: 
+    - name: Openshift Login
+      id: oc-login
+      shell: bash
+      run: |
+        echo ----- OC-LOGIN -----
+        # get oc client
+        curl https://downloads-openshift-console.apps.silver.devops.gov.bc.ca/amd64/linux/oc.tar -o oc.tar
+        tar -xvf oc.tar
+        curdir=$(pwd)
+        PATH=$curdir:$PATH
+        oc login --token=${{ inputs.OPENSHIFT_TOKEN_DEV }} --server=${{ inputs.OPENSHIFT_SERVER_URL }}
+
+    - name: 'Get github repo'
+      id: getRepo
+      shell: bash
+      #description: 'returns the repo with only the repo name, ie no org attached'
+      run: |
+        echo git repo ${{ github.repository }}
+        repo=$(python3 $GITHUB_ACTION_PATH/getRepo.py =${{ github.repository }})
+        echo repo is $repo
+        echo ::set-output name=REPONAME::${repo}
+
+    - name: 'Get github user email'
+      id: getGithubEmail
+      shell: bash
+      #description: 'pulls the email of the user that is currently running the action'
+      run: |
+        echo repo is ${{ steps.getRepo.outputs.REPONAME }}
+        EMAIL=$(curl -H "Accept: application/vnd.github.v3+json" \
+                -H "Authorization: token ${{ inputs.GHCR_TOKEN }}" \
+                https://api.github.com/users/${{ inputs.GHCR_USER }}| jq '.email')
+        echo ::set-output name=EMAIL::${EMAIL}
+    
+    - name: 'Get docker image registry'
+      id: getDockerRegistry
+      shell: bash
+      run: |
+        # the path to the image registry
+        # ---------------------------------------------------------
+        IMAGE_REGISTRY=${{ inputs.DOCKER_REGISTRY }}/${{ github.repository_owner }}/${{ steps.getRepo.outputs.REPONAME }}/${{ steps.getRepo.outputs.REPONAME }}
+        echo IMAGE_REGISTRY $IMAGE_REGISTRY
+        echo ::set-output name=IMAGE_REGISTRY::${IMAGE_REGISTRY}
+
+    - name: 'Get docker image tag'
+      id: getDockerImageTag
+      shell: bash
+      run: |
+        IMAGE_TAG_CONFMAP_NAME=${{ steps.getRepo.outputs.REPONAME }}-imagetag-cm
+        CONFMAPIMAGETAG=current_image_tag
+        echo image name $IMAGE_TAG_CONFMAP_NAME
+        IMAGE_TAG=$(oc get configmap $IMAGE_TAG_CONFMAP_NAME  -o json | jq .data.$CONFMAPIMAGETAG)
+        echo ::set-output name=DOCKER_VERSION_TAG::${IMAGE_TAG}
+        echo image tag $IMAGE_TAG
+
+    - name: 'Get openshift namespace'
+      id: getOcNamespace
+      shell: bash
+      run: |
+        OC_NAMESPACE_NAMES_CONFIG_MAP=namespaces-cm
+        OCDEVNAMESPACE=$(oc get configmap $OC_NAMESPACE_NAMES_CONFIG_MAP  -o json | jq .data.dev | tr -d '"')
+        echo namespace $OCDEVNAMESPACE
+
+        oc project $OCDEVNAMESPACE
+        project=$(oc project --short=true)
+        if [ "$project" != "$OCDEVNAMESPACE" ]
+          then
+              echo exiting
+              exit 1
+        fi
+        echo got here
+        echo prod token: ${{ inputs.OPENSHIFT_TOKEN_PRD }}
+        prodToken=$(echo ${{ inputs.OPENSHIFT_TOKEN_PRD }})
+        echo param set
+        #prodlength=$( expr length $prodToken )
+        prodlength=${#prodToken}
+        echo prod length $prodlength
+
+        if [ "$prodlength" -eq 0 ]
+          then
+            echo 'dev deploy'
+          else
+            echo 'prod deploy'
+        fi
+        
+    - name: 'Get issue url'
+      id: getIssueUrl
+      shell: bash
+      run: |
+        #REPONAME=${{ steps.getRepo.outputs.REPONAME }}
+        CONFMAPISSUEURLKEY=issueURL
+        ISSUE_CONFIGMAP_NAME=${{ steps.getRepo.outputs.REPONAME }}-gh-issues-cm
+        echo configmap name $ISSUE_CONFIGMAP_NAME
+        ISSUE_URL=$(oc get configmap $ISSUE_CONFIGMAP_NAME  -o json | jq .data.$CONFMAPISSUEURLKEY)
+        echo ISSUE_URL $ISSUE_URL
+        echo ::set-output name=ISSUE_URL::${ISSUE_URL}
+
+    - name: Deploy Helm chart
+      id: deployHelm
+      shell: bash
+      run: |
+        # -- retrieving variables calculated in previous steps
+        # EMAIL=${{ steps.retrieveimagetag.outputs.EMAIL }}
+        # DOCKER_VERSION_TAG=${{ steps.getDockerImageTag.outputs.DOCKER_VERSION_TAG }}
+        # IMAGE_REGISTRY=${{ steps.getDockerRegistry.outputs.IMAGE_REGISTRY }}
+        # REPONAME=${{ steps.getRepo.outputs.REPONAME }}
+
+        IMAGE_PULL_SECRET_NAME=${{ steps.getRepo.outputs.REPONAME }}-image-pull-secret
+        echo IMAGE_PULL_SECRET_NAME $IMAGE_PULL_SECRET_NAME
+
+        # -- debug-- verify the variables have been retrieved and have the values expected
+        echo EMAIL ${{ steps.getGithubEmail.outputs.EMAIL }}
+        echo REPONAME ${{ steps.getRepo.outputs.REPONAME }}
+        echo DOCKER_VERSION_TAG ${{ steps.getDockerImageTag.outputs.DOCKER_VERSION_TAG }}
+        echo IMAGE_REGISTRY ${{ steps.getDockerRegistry.outputs.IMAGE_REGISTRY }}
+
+        # potential issue:
+        #  - helm chart creates the image pull secret
+        #  - tries to use it with the service account
+        #  - service account hasn't been granted access
+        helm repo add smk-helms https://bcgov.github.io/smk-helms/
+        helm upgrade ${{ steps.getRepo.outputs.REPONAME }} smk-helms/smk-app-deploy --install \
+           --set app_name=${{ steps.getRepo.outputs.REPONAME }} \
+           --set env=dev \
+           --set app_image_pull_secret_params.email=${{ steps.getGithubEmail.outputs.EMAIL }} \
+           --set app_image_pull_secret_params.password=$GHCR_TOKEN \
+           --set app_image_pull_secret_params.name=$IMAGE_PULL_SECRET_NAME \
+           --set app_image_pull_secret_params.imagetag=${{ steps.getDockerImageTag.outputs.DOCKER_VERSION_TAG }} \
+           --set app_image_pull_secret_params.registry=${{ steps.getDockerRegistry.outputs.IMAGE_REGISTRY }}
+
+        # verify / report on the image tag that was deployed
+        IMAGE_DEPLOYED=$(oc get dc ${{ steps.getRepo.outputs.REPONAME }}-dc -o json | jq '.spec.template.spec.containers[0].image' | tr -d '"' )
+        echo IMAGE_DEPLOYED $IMAGE_DEPLOYED
+        IMAGE_DEPLOYED_TAG=$(echo ${IMAGE_DEPLOYED} | cut -d':' -f2)
+        echo IMAGE_DEPLOYED_TAG $IMAGE_DEPLOYED_TAG
+
+        # finally need to grant the service account access to the the 
+        # image_pull_secret that was just created
+        serviceAccountName=$(oc whoami | cut -d':' -f4)
+        oc patch serviceaccount $serviceAccountName -p '{"imagePullSecrets": [{"name": "'$IMAGE_PULL_SECRET_NAME'"}]}'
+
+
+    # # ADD THE ROUTE TO THE ISSUE
+    - name: Update issue
+      id: updateissue
+      shell: bash
+      run: |
+        
+        # THIS SHOULD ONLY RUN IF THE PROD TOKEN IS NULL
+        JUNK=test
+
+        # retrieve the route url
+        # ---------------------------------------------------------
+        oc_route_name=${{ steps.getRepo.outputs.REPONAME }}-rt
+        GITHUB_ISSUES_CONFIGMAP=${{ steps.getRepo.outputs.REPONAME }}-gh-issues-cm
+        ROUTEPATH=$(oc get route $oc_route_name -o json | jq .spec.host | tr -d '"' )
+        ROUTEURL=https://$ROUTEPATH
+
+        # get the github issue url from the configmap
+        # ---------------------------------------------------------
+        #echo the GITHUB_EVENT_PATH
+        #cat $GITHUB_EVENT_PATH
+        ISSUE_URL=$(oc get configmap $GITHUB_ISSUES_CONFIGMAP -o json | jq .data.issueURL | tr -d '"')
+        echo ISSUE_URL $ISSUE_URL
+
+        #format reviewers
+        MENTION_STRING=$(echo ${{inputs.PR_MENTIONS}} | jq -rc 'map("@" + .) | .[]' | tr '\n' ',' | sed 's/, */, /g' |  sed 's/, *$//g')
+
+        # ADD COMMENT TO THE ISSUE
+        echo 'adding route to the comment for the issue'
+        ISSUE_COMMENT="link to demo deployment of your smk based app is \n https://$ROUTEPATH\n\nVerify that it looks good, if so merge the pull request which will trigger a prod deployment, otherwise close the pull request without merging\n\n mentions / notifications: $MENTION_STRING"
+        ISSUE_BODY='{"body": "'$ISSUE_COMMENT'"}'
+
+        curl $ISSUE_URL -X POST --header "Authorization: Bearer ${{ inputs.GHCR_TOKEN }}" \
+          --header "Accept: application/vnd.github.v3+json" \
+          --data-raw "$ISSUE_BODY"
+        
+        echo ::set-output name=ISSUE_URL::${ISSUE_URL}
+
+
+
+
+

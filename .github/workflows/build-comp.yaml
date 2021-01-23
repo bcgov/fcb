@@ -1,0 +1,59 @@
+name: smk-build
+
+on:
+  push:
+
+jobs:
+  # This workflow contains a single job called "build"
+  buildjob:
+    defaults:
+      run:
+        shell: bash
+
+    name: 'Build BCDC-SMK container image'
+    # The type of runner that the job will run on
+    runs-on: ubuntu-18.04
+    env:
+      OPENSHIFT_SERVER_URL: ${{secrets.OPENSHIFT_SERVER_URL}}
+      OPENSHIFT_TOKEN_DEV: ${{secrets.OPENSHIFT_TOKEN_DEV}}
+      GHCR_USER: ${{ secrets.GHCR_USER }}
+      GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+      DEBUG_DEPLOY: false
+      
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+      if: env.DEBUG_DEPLOY == 'false'
+      id: checkout
+      with:
+        fetch-depth: 0
+
+    # - uses: bcgov/smk-actions/smk-build@main
+    - uses: ./comp-actions/smk-build
+      id: buildSMKContainer
+      with:
+        OPENSHIFT_SERVER_URL: ${{ secrets.OPENSHIFT_SERVER_URL }}
+        OPENSHIFT_TOKEN_DEV: ${{ secrets.OPENSHIFT_TOKEN_DEV }}
+        GHCR_USER: ${{ secrets.GHCR_USER }}
+        GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+        DOCKER_REGISTRY: 'docker.pkg.github.com'
+
+
+    # if you provide the prod api key then deploy is to prod
+    # if not its to dev.
+    # prod deploys need dev AND prod token.
+    - uses: ./comp-actions/smk-deploy
+      id: deploySMKContainer
+      with:
+        OPENSHIFT_SERVER_URL: ${{ secrets.OPENSHIFT_SERVER_URL }}
+        OPENSHIFT_TOKEN_DEV: ${{ secrets.OPENSHIFT_TOKEN_DEV }}
+        GHCR_USER: ${{ secrets.GHCR_USER }}
+        GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+        DOCKER_REGISTRY: 'docker.pkg.github.com'
+        PR_REVIEWERS: '["GuyTheFlower", "NicoledeGreef"]'
+        PR_MENTIONS: '["GuyTheFlower", "NicoledeGreef", "franTarkenton"]'
+
+
+
+
+
