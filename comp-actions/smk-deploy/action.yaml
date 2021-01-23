@@ -106,8 +106,8 @@ runs:
             echo 'prod deploy'
         fi
         
-    - name: 'Get openshift namespace'
-      id: getOcNamespace
+    - name: 'Get issue url'
+      id: getIssueUrl
       shell: bash
       run: |
         #REPONAME=${{ steps.getRepo.outputs.REPONAME }}
