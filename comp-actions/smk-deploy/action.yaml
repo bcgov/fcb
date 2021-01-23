@@ -40,23 +40,23 @@ runs:
         PATH=$curdir:$PATH
         oc login --token=${{ inputs.OPENSHIFT_TOKEN_DEV }} --server=${{ inputs.OPENSHIFT_SERVER_URL }}
 
-    - name: Get github repo
+    - name: 'Get github repo'
       id: getRepo
-      description: returns the repo with only the repo name, ie no org attached
+      description: 'returns the repo with only the repo name, ie no org attached'
       run: |
         repo=$(python3 $GITHUB_ACTION_PATH/getRepo.py =${{ github.repository }})
         echo ::set-output name=REPONAME::${repo}
 
-    - name: Get github user email
+    - name: 'Get github user email'
       id: getGithubEmail
-      description: pulls the email of the user that is currently running the action
+      description: 'pulls the email of the user that is currently running the action'
       run: |
         EMAIL=$(curl -H "Accept: application/vnd.github.v3+json" \
                 -H "Authorization: token ${{ inputs:GHCR_TOKEN }}" \
                 https://api.github.com/users/${{ inputs:GHCR_USER }}| jq '.email')
         echo ::set-output name=EMAIL::${EMAIL}
     
-    - name: Get docker image registry
+    - name: 'Get docker image registry'
       id: getDockerRegistry
       shell: bash
       run: |
@@ -66,7 +66,7 @@ runs:
         IMAGE_REGISTRY=${{ inputs.DOCKER_REGISTRY }}/${{ github.repository_owner }}/$REPONAME/$REPONAME
         echo ::set-output name=IMAGE_REGISTRY::${IMAGE_REGISTRY}
 
-    - name: Get docker image tag
+    - name: 'Get docker image tag'
       id: getDockerImageTag
       shell: bash
       run: |
@@ -77,7 +77,7 @@ runs:
         echo ::set-output name=DOCKER_VERSION_TAG::${IMAGE_TAG}
         echo image tag $IMAGE_TAG
 
-    - name: Get openshift namespace
+    - name: 'Get openshift namespace'
       id: getOcNamespace
       shell: bash
       run: |
@@ -100,7 +100,7 @@ runs:
           echo 'prod deploy'
         fi
         
-    - name: Get openshift namespace
+    - name: 'Get openshift namespace'
       id: getOcNamespace
       shell: bash
       run: |
