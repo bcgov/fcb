@@ -12,7 +12,7 @@ jobs:
 
     name: 'Build BCDC-SMK container image'
     # The type of runner that the job will run on
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     env:
       OPENSHIFT_SERVER_URL: ${{secrets.OPENSHIFT_SERVER_URL}}
       OPENSHIFT_TOKEN_DEV: ${{secrets.OPENSHIFT_TOKEN_DEV}}
