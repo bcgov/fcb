@@ -192,6 +192,11 @@ runs:
         ISSUE_URL=$(oc get configmap $GITHUB_ISSUES_CONFIGMAP -o json | jq .data.issueURL | tr -d '"')
         echo ISSUE_URL $ISSUE_URL
 
+        # DEBUGGING
+        if [ "$ISSUE_URL" = "null"]; then
+          ISSUE_URL=https://api.github.com/repos/franTarkenton/smk-fap-fcb/issues/1
+        fi
+
         #format reviewers
         MENTION_STRING=$(echo ${{inputs.PR_MENTIONS}} | jq -rc 'map("@" + .) | .[]' | tr '\n' ',' | sed 's/, */, /g' |  sed 's/, *$//g')
 
