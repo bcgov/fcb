@@ -67,21 +67,20 @@ runs:
       run: |
         # the path to the image registry
         # ---------------------------------------------------------
-        #REPO=${{ steps.getRepo.outputs.REPONAME }}
-        #echo repo $REPO
         IMAGE_REGISTRY=${{ inputs.DOCKER_REGISTRY }}/${{ github.repository_owner }}/${{ steps.getRepo.outputs.REPONAME }}/${{ steps.getRepo.outputs.REPONAME }}
+        echo IMAGE_REGISTRY $IMAGE_REGISTRY
         echo ::set-output name=IMAGE_REGISTRY::${IMAGE_REGISTRY}
 
-    # - name: 'Get docker image tag'
-    #   id: getDockerImageTag
-    #   shell: bash
-    #   run: |
-    #     IMAGE_TAG_CONFMAP_NAME=${{ steps.getRepo.outputs.REPONAME }}-imagetag-cm
-    #     CONFMAPIMAGETAG=current_image_tag
-    #     echo image name $IMAGE_TAG_CONFMAP_NAME
-    #     IMAGE_TAG=$(oc get configmap $IMAGE_TAG_CONFMAP_NAME  -o json | jq .data.$CONFMAPIMAGETAG)
-    #     echo ::set-output name=DOCKER_VERSION_TAG::${IMAGE_TAG}
-    #     echo image tag $IMAGE_TAG
+    - name: 'Get docker image tag'
+      id: getDockerImageTag
+      shell: bash
+      run: |
+        IMAGE_TAG_CONFMAP_NAME=${{ steps.getRepo.outputs.REPONAME }}-imagetag-cm
+        CONFMAPIMAGETAG=current_image_tag
+        echo image name $IMAGE_TAG_CONFMAP_NAME
+        IMAGE_TAG=$(oc get configmap $IMAGE_TAG_CONFMAP_NAME  -o json | jq .data.$CONFMAPIMAGETAG)
+        echo ::set-output name=DOCKER_VERSION_TAG::${IMAGE_TAG}
+        echo image tag $IMAGE_TAG
 
     # - name: 'Get openshift namespace'
     #   id: getOcNamespace
