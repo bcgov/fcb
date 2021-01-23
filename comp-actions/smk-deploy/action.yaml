@@ -99,10 +99,10 @@ runs:
         prodlength=$( expr length ${{ inputs.OPENSHIFT_TOKEN_PRD }})
         echo prod length $prodlength
         if [ $prodlength -eq 0 ]
-        then
-          echo 'dev deploy'
-        else
-          echo 'prod deploy'
+          then
+            echo 'dev deploy'
+          else
+            echo 'prod deploy'
         fi
         
     # - name: 'Get openshift namespace'
