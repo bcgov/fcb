@@ -175,7 +175,7 @@ runs:
       shell: bash
       run: |
         
-        # THIS
+        # THIS SHOULD ONLY RUN IF THE PROD TOKEN IS NULL
         JUNK=test
 
         # retrieve the route url

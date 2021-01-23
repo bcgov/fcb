@@ -38,6 +38,10 @@ jobs:
         GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
         DOCKER_REGISTRY: 'docker.pkg.github.com'
 
+
+    # if you provide the prod api key then deploy is to prod
+    # if not its to dev.
+    # prod deploys need dev AND prod token.
     - uses: ./comp-actions/smk-deploy
       id: deploySMKContainer
       with:
