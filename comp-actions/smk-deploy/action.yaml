@@ -99,8 +99,8 @@ runs:
         fi
         echo got here
         echo prod token: ${{ inputs.OPENSHIFT_TOKEN_PRD }}
-        prodToken=${{ inputs.OPENSHIFT_TOKEN_PRD }}
-        prodlength=$( expr length $prodToken)
+        #prodToken=${{ inputs.OPENSHIFT_TOKEN_PRD }}
+        prodlength=$( expr length ${{ inputs.OPENSHIFT_TOKEN_PRD }} )
         echo prod length $prodlength
         if [ "$prodlength" -eq "0" ]
           then
