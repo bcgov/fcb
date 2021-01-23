@@ -130,36 +130,36 @@ runs:
       if: env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != '' && env.GHCR_USER != '' && env.GHCR_TOKEN != ''
       run: |
         # -- retrieving variables calculated in previous steps
-        EMAIL=${{ steps.retrieveimagetag.outputs.EMAIL }}
-        DOCKER_VERSION_TAG=${{ steps.retrieveimagetag.outputs.DOCKER_VERSION_TAG }}
-        IMAGE_REGISTRY=${{ steps.retrieveimagetag.outputs.IMAGE_REGISTRY }}
-        REPONAME=${{ steps.retrieveimagetag.outputs.REPONAME }}
+        # EMAIL=${{ steps.retrieveimagetag.outputs.EMAIL }}
+        # DOCKER_VERSION_TAG=${{ steps.getDockerImageTag.outputs.DOCKER_VERSION_TAG }}
+        # IMAGE_REGISTRY=${{ steps.getDockerRegistry.outputs.IMAGE_REGISTRY }}
+        # REPONAME=${{ steps.getRepo.outputs.REPONAME }}
 
-        IMAGE_PULL_SECRET_NAME=${{ steps.retrieveimagetag.outputs.REPONAME }}-image-pull-secret
+        IMAGE_PULL_SECRET_NAME=${{ steps.getRepo.outputs.REPONAME }}-image-pull-secret
+        echo IMAGE_PULL_SECRET_NAME $IMAGE_PULL_SECRET_NAME
 
         # -- debug-- verify the variables have been retrieved and have the values expected
         echo EMAIL ${{ steps.getGithubEmail.outputs.EMAIL }}
-        echo REPONAME $REPONAME
-        echo DOCKER_VERSION_TAG $DOCKER_VERSION_TAG
-        echo IMAGE_REGISTRY $IMAGE_REGISTRY
+        echo REPONAME ${{ steps.getRepo.outputs.REPONAME }}
+        echo DOCKER_VERSION_TAG ${{ steps.getDockerImageTag.outputs.DOCKER_VERSION_TAG }}
+        echo IMAGE_REGISTRY ${{ steps.getDockerRegistry.outputs.IMAGE_REGISTRY }}
 
         # potential issue:
         #  - helm chart creates the image pull secret
         #  - tries to use it with the service account
         #  - service account hasn't been granted access
-        #  helm upgrade $REPONAME ./helm-charts --install \
         helm repo add smk-helms https://bcgov.github.io/smk-helms/
-        helm upgrade $REPONAME smk-helms/smk-app-deploy --install \
-           --set app_name=$REPONAME \
+        helm upgrade ${{ steps.getRepo.outputs.REPONAME }} smk-helms/smk-app-deploy --install \
+           --set app_name=${{ steps.getRepo.outputs.REPONAME }} \
            --set env=dev \
            --set app_image_pull_secret_params.email=${{ steps.getGithubEmail.outputs.EMAIL }} \
            --set app_image_pull_secret_params.password=$GHCR_TOKEN \
            --set app_image_pull_secret_params.name=$IMAGE_PULL_SECRET_NAME \
-           --set app_image_pull_secret_params.imagetag=$DOCKER_VERSION_TAG \
-           --set app_image_pull_secret_params.registry=$IMAGE_REGISTRY
+           --set app_image_pull_secret_params.imagetag=${{ steps.getDockerImageTag.outputs.DOCKER_VERSION_TAG }} \
+           --set app_image_pull_secret_params.registry=${{ steps.getDockerRegistry.outputs.IMAGE_REGISTRY }}
 
         # verify / report on the image tag that was deployed
-        IMAGE_DEPLOYED=$(oc get dc smk-fap-fcb-dc -o json | jq '.spec.template.spec.containers[0].image' | tr -d '"' )
+        IMAGE_DEPLOYED=$(oc get dc ${{ steps.getRepo.outputs.REPONAME }}-dc -o json | jq '.spec.template.spec.containers[0].image' | tr -d '"' )
         echo IMAGE_DEPLOYED $IMAGE_DEPLOYED
         IMAGE_DEPLOYED_TAG=$(echo ${IMAGE_DEPLOYED} | cut -d':' -f2)
         echo IMAGE_DEPLOYED_TAG $IMAGE_DEPLOYED_TAG
