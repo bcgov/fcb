@@ -101,9 +101,10 @@ runs:
         echo prod token: ${{ inputs.OPENSHIFT_TOKEN_PRD }}
         prodToken=$(echo ${{ inputs.OPENSHIFT_TOKEN_PRD }})
         echo param set
-        prodlength=$( expr length ${{ inputs.OPENSHIFT_TOKEN_PRD }} )
+        prodlength=$( expr length $prodToken )
         echo prod length $prodlength
-        if [ "$prodlength" -eq "0" ]
+
+        if [ "$prodlength" -eq 0 ]
           then
             echo 'dev deploy'
           else
