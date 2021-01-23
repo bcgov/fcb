@@ -67,9 +67,9 @@ runs:
       run: |
         # the path to the image registry
         # ---------------------------------------------------------
-        REPO=${{ steps.getRepo.outputs.REPONAME }}
-        echo repo $REPO
-        IMAGE_REGISTRY=${{ inputs.DOCKER_REGISTRY }}/${{ github.repository_owner }}/$REPO/$REPO
+        #REPO=${{ steps.getRepo.outputs.REPONAME }}
+        #echo repo $REPO
+        IMAGE_REGISTRY=${{ inputs.DOCKER_REGISTRY }}/${{ github.repository_owner }}/${{ steps.getRepo.outputs.REPONAME }}/${{ steps.getRepo.outputs.REPONAME }}
         echo ::set-output name=IMAGE_REGISTRY::${IMAGE_REGISTRY}
 
     # - name: 'Get docker image tag'
