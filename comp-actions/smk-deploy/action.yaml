@@ -42,6 +42,7 @@ runs:
 
     - name: 'Get github repo'
       id: getRepo
+      shell: bash
       #description: 'returns the repo with only the repo name, ie no org attached'
       run: |
         repo=$(python3 $GITHUB_ACTION_PATH/getRepo.py =${{ github.repository }})
@@ -49,6 +50,7 @@ runs:
 
     - name: 'Get github user email'
       id: getGithubEmail
+      shell: bash
       #description: 'pulls the email of the user that is currently running the action'
       run: |
         EMAIL=$(curl -H "Accept: application/vnd.github.v3+json" \
