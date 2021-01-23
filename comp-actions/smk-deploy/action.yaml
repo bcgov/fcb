@@ -42,14 +42,14 @@ runs:
 
     - name: 'Get github repo'
       id: getRepo
-      description: 'returns the repo with only the repo name, ie no org attached'
+      #description: 'returns the repo with only the repo name, ie no org attached'
       run: |
         repo=$(python3 $GITHUB_ACTION_PATH/getRepo.py =${{ github.repository }})
         echo ::set-output name=REPONAME::${repo}
 
     - name: 'Get github user email'
       id: getGithubEmail
-      description: 'pulls the email of the user that is currently running the action'
+      #description: 'pulls the email of the user that is currently running the action'
       run: |
         EMAIL=$(curl -H "Accept: application/vnd.github.v3+json" \
                 -H "Authorization: token ${{ inputs:GHCR_TOKEN }}" \
