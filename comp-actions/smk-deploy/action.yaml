@@ -28,90 +28,90 @@ inputs:
 runs:
   using: "composite"
   steps: 
-  - id: oc-login
-    name: Openshift Login
-    shell: bash
-    run: |
-      echo ----- OC-LOGIN -----
-      # get oc client
-      curl https://downloads-openshift-console.apps.silver.devops.gov.bc.ca/amd64/linux/oc.tar -o oc.tar
-      tar -xvf oc.tar
-      curdir=$(pwd)
-      PATH=$curdir:$PATH
-      oc login --token=${{ inputs.OPENSHIFT_TOKEN_DEV }} --server=${{ inputs.OPENSHIFT_SERVER_URL }}
+    - id: oc-login
+      name: Openshift Login
+      shell: bash
+      run: |
+        echo ----- OC-LOGIN -----
+        # get oc client
+        curl https://downloads-openshift-console.apps.silver.devops.gov.bc.ca/amd64/linux/oc.tar -o oc.tar
+        tar -xvf oc.tar
+        curdir=$(pwd)
+        PATH=$curdir:$PATH
+        oc login --token=${{ inputs.OPENSHIFT_TOKEN_DEV }} --server=${{ inputs.OPENSHIFT_SERVER_URL }}
 
-  - name: Get github repo
-    id: getRepo
-    description: returns the repo with only the repo name, ie no org attached
-    run: |
-      repo=$(python3 $GITHUB_ACTION_PATH/getRepo.py =${{ github.repository }})
-      echo ::set-output name=REPONAME::${repo}
+    - name: Get github repo
+      id: getRepo
+      description: returns the repo with only the repo name, ie no org attached
+      run: |
+        repo=$(python3 $GITHUB_ACTION_PATH/getRepo.py =${{ github.repository }})
+        echo ::set-output name=REPONAME::${repo}
 
-  - name: Get github user email
-    id: getGithubEmail
-    description: pulls the email of the user that is currently running the action
-    run: |
-      EMAIL=$(curl -H "Accept: application/vnd.github.v3+json" \
-              -H "Authorization: token ${{ inputs:GHCR_TOKEN }}" \
-              https://api.github.com/users/${{ inputs:GHCR_USER }}| jq '.email')
-      echo ::set-output name=EMAIL::${EMAIL}
-  
-  - name: Get docker image registry
-    id: getDockerRegistry
-    shell: bash
-    run: |
-          # the path to the image registry
-      # ---------------------------------------------------------
-      REPONAME=${{ steps.getRepo.outputs.REPONAME }}
-      IMAGE_REGISTRY=${{ inputs.DOCKER_REGISTRY }}/${{ github.repository_owner }}/$REPONAME/$REPONAME
-      echo ::set-output name=IMAGE_REGISTRY::${IMAGE_REGISTRY}
+    - name: Get github user email
+      id: getGithubEmail
+      description: pulls the email of the user that is currently running the action
+      run: |
+        EMAIL=$(curl -H "Accept: application/vnd.github.v3+json" \
+                -H "Authorization: token ${{ inputs:GHCR_TOKEN }}" \
+                https://api.github.com/users/${{ inputs:GHCR_USER }}| jq '.email')
+        echo ::set-output name=EMAIL::${EMAIL}
+    
+    - name: Get docker image registry
+      id: getDockerRegistry
+      shell: bash
+      run: |
+            # the path to the image registry
+        # ---------------------------------------------------------
+        REPONAME=${{ steps.getRepo.outputs.REPONAME }}
+        IMAGE_REGISTRY=${{ inputs.DOCKER_REGISTRY }}/${{ github.repository_owner }}/$REPONAME/$REPONAME
+        echo ::set-output name=IMAGE_REGISTRY::${IMAGE_REGISTRY}
 
-  - name: Get docker image tag
-    id: getDockerImageTag
-    shell: bash
-    run: |
-      IMAGE_TAG_CONFMAP_NAME=${{ steps.getRepo.outputs.REPONAME }}-imagetag-cm
-      CONFMAPIMAGETAG=current_image_tag
-      echo image name $IMAGE_TAG_CONFMAP_NAME
-      IMAGE_TAG=$(oc get configmap $IMAGE_TAG_CONFMAP_NAME  -o json | jq .data.$CONFMAPIMAGETAG)
-      echo ::set-output name=DOCKER_VERSION_TAG::${IMAGE_TAG}
-      echo image tag $IMAGE_TAG
+    - name: Get docker image tag
+      id: getDockerImageTag
+      shell: bash
+      run: |
+        IMAGE_TAG_CONFMAP_NAME=${{ steps.getRepo.outputs.REPONAME }}-imagetag-cm
+        CONFMAPIMAGETAG=current_image_tag
+        echo image name $IMAGE_TAG_CONFMAP_NAME
+        IMAGE_TAG=$(oc get configmap $IMAGE_TAG_CONFMAP_NAME  -o json | jq .data.$CONFMAPIMAGETAG)
+        echo ::set-output name=DOCKER_VERSION_TAG::${IMAGE_TAG}
+        echo image tag $IMAGE_TAG
 
-  - name: Get openshift namespace
-    id: getOcNamespace
-    shell: bash
-    run: |
-      OC_NAMESPACE_NAMES_CONFIG_MAP=namespaces-cm
-      OCDEVNAMESPACE=$(oc get configmap $OC_NAMESPACE_NAMES_CONFIG_MAP  -o json | jq .data.dev | tr -d '"')
-      echo namespace $OCDEVNAMESPACE
+    - name: Get openshift namespace
+      id: getOcNamespace
+      shell: bash
+      run: |
+        OC_NAMESPACE_NAMES_CONFIG_MAP=namespaces-cm
+        OCDEVNAMESPACE=$(oc get configmap $OC_NAMESPACE_NAMES_CONFIG_MAP  -o json | jq .data.dev | tr -d '"')
+        echo namespace $OCDEVNAMESPACE
 
-      oc project $OCDEVNAMESPACE
-      project=$(oc project --short=true)
-      if [ "$project" != "$OCDEVNAMESPACE" ]
-        then 
-            exit 1
-      fi
-      prodlength=$( expr length ${{ inputs:OPENSHIFT_TOKEN_PRD }})
-      echo prod length -${{ inputs:OPENSHIFT_TOKEN_PRD }}
-      if [ $prodlength -eq 0 ]
-      then
-        echo 'dev deploy'
-      else
-        echo 'prod deploy'
-      fi
-      
-  - name: Get openshift namespace
-    id: getOcNamespace
-    shell: bash
-    run: |
-      REPONAME=${{ steps.getRepo.outputs.REPONAME }}
-      #ISSUE_CONFIGMAP_NAME=github-issues-configmap
-      CONFMAPISSUEURLKEY=issueURL
-      ISSUE_CONFIGMAP_NAME=$REPONAME-gh-issues-cm
-      echo configmap name $ISSUE_CONFIGMAP_NAME
-      ISSUE_URL=$(oc get configmap $ISSUE_CONFIGMAP_NAME  -o json | jq .data.$CONFMAPISSUEURLKEY)
-      echo ISSUE_URL $ISSUE_URL
-      echo ::set-output name=ISSUE_URL::${ISSUE_URL}
+        oc project $OCDEVNAMESPACE
+        project=$(oc project --short=true)
+        if [ "$project" != "$OCDEVNAMESPACE" ]
+          then 
+              exit 1
+        fi
+        prodlength=$( expr length ${{ inputs:OPENSHIFT_TOKEN_PRD }})
+        echo prod length -${{ inputs:OPENSHIFT_TOKEN_PRD }}
+        if [ $prodlength -eq 0 ]
+        then
+          echo 'dev deploy'
+        else
+          echo 'prod deploy'
+        fi
+        
+    - name: Get openshift namespace
+      id: getOcNamespace
+      shell: bash
+      run: |
+        REPONAME=${{ steps.getRepo.outputs.REPONAME }}
+        #ISSUE_CONFIGMAP_NAME=github-issues-configmap
+        CONFMAPISSUEURLKEY=issueURL
+        ISSUE_CONFIGMAP_NAME=$REPONAME-gh-issues-cm
+        echo configmap name $ISSUE_CONFIGMAP_NAME
+        ISSUE_URL=$(oc get configmap $ISSUE_CONFIGMAP_NAME  -o json | jq .data.$CONFMAPISSUEURLKEY)
+        echo ISSUE_URL $ISSUE_URL
+        echo ::set-output name=ISSUE_URL::${ISSUE_URL}
 
 
     
