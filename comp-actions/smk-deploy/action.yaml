@@ -190,15 +190,16 @@ runs:
         #echo the GITHUB_EVENT_PATH
         #cat $GITHUB_EVENT_PATH
         ISSUE_URL=$(oc get configmap $GITHUB_ISSUES_CONFIGMAP -o json | jq .data.issueURL | tr -d '"')
-        echo ISSUE_URL $ISSUE_URL
+        echo ISSUE_URL -$ISSUE_URL-
 
         # DEBUGGING
-        if [ "$ISSUE_URL" = "null"]; then
+        if [ "$ISSUE_URL" = "null" ]; then
           ISSUE_URL=https://api.github.com/repos/franTarkenton/smk-fap-fcb/issues/1
+          echo ISSUE_URL $ISSUE_URL
         fi
 
         #format reviewers
-        MENTION_STRING=$(echo ${{inputs.PR_MENTIONS}} | jq -rc 'map("@" + .) | .[]' | tr '\n' ',' | sed 's/, */, /g' |  sed 's/, *$//g')
+        MENTION_STRING=$(echo ${{ inputs.PR_MENTIONS }} | jq -rc 'map("@" + .) | .[]' | tr '\n' ',' | sed 's/, */, /g' |  sed 's/, *$//g')
 
         # ADD COMMENT TO THE ISSUE
         echo 'adding route to the comment for the issue'
