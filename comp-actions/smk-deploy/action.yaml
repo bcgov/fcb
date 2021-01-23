@@ -198,9 +198,15 @@ runs:
           echo ISSUE_URL $ISSUE_URL
         fi
 
-        #format reviewers
+        #format reviewers, quotes get stripped when passed to action
         echo pr mentions ${{ inputs.PR_MENTIONS }}
-        MENTION_STRING=$(echo ${{ inputs.PR_MENTIONS }} | jq -rc 'map("@" + .) | .[]' | tr '\n' ',' | sed 's/, */, /g' |  sed 's/, *$//g')
+        # repo=$(python3 $GITHUB_ACTION_PATH/getRepo.py =${{ github.repository }})
+        
+
+        PR_MENTIONS_JSON=$(python3 $GITHUB_ACTION_PATH/formatJson.py "${{ inputs.PR_MENTIONS }}")
+
+
+        MENTION_STRING=$(echo $PR_MENTIONS_JSON | jq -rc 'map("@" + .) | .[]' | tr '\n' ',' | sed 's/, */, /g' |  sed 's/, *$//g')
 
         # ADD COMMENT TO THE ISSUE
         echo 'adding route to the comment for the issue'
