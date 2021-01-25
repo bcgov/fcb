@@ -273,7 +273,8 @@ runs:
 
         # get the Reponame from previous step
         # ---------------------------------------------------
-        REPONAME=${{ steps.getRepo.outputs.REPONAME }}
+        REPONAME="${{ steps.getRepo.outputs.REPONAME }}"
+        echo reponame is $REPONAME
 
         # extract kong config info from secret objects
         # --------------------------------------------------
@@ -288,7 +289,8 @@ runs:
 
         # gwa has test and prod, if its dev, swap to test
         #   if dev / test then -T otherwise -P
-        gwaEnv=${{ steps.getOcNamespaceAndLogin.outputs.ENVTAG }}
+        gwaEnv="${{ steps.getOcNamespaceAndLogin.outputs.ENVTAG }}"
+        echo gwaEnv $gwaEnv 
         gwaSwitch=${gwaEnv/dev/-T}
         gwaSwitch=${gwaSwitch/test/-T}
         gwaSwitch=${gwaSwitch/prod/-P}
