@@ -1,4 +1,4 @@
-name: smk-build
+name: smk-composite-action-tests
 
 on:
   push:
