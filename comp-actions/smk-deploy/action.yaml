@@ -355,7 +355,7 @@ runs:
           | jq '.access_token' | tr -d '"')
          
         # get the services in the namespace
-        SERVICES=$(curl "$gwaAuthUrl/v1/namespaces/${GWA_NAMESPACE}/services" \
+        SERVICES=$(curl "$gwaUrl/v1/namespaces/${GWA_NAMESPACE}/services" \
           -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0' \
           -H 'Accept: */*' \
           -H 'Accept-Language: en-US,en;q=0.5' --compressed \
