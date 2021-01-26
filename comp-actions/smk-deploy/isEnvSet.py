@@ -7,5 +7,5 @@ retVal = 'dev'
 if len(sys.argv) > 1:
     inputVar = sys.argv[1]
     if inputVar.lower() not in ['null', '', ' ', 'none']:
-        retVal = 'prd'
+        retVal = 'prod'
 sys.stdout.write(retVal)
