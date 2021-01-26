@@ -35,7 +35,6 @@ jobs:
       GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
 
     steps:
-    
     # CHECKOUT THE CODE
     - uses: actions/checkout@v2
       id: checkout
