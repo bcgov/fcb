@@ -3,6 +3,7 @@ name: smk-composite-action-tests
 # used on push for testing / development
 # on:
 #   push:
+
 on:
   pull_request:
     # debug: remove the dev,putting build action on non existent branches for debug
