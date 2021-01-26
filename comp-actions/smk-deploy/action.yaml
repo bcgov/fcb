@@ -239,14 +239,13 @@ runs:
       id: kongconf
       shell: bash
       run: |
-      
         function getUrl {
-          python3 - <<END
-          import json, sys, os
-          jsonObj = json.loads(os.environ['SERVICES'])
-          for obj in jsonObj:
-              if obj['name'] == os.environ['oc_service_name']:
-                  sys.stdout.write(f"https://{obj['env_host']}")
+        python3 - <<END
+        import json, sys, os
+        jsonObj = json.loads(os.environ['SERVICES'])
+        for obj in jsonObj:
+            if obj['name'] == os.environ['oc_service_name']:
+                sys.stdout.write(f"https://{obj['env_host']}")
         END
         }
 
