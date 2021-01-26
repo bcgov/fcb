@@ -7,7 +7,7 @@ inputs:
   OPENSHIFT_TOKEN_DEV:
     description: 'The openshift token for the service account access to the dev namespace'
     required: true
-  OPENSHIFT_TOKEN_PRD:
+  OPENSHIFT_TOKEN_PROD:
     description: 'The openshift token for the service account access to the prod namespace if provided then the deployment is determined to be prod.  You still need to provide the dev token however as information like the image to be deployed are stored in that repository'
     required: false
   GHCR_USER:
@@ -28,7 +28,7 @@ inputs:
 runs:
   using: "composite"
   steps: 
-    - name: Openshift Login
+    - name: Login to Dev Openshift
       id: oc-login
       shell: bash
       run: |
@@ -40,7 +40,7 @@ runs:
         PATH=$curdir:$PATH
         oc login --token=${{ inputs.OPENSHIFT_TOKEN_DEV }} --server=${{ inputs.OPENSHIFT_SERVER_URL }}
 
-    - name: 'Get github repo'
+    - name: 'Get github repo name'
       id: getRepo
       shell: bash
       #description: 'returns the repo with only the repo name, ie no org attached'
@@ -68,6 +68,8 @@ runs:
         # the path to the image registry
         # ---------------------------------------------------------
         IMAGE_REGISTRY=${{ inputs.DOCKER_REGISTRY }}/${{ github.repository_owner }}/${{ steps.getRepo.outputs.REPONAME }}/${{ steps.getRepo.outputs.REPONAME }}
+        # needs to be lower case
+        IMAGE_REGISTRY=$(echo "$IMAGE_REGISTRY" | tr '[:upper:]' '[:lower:]')
         echo IMAGE_REGISTRY $IMAGE_REGISTRY
         echo ::set-output name=IMAGE_REGISTRY::${IMAGE_REGISTRY}
 
@@ -82,48 +84,66 @@ runs:
         echo ::set-output name=DOCKER_VERSION_TAG::${IMAGE_TAG}
         echo image tag $IMAGE_TAG
 
-    - name: 'Get openshift namespace'
-      id: getOcNamespace
-      shell: bash
-      run: |
-        OC_NAMESPACE_NAMES_CONFIG_MAP=namespaces-cm
-        OCDEVNAMESPACE=$(oc get configmap $OC_NAMESPACE_NAMES_CONFIG_MAP  -o json | jq .data.dev | tr -d '"')
-        echo namespace $OCDEVNAMESPACE
-
-        oc project $OCDEVNAMESPACE
-        project=$(oc project --short=true)
-        if [ "$project" != "$OCDEVNAMESPACE" ]
-          then
-              echo exiting
-              exit 1
-        fi
-        echo got here
-        echo prod token: ${{ inputs.OPENSHIFT_TOKEN_PRD }}
-        prodToken=$(echo ${{ inputs.OPENSHIFT_TOKEN_PRD }})
-        echo param set
-        #prodlength=$( expr length $prodToken )
-        prodlength=${#prodToken}
-        echo prod length $prodlength
-
-        if [ "$prodlength" -eq 0 ]
-          then
-            echo 'dev deploy'
-          else
-            echo 'prod deploy'
-        fi
-        
     - name: 'Get issue url'
       id: getIssueUrl
       shell: bash
       run: |
-        #REPONAME=${{ steps.getRepo.outputs.REPONAME }}
-        CONFMAPISSUEURLKEY=issueURL
+        # Note: This should be done differently, ideally calculated upstream by the event
+        #       that calls this composite action, and then passed to the composite action 
+        #       as a parameter
+        #
+        # extract the  issue url from the configmap $REPONAME-gh-issues-cm
+        # ---------------------------------------------------------------------
         ISSUE_CONFIGMAP_NAME=${{ steps.getRepo.outputs.REPONAME }}-gh-issues-cm
         echo configmap name $ISSUE_CONFIGMAP_NAME
-        ISSUE_URL=$(oc get configmap $ISSUE_CONFIGMAP_NAME  -o json | jq .data.$CONFMAPISSUEURLKEY)
+        ISSUE_URL=$(oc get configmap $ISSUE_CONFIGMAP_NAME  -o json | jq .data.issueURL | tr -d '"')
+
+        # DEBUGGING
+        if [ "$ISSUE_URL" = "null" ]; then
+          ISSUE_URL=https://api.github.com/repos/franTarkenton/smk-fap-fcb/issues/1
+          echo ISSUE_URL $ISSUE_URL
+        fi
+
         echo ISSUE_URL $ISSUE_URL
         echo ::set-output name=ISSUE_URL::${ISSUE_URL}
 
+    - name: 'Get openshift namespace to deploy to and login'
+      id: getOcNamespaceAndLogin
+      shell: bash
+      run: |
+        # a) Reads namespaces-cm from dev deploy
+        # b) determines if the token for prod is set
+        # c) if so then login to prod using prod token
+        # d) verify that logged into correct namespace
+
+        # ENVTAG=prd if inputs.OPENSHIFT_TOKEN_PROD has been set
+        ENVTAG=$(python3 $GITHUB_ACTION_PATH/isEnvSet.py ${{ inputs.OPENSHIFT_TOKEN_PROD }})
+        # retrieve with ${{ steps.getOcNamespaceAndLogin.outputs.ENVTAG }}
+        echo ::set-output name=ENVTAG::${ENVTAG}
+
+        # get the namespace that aligns with tag above
+        OC_NAMESPACE_NAMES_CONFIG_MAP=namespaces-cm
+        OCTARGETNAMESPACE=$(oc get configmap $OC_NAMESPACE_NAMES_CONFIG_MAP  -o json | jq .data.$ENVTAG | tr -d '"')
+        echo namespace $OCTARGETNAMESPACE
+
+        # get current oc namespace
+        project=$(oc project --short=true)
+
+        # if current namespace is not the desired namespace then login to the desired namespace
+        if [ "$project" != "$OCTARGETNAMESPACE" ]
+          then
+            echo logging into prod namespace for deployment
+            oc login --token=${{ inputs.OPENSHIFT_TOKEN_PROD }} --server=${{ inputs.OPENSHIFT_SERVER_URL }}
+        fi
+
+        # finally double check that the desired namespace is what we are currently logged into
+        project=$(oc project --short=true)
+        if [ "$project" != "$OCTARGETNAMESPACE" ]
+          then
+              echo exiting, unable to connect to desired namespace $OCTARGETNAMESPACE
+              exit 1
+        fi
+        
     - name: Deploy Helm chart
       id: deployHelm
       shell: bash
@@ -132,7 +152,8 @@ runs:
         # EMAIL=${{ steps.retrieveimagetag.outputs.EMAIL }}
         # DOCKER_VERSION_TAG=${{ steps.getDockerImageTag.outputs.DOCKER_VERSION_TAG }}
         # IMAGE_REGISTRY=${{ steps.getDockerRegistry.outputs.IMAGE_REGISTRY }}
-        # REPONAME=${{ steps.getRepo.outputs.REPONAME }}
+        REPONAME="${{ steps.getRepo.outputs.REPONAME }}"
+        echo reponame is $REPONAME
 
         IMAGE_PULL_SECRET_NAME=${{ steps.getRepo.outputs.REPONAME }}-image-pull-secret
         echo IMAGE_PULL_SECRET_NAME $IMAGE_PULL_SECRET_NAME
@@ -168,10 +189,9 @@ runs:
         serviceAccountName=$(oc whoami | cut -d':' -f4)
         oc patch serviceaccount $serviceAccountName -p '{"imagePullSecrets": [{"name": "'$IMAGE_PULL_SECRET_NAME'"}]}'
 
-
     # # ADD THE ROUTE TO THE ISSUE
-    - name: Update issue
-      id: updateissue
+    - name: Update the github issue
+      id: updateGHissue
       shell: bash
       run: |
         
@@ -181,19 +201,17 @@ runs:
         # retrieve the route url
         # ---------------------------------------------------------
         oc_route_name=${{ steps.getRepo.outputs.REPONAME }}-rt
-        GITHUB_ISSUES_CONFIGMAP=${{ steps.getRepo.outputs.REPONAME }}-gh-issues-cm
         ROUTEPATH=$(oc get route $oc_route_name -o json | jq .spec.host | tr -d '"' )
         ROUTEURL=https://$ROUTEPATH
 
-        # get the github issue url from the configmap
+        # issue url
         # ---------------------------------------------------------
-        #echo the GITHUB_EVENT_PATH
-        #cat $GITHUB_EVENT_PATH
-        ISSUE_URL=$(oc get configmap $GITHUB_ISSUES_CONFIGMAP -o json | jq .data.issueURL | tr -d '"')
-        echo ISSUE_URL $ISSUE_URL
+        ISSUE_URL=${{ steps.getIssueUrl.outputs.ISSUE_URL }}
 
-        #format reviewers
-        MENTION_STRING=$(echo ${{inputs.PR_MENTIONS}} | jq -rc 'map("@" + .) | .[]' | tr '\n' ',' | sed 's/, */, /g' |  sed 's/, *$//g')
+        #format reviewers, quotes get stripped when passed to action
+        echo pr mentions ${{ inputs.PR_MENTIONS }}
+        PR_MENTIONS_JSON=$(python3 $GITHUB_ACTION_PATH/formatJson.py "${{ inputs.PR_MENTIONS }}")
+        MENTION_STRING=$(echo $PR_MENTIONS_JSON | jq -rc 'map("@" + .) | .[]' | tr '\n' ',' | sed 's/, */, /g' |  sed 's/, *$//g')
 
         # ADD COMMENT TO THE ISSUE
         echo 'adding route to the comment for the issue'
@@ -204,9 +222,165 @@ runs:
           --header "Accept: application/vnd.github.v3+json" \
           --data-raw "$ISSUE_BODY"
         
-        echo ::set-output name=ISSUE_URL::${ISSUE_URL}
+    - name: Get GWA CLI
+      id: getGWACLI
+      shell: bash
+      run: |
 
+        # Grabbing the GWA command line tool
+        #----------------------------------------------------
+        GWA_VERSION=v1.1.2
+        GWA_CLI_LINK=https://github.com/bcgov/gwa-cli/releases/download/${GWA_VERSION}/gwa_${GWA_VERSION}_linux_x64.zip
+        curl -L -O $GWA_CLI_LINK
+        unzip -p gwa_${GWA_VERSION}_linux_x64.zip > gwa-cli-linux
+        chmod +x gwa-cli-linux
 
+    - name: Configure Kong Route
+      id: kongconf
+      shell: bash
+      run: |
+      
+        function getUrl {
+          python3 - <<END
+          import json, sys, os
+          jsonObj = json.loads(os.environ['SERVICES'])
+          for obj in jsonObj:
+              if obj['name'] == os.environ['oc_service_name']:
+                  sys.stdout.write(f"https://{obj['env_host']}")
+        END
+        }
 
+        # setting up a disable for prod for now as service seems a bit flakey atm
+        env=$(python3 $GITHUB_ACTION_PATH/isEnvSet.py ${{ inputs.OPENSHIFT_TOKEN_PROD }})
+        echo env is $env
+        if [ $env != 'prod' ]; then
 
+          # get the Reponame from previous step
+          # ---------------------------------------------------
+          REPONAME="${{ steps.getRepo.outputs.REPONAME }}"
+          echo reponame is $REPONAME
+
+          # extract kong config info from secret objects
+          # --------------------------------------------------
+          kongSecrets=$(oc get secrets kong-secrets -o json | jq '.data' | jq '.["kong-config"] | @base64d | fromjson')
+          GWA_CLIENTID=$(echo $kongSecrets | jq '.gwa_client_id' | tr -d '"')
+          GWA_TOKEN=$(echo $kongSecrets | jq '.apikey' | tr -d '"')
+          GWA_NAMESPACE=$(echo $kongSecrets | jq '.gwa_namespace' | tr -d '"')
+          gwa_route_name=${REPONAME}-route
+          oc_service_name=${REPONAME}-svc
+          oc_service_port=$(oc get service ${oc_service_name} -o json | jq '.spec.ports[0].port' | tr -d '"')
+          oc_project=$(oc project --short=true | tr -d '"')
+
+          # gwa has test and prod, if its dev, swap to test
+          #   if dev / test then -T otherwise -P
+          gwaEnv="${{ steps.getOcNamespaceAndLogin.outputs.ENVTAG }}"
+          echo gwaEnv $gwaEnv 
+          gwaSwitch=${gwaEnv/dev/-T}
+          gwaSwitch=${gwaSwitch/test/-T}
+          gwaSwitch=${gwaSwitch/prod/-P}
+
+          # currently prod is not configured, soon (Feb'ish this can be deleted)
+          sudo echo "142.34.194.118 gwa.api.gov.bc.ca" | sudo tee -a /etc/hosts
+
+          # init the gwa config
+          # --------------------------------------------------
+          ./gwa-cli-linux init $gwaSwitch \
+            --namespace=$GWA_NAMESPACE \
+            --client-id=$GWA_CLIENTID \
+            --client-secret=$GWA_TOKEN
+
+          # create the gwa config
+          # --------------------------------------------------
+          python3 gwa/createGWAConfig.py \
+            --OCService $oc_service_name \
+            --reponame $REPONAME \
+            --OCNamespace $oc_project \
+            --servicePort $oc_service_port \
+            --kongDomain api.gov.bc.ca \
+            --GWANamespace $GWA_NAMESPACE \
+            --GWAenv $gwaEnv > gwa_config.yaml
+
+          # publish the gwa config
+          # --------------------------------------------------
+          ./gwa-cli-linux pg gwa_config.yaml
+
+          # verify the url and output it
+          # --------------------------------------------------
+
+          # authenticate to api
+          # ---------------------------------------------------
+          # calculate the auth url based on the env tag
+          devAuthUrl=https://authz-apps-gov-bc-ca.test.apsgw.xyz
+          prodAuthUrl=https://authz.apps.gov.bc.ca
+          gwaAuthUrl=${gwaEnv/test/$devAuthUrl}
+          gwaAuthUrl=${gwaAuthUrl/dev/$devAuthUrl}
+          gwaAuthUrl=${gwaAuthUrl/prod/$prodAuthUrl}
+          echo gwaAuthUrl $gwaAuthUrl
+
+          # ditto for gwa url
+          devGWAUrl=https://gwa-api-gov-bc-ca.test.apsgw.xyz
+          prodGWAUrl=https://gwa.api.gov.bc.ca
+          gwaUrl=${gwaEnv/test/$devGWAUrl}
+          gwaUrl=${gwaUrl/dev/$devGWAUrl}
+          gwaUrl=${gwaUrl/prod/$prodGWAUrl}
+          echo gwaUrl $gwaUrl
+
+          # 64bit encode creds
+          CREDS64=$(echo -ne "${GWA_CLIENTID}:${GWA_TOKEN}" | base64 -w 0 -)
+
+          TOKEN=$(curl "$gwaAuthUrl/auth/realms/aps/protocol/openid-connect/token" \
+            -H 'Accept: application/json, text/plain, */*'  \
+            -H 'Content-Type: application/x-www-form-urlencoded'  \
+            -H 'X-Requested-With: XMLHttpRequest'  \
+            -H "Authorization: Basic ${CREDS64}" \
+            -H "Origin: $gwaUrl"  \
+            -H 'Connection: keep-alive'  \
+            --data-raw 'grant_type=client_credentials' \
+            | jq '.access_token' | tr -d '"')
+          
+          # get the services in the namespace
+          SERVICES=$(curl "$gwaUrl/v1/namespaces/${GWA_NAMESPACE}/services" \
+            -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0' \
+            -H 'Accept: */*' \
+            -H 'Accept-Language: en-US,en;q=0.5' --compressed \
+            -H "Authorization: Bearer ${TOKEN}" \
+            -H 'Connection: keep-alive' )
+          echo SERVICES $SERVICES
+
+          # extract the url associated with the service
+          export oc_service_name
+          echo oc_service_name $oc_service_name
+          export SERVICES
+          VANITY_URL=$(getUrl)
+          echo vanity url $VANITY_URL
+          echo ::set-output name=VANITY_URL::${VANITY_URL}
+        else
+          echo not running for prod atm
+        fi
+
+    # # ADD THE GWA ROUTE TO THE ISSUE
+    - name: Update the github issue with the GWA Route
+      id: addGWARouteToIssue
+      shell: bash
+      run: |
+        env=$(python3 $GITHUB_ACTION_PATH/isEnvSet.py ${{ inputs.OPENSHIFT_TOKEN_PROD }})
+        echo env is $env
+        if [ $env != 'prod' ]; then
+          PR_MENTIONS_JSON=$(python3 $GITHUB_ACTION_PATH/formatJson.py "${{ inputs.PR_MENTIONS }}")
+          MENTION_STRING=$(echo $PR_MENTIONS_JSON | jq -rc 'map("@" + .) | .[]' | tr '\n' ',' | sed 's/, */, /g' |  sed 's/, *$//g')
+
+          # vanityurl: steps.kongconf.outputs.VANITY_URL
+          # issue_url: steps.getIssueUrl.outputs.ISSUE_URL
+          ISSUE_URL=${{ steps.getIssueUrl.outputs.ISSUE_URL }}/comments
+          ISSUE_COMMENT="The Vanity URL for the ${{ steps.getOcNamespaceAndLogin.outputs.ENVTAG }} deploy is ${{ steps.kongconf.outputs.VANITY_URL }}\n \n\nIf this is a dev deploy,  verify that it looks good, then merge the pull request to trigger prod deployment.\n\n If this is a prod deployment, view your prod deploy at the url above :)\n\n mentions / notifications: $MENTION_STRING"
+          ISSUE_BODY='{"body": "'$ISSUE_COMMENT'"}'
+
+          curl $ISSUE_URL -X POST --header "Authorization: Bearer ${{ inputs.GHCR_TOKEN }}" \
+            --header "Accept: application/vnd.github.v3+json" \
+            --data-raw "$ISSUE_BODY"
+          
+          echo ::set-output name=ISSUE_URL::${ISSUE_URL}
+        else
+          echo not running for prod atm
+        fi
 
