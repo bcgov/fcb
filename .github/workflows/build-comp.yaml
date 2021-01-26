@@ -45,6 +45,18 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Building image
+      uses: ./comp-actions/smk-build
+      id: buildSMKImage
+      with:
+        OPENSHIFT_SERVER_URL: ${{ secrets.OPENSHIFT_SERVER_URL }}
+        OPENSHIFT_TOKEN_DEV: ${{ secrets.OPENSHIFT_TOKEN_DEV }}
+        GHCR_USER: ${{ secrets.GHCR_USER }}
+        GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+        DOCKER_REGISTRY: 'docker.pkg.github.com'
+        PR_REVIEWERS: '["GuyTheFlower", "NicoledeGreef"]'
+        PR_MENTIONS: '["GuyTheFlower", "NicoledeGreef", "franTarkenton"]'
+
     - name: deploying dev
       uses: ./comp-actions/smk-deploy
       id: deploySMKContainer
