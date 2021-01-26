@@ -239,6 +239,7 @@ runs:
       id: kongconf
       shell: bash
       run: |
+      
         function getUrl {
           python3 - <<END
           import json, sys, os
@@ -246,7 +247,7 @@ runs:
           for obj in jsonObj:
               if obj['name'] == os.environ['oc_service_name']:
                   sys.stdout.write(f"https://{obj['env_host']}")
-          END
+        END
         }
 
         # setting up a disable for prod for now as service seems a bit flakey atm
