@@ -6,7 +6,7 @@ name: smk-composite-action-tests
 on:
   pull_request:
     # debug: remove the dev,putting build action on non existent branches for debug
-    branches: ['master, 'main']
+    branches: ['master', 'main']
     types: ['opened', 'reopened']
     paths-ignore:
       - openshift/**
@@ -19,7 +19,6 @@ on:
       - helm-charts
       - code_of_conduct.md
       
-
 jobs:
   # This workflow contains a single job called "build"
   buildjob:
