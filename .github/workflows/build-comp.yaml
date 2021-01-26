@@ -18,6 +18,7 @@ on:
       - readme.md
       - helm-charts
       - code_of_conduct.md
+      
 
 jobs:
   # This workflow contains a single job called "build"
