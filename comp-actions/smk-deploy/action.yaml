@@ -260,7 +260,7 @@ runs:
           echo reponame is $REPONAME
 
           # extract kong config info from secret objects
-          # --------------------------------------------------
+          # ---------------------------------------------------
           kongSecrets=$(oc get secrets kong-secrets -o json | jq '.data' | jq '.["kong-config"] | @base64d | fromjson')
           GWA_CLIENTID=$(echo $kongSecrets | jq '.gwa_client_id' | tr -d '"')
           GWA_TOKEN=$(echo $kongSecrets | jq '.apikey' | tr -d '"')
