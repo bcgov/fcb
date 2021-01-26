@@ -7,7 +7,7 @@ inputs:
   OPENSHIFT_TOKEN_DEV:
     description: 'The openshift token for the service account access to the dev namespace'
     required: true
-  OPENSHIFT_TOKEN_PRD:
+  OPENSHIFT_TOKEN_PROD:
     description: 'The openshift token for the service account access to the prod namespace if provided then the deployment is determined to be prod.  You still need to provide the dev token however as information like the image to be deployed are stored in that repository'
     required: false
   GHCR_USER:
@@ -105,8 +105,8 @@ runs:
         # c) if so then login to prod using prod token
         # d) verify that logged into correct namespace
 
-        # ENVTAG=prd if inputs.OPENSHIFT_TOKEN_PRD has been set
-        ENVTAG=$(python3 $GITHUB_ACTION_PATH/isEnvSet.py ${{ inputs.OPENSHIFT_TOKEN_PRD }})
+        # ENVTAG=prd if inputs.OPENSHIFT_TOKEN_PROD has been set
+        ENVTAG=$(python3 $GITHUB_ACTION_PATH/isEnvSet.py ${{ inputs.OPENSHIFT_TOKEN_PROD }})
         # retrieve with ${{ steps.getOcNamespaceAndLogin.outputs.ENVTAG }}
         echo ::set-output name=ENVTAG::${ENVTAG}
 
@@ -122,7 +122,7 @@ runs:
         if [ "$project" != "$OCTARGETNAMESPACE" ]
           then
             echo logging into prod namespace for deployment
-            oc login --token=${{ inputs.OPENSHIFT_TOKEN_PRD }} --server=${{ inputs.OPENSHIFT_SERVER_URL }}
+            oc login --token=${{ inputs.OPENSHIFT_TOKEN_PROD }} --server=${{ inputs.OPENSHIFT_SERVER_URL }}
         fi
 
         # finally double check that the desired namespace is what we are currently logged into
