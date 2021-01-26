@@ -103,7 +103,6 @@ runs:
         echo ISSUE_URL $ISSUE_URL
         echo ::set-output name=ISSUE_URL::${ISSUE_URL}
 
-
     - name: 'Get openshift namespace to deploy to and login'
       id: getOcNamespaceAndLogin
       shell: bash
@@ -237,131 +236,146 @@ runs:
       shell: bash
       run: |
 
-        # get the Reponame from previous step
-        # ---------------------------------------------------
-        REPONAME="${{ steps.getRepo.outputs.REPONAME }}"
-        echo reponame is $REPONAME
+        # setting up a disable for prod for now as service seems a bit flakey atm
+        env=$(python3 $GITHUB_ACTION_PATH/isEnvSet.py ${{ inputs.OPENSHIFT_TOKEN_PROD }})
+        echo env is $env
+        if [ $env != 'prod' ]; then
 
-        # extract kong config info from secret objects
-        # --------------------------------------------------
-        kongSecrets=$(oc get secrets kong-secrets -o json | jq '.data' | jq '.["kong-config"] | @base64d | fromjson')
-        GWA_CLIENTID=$(echo $kongSecrets | jq '.gwa_client_id' | tr -d '"')
-        GWA_TOKEN=$(echo $kongSecrets | jq '.apikey' | tr -d '"')
-        GWA_NAMESPACE=$(echo $kongSecrets | jq '.gwa_namespace' | tr -d '"')
-        gwa_route_name=${REPONAME}-route
-        oc_service_name=${REPONAME}-svc
-        oc_service_port=$(oc get service ${oc_service_name} -o json | jq '.spec.ports[0].port' | tr -d '"')
-        oc_project=$(oc project --short=true | tr -d '"')
+          # get the Reponame from previous step
+          # ---------------------------------------------------
+          REPONAME="${{ steps.getRepo.outputs.REPONAME }}"
+          echo reponame is $REPONAME
 
-        # gwa has test and prod, if its dev, swap to test
-        #   if dev / test then -T otherwise -P
-        gwaEnv="${{ steps.getOcNamespaceAndLogin.outputs.ENVTAG }}"
-        echo gwaEnv $gwaEnv 
-        gwaSwitch=${gwaEnv/dev/-T}
-        gwaSwitch=${gwaSwitch/test/-T}
-        gwaSwitch=${gwaSwitch/prod/-P}
+          # extract kong config info from secret objects
+          # --------------------------------------------------
+          kongSecrets=$(oc get secrets kong-secrets -o json | jq '.data' | jq '.["kong-config"] | @base64d | fromjson')
+          GWA_CLIENTID=$(echo $kongSecrets | jq '.gwa_client_id' | tr -d '"')
+          GWA_TOKEN=$(echo $kongSecrets | jq '.apikey' | tr -d '"')
+          GWA_NAMESPACE=$(echo $kongSecrets | jq '.gwa_namespace' | tr -d '"')
+          gwa_route_name=${REPONAME}-route
+          oc_service_name=${REPONAME}-svc
+          oc_service_port=$(oc get service ${oc_service_name} -o json | jq '.spec.ports[0].port' | tr -d '"')
+          oc_project=$(oc project --short=true | tr -d '"')
 
-        # currently prod is not configured, soon (Feb'ish this can be deleted)
-        sudo echo "142.34.194.118 gwa.api.gov.bc.ca" | sudo tee -a /etc/hosts
+          # gwa has test and prod, if its dev, swap to test
+          #   if dev / test then -T otherwise -P
+          gwaEnv="${{ steps.getOcNamespaceAndLogin.outputs.ENVTAG }}"
+          echo gwaEnv $gwaEnv 
+          gwaSwitch=${gwaEnv/dev/-T}
+          gwaSwitch=${gwaSwitch/test/-T}
+          gwaSwitch=${gwaSwitch/prod/-P}
 
-        # init the gwa config
-        # --------------------------------------------------
-        ./gwa-cli-linux init $gwaSwitch \
-           --namespace=$GWA_NAMESPACE \
-           --client-id=$GWA_CLIENTID \
-           --client-secret=$GWA_TOKEN
+          # currently prod is not configured, soon (Feb'ish this can be deleted)
+          sudo echo "142.34.194.118 gwa.api.gov.bc.ca" | sudo tee -a /etc/hosts
 
-        # create the gwa config
-        # --------------------------------------------------
-        python3 gwa/createGWAConfig.py \
-          --OCService $oc_service_name \
-          --reponame $REPONAME \
-          --OCNamespace $oc_project \
-          --servicePort $oc_service_port \
-          --kongDomain api.gov.bc.ca \
-          --GWANamespace $GWA_NAMESPACE \
-          --GWAenv $gwaEnv > gwa_config.yaml
+          # init the gwa config
+          # --------------------------------------------------
+          ./gwa-cli-linux init $gwaSwitch \
+            --namespace=$GWA_NAMESPACE \
+            --client-id=$GWA_CLIENTID \
+            --client-secret=$GWA_TOKEN
 
-        # publish the gwa config
-        # --------------------------------------------------
-        ./gwa-cli-linux pg gwa_config.yaml
+          # create the gwa config
+          # --------------------------------------------------
+          python3 gwa/createGWAConfig.py \
+            --OCService $oc_service_name \
+            --reponame $REPONAME \
+            --OCNamespace $oc_project \
+            --servicePort $oc_service_port \
+            --kongDomain api.gov.bc.ca \
+            --GWANamespace $GWA_NAMESPACE \
+            --GWAenv $gwaEnv > gwa_config.yaml
 
-        # verify the url and output it
-        # --------------------------------------------------
+          # publish the gwa config
+          # --------------------------------------------------
+          ./gwa-cli-linux pg gwa_config.yaml
 
-        # authenticate to api
-        # ---------------------------------------------------
-        # calculate the auth url based on the env tag
-        devAuthUrl=https://authz-apps-gov-bc-ca.test.apsgw.xyz
-        prodAuthUrl=https://authz.apps.gov.bc.ca
-        gwaAuthUrl=${gwaEnv/test/$devAuthUrl}
-        gwaAuthUrl=${gwaAuthUrl/dev/$devAuthUrl}
-        gwaAuthUrl=${gwaAuthUrl/prod/$prodAuthUrl}
-        echo gwaAuthUrl $gwaAuthUrl
+          # verify the url and output it
+          # --------------------------------------------------
 
-        # ditto for gwa url
-        devGWAUrl=https://gwa-api-gov-bc-ca.test.apsgw.xyz
-        prodGWAUrl=https://gwa.api.gov.bc.ca
-        gwaUrl=${gwaEnv/test/$devGWAUrl}
-        gwaUrl=${gwaUrl/dev/$devGWAUrl}
-        gwaUrl=${gwaUrl/prod/$prodGWAUrl}
-        echo gwaUrl $gwaUrl
+          # authenticate to api
+          # ---------------------------------------------------
+          # calculate the auth url based on the env tag
+          devAuthUrl=https://authz-apps-gov-bc-ca.test.apsgw.xyz
+          prodAuthUrl=https://authz.apps.gov.bc.ca
+          gwaAuthUrl=${gwaEnv/test/$devAuthUrl}
+          gwaAuthUrl=${gwaAuthUrl/dev/$devAuthUrl}
+          gwaAuthUrl=${gwaAuthUrl/prod/$prodAuthUrl}
+          echo gwaAuthUrl $gwaAuthUrl
 
-        # 64bit encode creds
-        CREDS64=$(echo -ne "${GWA_CLIENTID}:${GWA_TOKEN}" | base64 -w 0 -)
+          # ditto for gwa url
+          devGWAUrl=https://gwa-api-gov-bc-ca.test.apsgw.xyz
+          prodGWAUrl=https://gwa.api.gov.bc.ca
+          gwaUrl=${gwaEnv/test/$devGWAUrl}
+          gwaUrl=${gwaUrl/dev/$devGWAUrl}
+          gwaUrl=${gwaUrl/prod/$prodGWAUrl}
+          echo gwaUrl $gwaUrl
 
-        TOKEN=$(curl "$gwaAuthUrl/auth/realms/aps/protocol/openid-connect/token" \
-          -H 'Accept: application/json, text/plain, */*'  \
-          -H 'Content-Type: application/x-www-form-urlencoded'  \
-          -H 'X-Requested-With: XMLHttpRequest'  \
-          -H "Authorization: Basic ${CREDS64}" \
-          -H "Origin: $gwaUrl"  \
-          -H 'Connection: keep-alive'  \
-          --data-raw 'grant_type=client_credentials' \
-          | jq '.access_token' | tr -d '"')
-         
-        # get the services in the namespace
-        SERVICES=$(curl "$gwaUrl/v1/namespaces/${GWA_NAMESPACE}/services" \
-          -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0' \
-          -H 'Accept: */*' \
-          -H 'Accept-Language: en-US,en;q=0.5' --compressed \
-          -H "Authorization: Bearer ${TOKEN}" \
-          -H 'Connection: keep-alive' )
-        echo SERVICES $SERVICES
+          # 64bit encode creds
+          CREDS64=$(echo -ne "${GWA_CLIENTID}:${GWA_TOKEN}" | base64 -w 0 -)
 
-        # extract the url associated with the service
-        function getUrl {
-        python3 - <<END
-        import json, sys, os
-        jsonObj = json.loads(os.environ['SERVICES'])
-        for obj in jsonObj:
-            if obj['name'] == os.environ['oc_service_name']:
-                sys.stdout.write(f"https://{obj['env_host']}")
-        END
-        }
-        export oc_service_name
-        echo oc_service_name $oc_service_name
-        export SERVICES
-        VANITY_URL=$(getUrl)
-        echo vanity url $VANITY_URL
-        echo ::set-output name=VANITY_URL::${VANITY_URL}
+          TOKEN=$(curl "$gwaAuthUrl/auth/realms/aps/protocol/openid-connect/token" \
+            -H 'Accept: application/json, text/plain, */*'  \
+            -H 'Content-Type: application/x-www-form-urlencoded'  \
+            -H 'X-Requested-With: XMLHttpRequest'  \
+            -H "Authorization: Basic ${CREDS64}" \
+            -H "Origin: $gwaUrl"  \
+            -H 'Connection: keep-alive'  \
+            --data-raw 'grant_type=client_credentials' \
+            | jq '.access_token' | tr -d '"')
+          
+          # get the services in the namespace
+          SERVICES=$(curl "$gwaUrl/v1/namespaces/${GWA_NAMESPACE}/services" \
+            -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0' \
+            -H 'Accept: */*' \
+            -H 'Accept-Language: en-US,en;q=0.5' --compressed \
+            -H "Authorization: Bearer ${TOKEN}" \
+            -H 'Connection: keep-alive' )
+          echo SERVICES $SERVICES
+
+          # extract the url associated with the service
+          function getUrl {
+          python3 - <<END
+          import json, sys, os
+          jsonObj = json.loads(os.environ['SERVICES'])
+          for obj in jsonObj:
+              if obj['name'] == os.environ['oc_service_name']:
+                  sys.stdout.write(f"https://{obj['env_host']}")
+          END
+          }
+          export oc_service_name
+          echo oc_service_name $oc_service_name
+          export SERVICES
+          VANITY_URL=$(getUrl)
+          echo vanity url $VANITY_URL
+          echo ::set-output name=VANITY_URL::${VANITY_URL}
+        else
+          echo not running for prod atm
+        fi
 
     # # ADD THE GWA ROUTE TO THE ISSUE
     - name: Update the github issue with the GWA Route
       id: addGWARouteToIssue
       shell: bash
       run: |
-        PR_MENTIONS_JSON=$(python3 $GITHUB_ACTION_PATH/formatJson.py "${{ inputs.PR_MENTIONS }}")
-        MENTION_STRING=$(echo $PR_MENTIONS_JSON | jq -rc 'map("@" + .) | .[]' | tr '\n' ',' | sed 's/, */, /g' |  sed 's/, *$//g')
+        env=$(python3 $GITHUB_ACTION_PATH/isEnvSet.py ${{ inputs.OPENSHIFT_TOKEN_PROD }})
+        echo env is $env
+        if [ $env != 'prod' ]; then
+          PR_MENTIONS_JSON=$(python3 $GITHUB_ACTION_PATH/formatJson.py "${{ inputs.PR_MENTIONS }}")
+          MENTION_STRING=$(echo $PR_MENTIONS_JSON | jq -rc 'map("@" + .) | .[]' | tr '\n' ',' | sed 's/, */, /g' |  sed 's/, *$//g')
 
-        # vanityurl: steps.kongconf.outputs.VANITY_URL
-        # issue_url: steps.getIssueUrl.outputs.ISSUE_URL
-        ISSUE_URL=${{ steps.getIssueUrl.outputs.ISSUE_URL }}/comments
-        ISSUE_COMMENT="The Vanity URL for the ${{ steps.getOcNamespaceAndLogin.outputs.ENVTAG }} deploy is ${{ steps.kongconf.outputs.VANITY_URL }}\n \n\nIf this is a dev deploy,  verify that it looks good, then merge the pull request to trigger prod deployment.\n\n If this is a prod deployment, view your prod deploy at the url above :)\n\n mentions / notifications: $MENTION_STRING"
-        ISSUE_BODY='{"body": "'$ISSUE_COMMENT'"}'
+          # vanityurl: steps.kongconf.outputs.VANITY_URL
+          # issue_url: steps.getIssueUrl.outputs.ISSUE_URL
+          ISSUE_URL=${{ steps.getIssueUrl.outputs.ISSUE_URL }}/comments
+          ISSUE_COMMENT="The Vanity URL for the ${{ steps.getOcNamespaceAndLogin.outputs.ENVTAG }} deploy is ${{ steps.kongconf.outputs.VANITY_URL }}\n \n\nIf this is a dev deploy,  verify that it looks good, then merge the pull request to trigger prod deployment.\n\n If this is a prod deployment, view your prod deploy at the url above :)\n\n mentions / notifications: $MENTION_STRING"
+          ISSUE_BODY='{"body": "'$ISSUE_COMMENT'"}'
 
-        curl $ISSUE_URL -X POST --header "Authorization: Bearer ${{ inputs.GHCR_TOKEN }}" \
-          --header "Accept: application/vnd.github.v3+json" \
-          --data-raw "$ISSUE_BODY"
-        
-        echo ::set-output name=ISSUE_URL::${ISSUE_URL}
+          curl $ISSUE_URL -X POST --header "Authorization: Bearer ${{ inputs.GHCR_TOKEN }}" \
+            --header "Accept: application/vnd.github.v3+json" \
+            --data-raw "$ISSUE_BODY"
+          
+          echo ::set-output name=ISSUE_URL::${ISSUE_URL}
+        else
+          echo not running for prod atm
+        fi
+
