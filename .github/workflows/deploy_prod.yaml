@@ -5,13 +5,13 @@
 #
 # https://github.community/t/run-action-only-when-a-pr-is-merged/18268
 
-# name: DEPLOYProd
-# on:
-#   pull_request:
-#     branches: 
-#       - master
-#     types: 
-#       - closed
+name: deploy prod
+on:
+  pull_request:
+    branches: 
+      - master
+    types: 
+      - closed
       
 # debugging
 # on: 
