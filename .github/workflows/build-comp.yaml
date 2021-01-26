@@ -44,10 +44,10 @@ jobs:
       id: checkout
       with:
         fetch-depth: 0
-  
 
     - name: Building image
-      uses: ./comp-actions/smk-build
+      #uses: ./comp-actions/smk-build
+      uses: bcgov/smk-actions/smk-build@main
       id: buildSMKImage
       with:
         OPENSHIFT_SERVER_URL: ${{ secrets.OPENSHIFT_SERVER_URL }}
@@ -59,7 +59,8 @@ jobs:
         PR_MENTIONS: '["GuyTheFlower", "NicoledeGreef", "franTarkenton"]'
 
     - name: deploying dev
-      uses: ./comp-actions/smk-deploy
+      #uses: ./comp-actions/smk-deploy
+      uses: bcgov/smk-actions/smk-build@main
       id: deploySMKContainer
       with:
         OPENSHIFT_SERVER_URL: ${{ secrets.OPENSHIFT_SERVER_URL }}
