@@ -44,6 +44,7 @@ jobs:
       id: checkout
       with:
         fetch-depth: 0
+  
 
     - name: Building image
       uses: ./comp-actions/smk-build
