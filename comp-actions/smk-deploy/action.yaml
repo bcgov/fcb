@@ -92,9 +92,17 @@ runs:
         # ---------------------------------------------------------------------
         ISSUE_CONFIGMAP_NAME=${{ steps.getRepo.outputs.REPONAME }}-gh-issues-cm
         echo configmap name $ISSUE_CONFIGMAP_NAME
-        ISSUE_URL=$(oc get configmap $ISSUE_CONFIGMAP_NAME  -o json | jq .data.issueURL )
+        ISSUE_URL=$(oc get configmap $ISSUE_CONFIGMAP_NAME  -o json | jq .data.issueURL | tr -d '"')
+
+        # DEBUGGING
+        if [ "$ISSUE_URL" = "null" ]; then
+          ISSUE_URL=https://api.github.com/repos/franTarkenton/smk-fap-fcb/issues/1
+          echo ISSUE_URL $ISSUE_URL
+        fi
+
         echo ISSUE_URL $ISSUE_URL
         echo ::set-output name=ISSUE_URL::${ISSUE_URL}
+
 
     - name: 'Get openshift namespace to deploy to and login'
       id: getOcNamespaceAndLogin
@@ -190,28 +198,15 @@ runs:
         # retrieve the route url
         # ---------------------------------------------------------
         oc_route_name=${{ steps.getRepo.outputs.REPONAME }}-rt
-        GITHUB_ISSUES_CONFIGMAP=${{ steps.getRepo.outputs.REPONAME }}-gh-issues-cm
         ROUTEPATH=$(oc get route $oc_route_name -o json | jq .spec.host | tr -d '"' )
         ROUTEURL=https://$ROUTEPATH
 
-        # get the github issue url from the configmap
+        # issue url
         # ---------------------------------------------------------
-        #echo the GITHUB_EVENT_PATH
-        #cat $GITHUB_EVENT_PATH
-        ISSUE_URL=$(oc get configmap $GITHUB_ISSUES_CONFIGMAP -o json | jq .data.issueURL | tr -d '"')
-        echo ISSUE_URL -$ISSUE_URL-
-
-        # DEBUGGING
-        if [ "$ISSUE_URL" = "null" ]; then
-          ISSUE_URL=https://api.github.com/repos/franTarkenton/smk-fap-fcb/issues/1
-          echo ISSUE_URL $ISSUE_URL
-        fi
+        ISSUE_URL=${{ steps.getIssueUrl.outputs.ISSUE_URL }}
 
         #format reviewers, quotes get stripped when passed to action
         echo pr mentions ${{ inputs.PR_MENTIONS }}
-        # repo=$(python3 $GITHUB_ACTION_PATH/getRepo.py =${{ github.repository }})
-        
-
         PR_MENTIONS_JSON=$(python3 $GITHUB_ACTION_PATH/formatJson.py "${{ inputs.PR_MENTIONS }}")
         MENTION_STRING=$(echo $PR_MENTIONS_JSON | jq -rc 'map("@" + .) | .[]' | tr '\n' ',' | sed 's/, */, /g' |  sed 's/, *$//g')
 
@@ -224,8 +219,6 @@ runs:
           --header "Accept: application/vnd.github.v3+json" \
           --data-raw "$ISSUE_BODY"
         
-        echo ::set-output name=ISSUE_URL::${ISSUE_URL}
-
     - name: Get GWA CLI
       id: getGWACLI
       shell: bash
@@ -358,19 +351,12 @@ runs:
       id: addGWARouteToIssue
       shell: bash
       run: |
-
-        # DEBUGGING
-        if [ "$ISSUE_URL" = "null" ]; then
-          ISSUE_URL=https://api.github.com/repos/franTarkenton/smk-fap-fcb/issues/1
-          echo ISSUE_URL $ISSUE_URL
-        fi
-
         PR_MENTIONS_JSON=$(python3 $GITHUB_ACTION_PATH/formatJson.py "${{ inputs.PR_MENTIONS }}")
         MENTION_STRING=$(echo $PR_MENTIONS_JSON | jq -rc 'map("@" + .) | .[]' | tr '\n' ',' | sed 's/, */, /g' |  sed 's/, *$//g')
 
         # vanityurl: steps.kongconf.outputs.VANITY_URL
-        # issue_url: steps.updateGHissue.outputs.ISSUE_URL
-        ISSUE_URL=${{ steps.updateGHissue.outputs.ISSUE_URL }}/comments
+        # issue_url: steps.getIssueUrl.outputs.ISSUE_URL
+        ISSUE_URL=${{ steps.getIssueUrl.outputs.ISSUE_URL }}/comments
         ISSUE_COMMENT="The Vanity URL for the ${{ steps.getOcNamespaceAndLogin.outputs.ENVTAG }} deploy is ${{ steps.kongconf.outputs.VANITY_URL }}\n \n\nIf this is a dev deploy,  verify that it looks good, then merge the pull request to trigger prod deployment.\n\n If this is a prod deployment, view your prod deploy at the url above :)\n\n mentions / notifications: $MENTION_STRING"
         ISSUE_BODY='{"body": "'$ISSUE_COMMENT'"}'
 
