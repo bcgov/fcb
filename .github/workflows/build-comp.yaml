@@ -1,7 +1,23 @@
 name: smk-composite-action-tests
 
+# used on push for testing / development
+# on:
+#   push:
 on:
-  push:
+  pull_request:
+    # debug: remove the dev,putting build action on non existent branches for debug
+    branches: ['master, 'main']
+    types: ['opened', 'reopened']
+    paths-ignore:
+      - openshift/**
+      - .vscode/**
+      - docs/**
+      - .gitignore
+      - LICENSE
+      - open-api.json
+      - readme.md
+      - helm-charts
+      - code_of_conduct.md
 
 jobs:
   # This workflow contains a single job called "build"
@@ -29,39 +45,12 @@ jobs:
       with:
         fetch-depth: 0
 
-    # - uses: bcgov/smk-actions/smk-build@main
-    # - uses: ./comp-actions/smk-build
-    #   id: buildSMKContainer
-    #   with:
-    #     OPENSHIFT_SERVER_URL: ${{ secrets.OPENSHIFT_SERVER_URL }}
-    #     OPENSHIFT_TOKEN_DEV: ${{ secrets.OPENSHIFT_TOKEN_DEV }}
-    #     GHCR_USER: ${{ secrets.GHCR_USER }}
-    #     GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-    #     DOCKER_REGISTRY: 'docker.pkg.github.com'
-
-
-    # if you provide the prod api key then deploy is to prod
-    # if not its to dev.
-    # prod deploys need dev AND prod token.
-    # - name: deploying dev
-    #   uses: ./comp-actions/smk-deploy
-    #   id: deploySMKContainer
-    #   with:
-    #     OPENSHIFT_SERVER_URL: ${{ secrets.OPENSHIFT_SERVER_URL }}
-    #     OPENSHIFT_TOKEN_DEV: ${{ secrets.OPENSHIFT_TOKEN_DEV }}
-    #     GHCR_USER: ${{ secrets.GHCR_USER }}
-    #     GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-    #     DOCKER_REGISTRY: 'docker.pkg.github.com'
-    #     PR_REVIEWERS: '["GuyTheFlower", "NicoledeGreef"]'
-    #     PR_MENTIONS: '["GuyTheFlower", "NicoledeGreef", "franTarkenton"]'
-
-    - name: deploying prod
+    - name: deploying dev
       uses: ./comp-actions/smk-deploy
       id: deploySMKContainer
       with:
         OPENSHIFT_SERVER_URL: ${{ secrets.OPENSHIFT_SERVER_URL }}
         OPENSHIFT_TOKEN_DEV: ${{ secrets.OPENSHIFT_TOKEN_DEV }}
-        OPENSHIFT_TOKEN_PROD: ${{ secrets.OPENSHIFT_TOKEN_PROD }}
         GHCR_USER: ${{ secrets.GHCR_USER }}
         GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
         DOCKER_REGISTRY: 'docker.pkg.github.com'
