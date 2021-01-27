@@ -22,6 +22,13 @@ The request comes with 4 actual namespaces:
 Multiple smk apps will be deployed to the namespace that is acquired in this
 step.
 
+# Configure a Github Service Account
+
+Flow is currently configured to store docker images in github packages.  For some reason
+github needs to authenticate when pulling an image even when its a public image.  For this
+reason a service account that has permissions to pull images needs to be configured.  The
+service account also needs to have the ability to update issues associated with pull requests.
+
 # Run init helm chart
 
 A smk_namespace helm chart has been created that will add objects to the
@@ -37,7 +44,6 @@ namespace that are re-used by each helm chart.
 
 To deploy an app to the openshift namespace the following steps need to be taken
 
-1. populate the oc secrets in github
 1. populate the github repository with the following secrets:
 
     * GHCR_TOKEN : The personal access key that is used to pull the image from github packages to openshift (Github needs credentials to access images)
@@ -45,6 +51,17 @@ To deploy an app to the openshift namespace the following steps need to be taken
     * OPENSHIFT_SERVER_URL: The url to the openshift instance
     * OPENSHIFT_TOKEN_DEV: The api key for the service account created in openshift.  This is the token that allows github actions to communicate with openshift
 
-1. For now, the .github folder and the helm-charts folders need to be copied into the repository.
+1. Copy the contents of the folder (HERE) to .github/workflows in your project
+
+1. Either create your own docker file or copy the dockerfile defined (HERE).
+
+# Test 
+
+To test, merge the changes you made above to the master branch, then make a trivial 
+change, (edit readme or something), commit, and push to dev branch, then issue a pull
+request, wait for it to complete, test the url that gets put in the issues, and finally
+if it looks good deploy.
 
 
+
+# MOVE THIS TO THE ACTIONS FOLDER
