@@ -5,7 +5,7 @@
 #
 # https://github.community/t/run-action-only-when-a-pr-is-merged/18268
 
-# name: DEPLOYProd
+name: deploy prod
 on:
   pull_request:
     branches: 
@@ -14,6 +14,7 @@ on:
       - closed
       
 # debugging
+# -------------
 # on: 
 #   push:
 #     branches: ['dev', 'smk-cdci']
@@ -35,136 +36,23 @@ jobs:
       GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
 
     steps:
-    
     # CHECKOUT THE CODE
+    #
     - uses: actions/checkout@v2
       id: checkout
       with:
         fetch-depth: 0
 
-    # LOGGING INTO OC DEV
-    - name: OpenShift Action
-      id: GHAOCAuthenticationDev
-      uses: redhat-developer/openshift-actions@v1.1
-      if: env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != ''
+    - name: deploying prod
+      #uses: ./comp-actions/smk-deploy
+      uses: bcgov/smk-actions/smk-deploy@main
+      id: deploySMKContainer
       with:
-        version: '3.11.232'
-        openshift_server_url: ${{ secrets.OPENSHIFT_SERVER_URL }}
-        parameters: '{"apitoken": "${{ secrets.OPENSHIFT_TOKEN_DEV }}", "acceptUntrustedCerts": "true"}'
-        cmd: 'version'
-
-    # GETTING THE IMAGE TAG FROM DEV OC
-    - name: Retrieve tag from the artifacts
-      id: retrieveimagetag
-      if: env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != ''
-      run: |
-        # outputs:
-        # --------------------------------------------------------
-        # steps.retrieveimagetag.outputs.REPONAME
-        # steps.retrieveimagetag.outputs.IMAGE_TAG
-        # steps.retrieveimagetag.outputs.DOCKER_VERSION_TAG
-        # steps.retrieveimagetag.outputs.IMAGE_REGISTRY
-        #
-        # Calculate the repo name
-        # --------------------------------------------------------
-        REPOANDORG=${{ github.repository }}
-        REPONAME=$(basename "${REPOANDORG}")
-        echo reponame $REPONAME
-        echo ::set-output name=REPONAME::${REPONAME}
-
-        # the path to the image registry
-        # ---------------------------------------------------------
-        IMAGE_REGISTRY=docker.pkg.github.com/${{ github.repository_owner }}/$REPONAME/$REPONAME
-        echo ::set-output name=IMAGE_REGISTRY::${IMAGE_REGISTRY}
-
-        # retrieve the image tag from the configmap in the dev 
-        # namespace
-        # --------------------------------------------------------
-        IMAGE_TAG_CONFMAP_NAME=$REPONAME-imagetag-cm
-        CONFMAPIMAGETAG=current_image_tag
-        echo image name $IMAGE_TAG_CONFMAP_NAME
-        IMAGE_TAG=$(oc get configmap $IMAGE_TAG_CONFMAP_NAME  -o json | jq .data.$CONFMAPIMAGETAG)
-        echo ::set-output name=DOCKER_VERSION_TAG::${IMAGE_TAG}
-        echo image tag $IMAGE_TAG
-
-        # ---- retrieve the image tag from where it was cached in a configmap during the build
-        #      stage, and exporting it to a variable so its available to other deployment
-        #      steps
-        # ---------------------------------------------------------
-        IMAGE_TAG_CONFMAP_NAME=$REPONAME-imagetag-cm
-        CONFMAPIMAGETAG=current_image_tag
-        echo image name $IMAGE_TAG_CONFMAP_NAME
-        IMAGE_TAG=$(oc get configmap $IMAGE_TAG_CONFMAP_NAME  -o json | jq .data.$CONFMAPIMAGETAG)
-        echo ::set-output name=DOCKER_VERSION_TAG::${IMAGE_TAG}
-        echo image tag $IMAGE_TAG
-
-
-    # APPLY THE RELEASE TAG TO THE MERGED COMMIT
-    - name: Apply the tag to release
-      id: applyreleasetag
-      if: env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_DEV != '' && env.GHCR_TOKEN != ''
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GHCR_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-      with:
-        tag_name: ${{ steps.retrieveimagetag.outputs.DOCKER_VERSION_TAG }}
-        release_name: Release ${{ steps.retrieveimagetag.outputs.DOCKER_VERSION_TAG }}
-        body: |
-          automatically created release tag
-        draft: false
-        prerelease: false
-    
-    # LOGGING INTO OC PROD
-    - name: OpenShift Action
-      id: GHAOCAuthenticationPrd
-      uses: redhat-developer/openshift-actions@v1.1
-      if: env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_PROD != ''
-      with:
-        version: '3.11.232'
-        openshift_server_url: ${{ secrets.OPENSHIFT_SERVER_URL }}
-        parameters: '{"apitoken": "${{ secrets.OPENSHIFT_TOKEN_PROD }}", "acceptUntrustedCerts": "true"}'
-        cmd: 'version'
-    
-    # DEPLOY TO PROD
-    - name: Deploy to prod
-      id: proddeploy
-      if: env.OPENSHIFT_SERVER_URL != '' && env.OPENSHIFT_TOKEN_PROD != ''
-      run: |
-        # ---- get the oc namespace name and set the namespace, verify that the project
-        #      that is being pointed to is the correct one or raise an error
-        OC_NAMESPACE_NAMES_CONFIG_MAP=namespaces-cm
-        OCPRODNAMESPACE=$(oc get configmap $OC_NAMESPACE_NAMES_CONFIG_MAP  -o json | jq .data.prod | tr -d '"')
-        echo namespace $OCPRODNAMESPACE
-        oc project $OCPRODNAMESPACE
-        project=$(oc project --short=true)
-        if [ "$project" != "$OCPRODNAMESPACE" ]
-          then
-              exit 1
-        fi
-
-        EMAIL=${{ steps.retrieveimagetag.outputs.EMAIL }}
-        DOCKER_VERSION_TAG=${{ steps.retrieveimagetag.outputs.DOCKER_VERSION_TAG }}
-        IMAGE_REGISTRY=${{ steps.retrieveimagetag.outputs.IMAGE_REGISTRY }}
-        REPONAME=${{ steps.retrieveimagetag.outputs.REPONAME }}
-        IMAGE_PULL_SECRET_NAME=${REPONAME}-image-pull-secret
-
-        # extract deploy name from the template
-        #helm upgrade $REPONAME ./helm-charts --install \
-        helm repo add smk-helms https://bcgov.github.io/smk-helms/
-        helm upgrade $REPONAME smk-helms/smk-app-deploy --install \
-           --set app_name=$REPONAME \
-           --set env=prd \
-           --set app_image_pull_secret_params.email=$EMAIL \
-           --set app_image_pull_secret_params.password=$GHCR_TOKEN \
-           --set app_image_pull_secret_params.name=$IMAGE_PULL_SECRET_NAME \
-           --set app_image_pull_secret_params.imagetag=$DOCKER_VERSION_TAG \
-           --set app_image_pull_secret_params.registry=$IMAGE_REGISTRY
-
-    # Configure Kong route
-    - name: Kong config
-      id: prodRouteDeploy
-      run: |
-         echo not enabled atm
-
-    # Add the url that was created by the kong action and add it to the issue
-    # Add a comment to the issue to say that it has been deployed successfully
+        OPENSHIFT_SERVER_URL: ${{ secrets.OPENSHIFT_SERVER_URL }}
+        OPENSHIFT_TOKEN_DEV: ${{ secrets.OPENSHIFT_TOKEN_DEV }}
+        OPENSHIFT_TOKEN_PROD: ${{ secrets.OPENSHIFT_TOKEN_PROD }}
+        GHCR_USER: ${{ secrets.GHCR_USER }}
+        GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+        DOCKER_REGISTRY: 'docker.pkg.github.com'
+        PR_REVIEWERS: '["GuyTheFlower", "NicoledeGreef"]'
+        PR_MENTIONS: '["GuyTheFlower", "NicoledeGreef", "franTarkenton"]'
