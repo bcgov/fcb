@@ -48,7 +48,7 @@ jobs:
 
     - name: Building image
       #uses: ./comp-actions/smk-build
-      uses: bcgov/smk-actions/smk-build@V1
+      uses: bcgov/smk-actions/smk-build@main
       id: buildSMKImage
       with:
         OPENSHIFT_SERVER_URL: ${{ secrets.OPENSHIFT_SERVER_URL }}
@@ -59,7 +59,7 @@ jobs:
 
     - name: deploying dev
       #uses: ./comp-actions/smk-deploy
-      uses: bcgov/smk-actions/smk-deploy@V1
+      uses: bcgov/smk-actions/smk-deploy@main
       id: deploySMKContainer
       with:
         OPENSHIFT_SERVER_URL: ${{ secrets.OPENSHIFT_SERVER_URL }}
