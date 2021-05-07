@@ -4,16 +4,16 @@
         "type": "leaflet",
         "location": {
             "center": [
-                -122.9895917453736,
-                51.41171838847685
+                -123.94801990672502,
+                54.12541932363571
             ],
             "extent": [
-                -128.31906174795395,
-                48.63703972030068,
-                -117.6601217427933,
-                54.027666366662565
+                -134.00178443282715,
+                48.199534989044665,
+                -113.89270749939793,
+                59.30979338550225
             ],
-            "zoom": 6.260255380664843
+            "zoom": 5.344472495686331
         },
         "baseMap": "Streets",
         "device": "mobile"
@@ -1525,7 +1525,7 @@
             "position": "list-menu",
             "icon": "help",
             "title": "À propos de cette application",
-            "content": "<div lang=\"EN-CA\" style=\"font-size:10.0pt;line-height:115%;mso-ascii-font-family:Calibri;mso-fareast-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:Calibri;mso-bidi-font-family:Arial;mso-ansi-language:EN-CA;mso-fareast-language:FR-CA\">\n<div>\n<p class=\"MsoNormal\" style=\"background:white\">\n<font face=\"Arial\">\nCette carte vous permet de repérer les ressources et les services en français offerts en Colombie-Britannique. Six domaines y sont affichés sous forme de couches successives et permettent une recherche par sujet, par catégorie et par zone géographique. À partir du menu, vous pouvez utiliser l’outil de la carte pour l’afficher en plans plus rapprochés (zoom) ou pour la voir en mode panoramique.<br> \n<br>\nVous pouvez vous concentrer sur une ou plusieurs couches à la fois avec le menu \"domaines de la carte\". Vous pouvez aussi effectuer une recherche à partir du menu \"recherche par catégorie\" ou à l’intérieur d’une zone géographique précise, sous \"chercher à proximité\".<br> \n<br>\nUne fois que vous aurez trouvé un service, cliquez sur le marqueur de la carte pour obtenir de l’information à son sujet et en connaître l’emplacement. Les lieux offrant plusieurs services s’afficheront avec plusieurs marqueurs.<br> \n<br>\n<img src=\"assets/cluster.PNG\">&nbsp;&nbsp;Les chiffres qui figurent dans un cercle représentent un groupement de ressources.  Cliquez sur le cercle ou rapprochez l’affichage pour les voir.</font></p></div>\n</div>",
+            "content": "<div lang=\"EN-CA\" style=\"font-size:10.0pt;line-height:115%;mso-ascii-font-family:Calibri;mso-fareast-font-family:&quot;Times New Roman&quot;;mso-hansi-font-family:Calibri;mso-bidi-font-family:Arial;mso-ansi-language:EN-CA;mso-fareast-language:FR-CA\">\n<div>\n<p class=\"MsoNormal\" style=\"background:white\">\n<font face=\"Arial\">\nCette carte vous permet de repérer les ressources et les services en français offerts en Colombie-Britannique. Six domaines y sont affichés sous forme de couches successives et permettent une recherche par sujet, par catégorie et par zone géographique. À partir du menu, vous pouvez utiliser l’outil de la carte pour l’afficher en plans plus rapprochés (zoom) ou pour la voir en mode panoramique.<br> \n<br>\nVous pouvez vous concentrer sur une ou plusieurs couches à la fois avec le menu \"domaines de la carte\". Vous pouvez aussi effectuer une recherche à partir du menu \"recherche par catégorie\" ou à l’intérieur d’une zone géographique précise, sous \"chercher à proximité\".<br> \n<br>\nUne fois que vous aurez trouvé un service, cliquez sur le marqueur de la carte pour obtenir de l’information à son sujet et en connaître l’emplacement. Les lieux offrant plusieurs services s’afficheront avec plusieurs marqueurs.<br> \n<br>\n<img src=\"assets/cluster.PNG\">&nbsp;&nbsp;Les chiffres qui figurent dans un cercle représentent un groupement de ressources.  Cliquez sur le cercle ou rapprochez l’affichage pour les voir.</font></p>\n\n<p class=\"MsoNormal\" style=\"background:white\"><font face=\"Arial\">Click <a href=\"https://smk-fap-bcfls.api.gov.bc.ca/\" target=\"new\">here</a> to launch the English language version of this map.</font></p><p class=\"MsoNormal\" style=\"background:white\">\n\n</div>\n</div>",
             "type": "about",
             "enabled": true
         },
