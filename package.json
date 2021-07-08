@@ -4,7 +4,7 @@
     "description": "francophone map french",
     "author": "NEDGREEF",
     "dependencies": {
-        "smk": "^1.0.0-beta.9"
+        "@bcgov/smk": "1.0.4"
     },
     "scripts": {
         "view": "http-server -o -c-1"
