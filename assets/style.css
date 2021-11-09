@@ -55,8 +55,3 @@ footer {
     margin: 0;
     padding: 0;
 }
-
-/* Prevent highlighting when hovering on the legend */
-.smk-status.smk-elastic-container .smk-elastic-frame.smk-legend-status {
-    pointer-events: none;
-}
